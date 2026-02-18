@@ -1,0 +1,145 @@
+############################
+# OS / Editor / IDE
+############################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+.idea/
+*.iml
+
+############################
+# .NET / C# (Visual Studio, Rider)
+############################
+# Build outputs
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS folders
+.vs/
+
+# Rider
+.idea/
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# dotnet tools / local cache
+.dotnet/
+artifacts/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ASP.NET logs
+logs/
+*.log
+
+############################
+# Next.js / Node.js / TypeScript
+############################
+node_modules/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.yarnrc.yml
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js build outputs
+.next/
+out/
+dist/
+build/
+
+# TS build info
+*.tsbuildinfo
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# Coverage
+coverage/
+.nyc_output/
+
+############################
+# Docker
+############################
+# Local docker data
+docker-data/
+**/docker-data/
+
+# Compose override files
+docker-compose.override.yml
+
+# Docker logs
+*.log
+
+############################
+# Secrets / Certificates
+############################
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+
+############################
+# Databases / local volumes
+############################
+*.db
+*.sqlite
+*.sqlite3
+
+# ClickHouse / Postgres / Mongo volumes
+data/
+volumes/
+mongo-data/
+postgres-data/
+clickhouse-data/
+redis-data/
+
+############################
+# Misc
+############################
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+############################
+# lockfiles
+############################
+package-lock.json
+

@@ -1,0 +1,6 @@
+@Enma.Analytics_HostAddress = http://localhost:5161
+
+GET {{Enma.Analytics_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

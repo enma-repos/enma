@@ -1,0 +1,114 @@
+# Services only. Infra (db/broker/redis/etc.) lives in compose.infra.yml
+name: enma
+
+services:
+  api-gateway:
+    build:
+      context: ../..
+      dockerfile: backend/services/api-gateway/src/Enma.ApiGateway.Api/Dockerfile
+    container_name: enma-api-gateway
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8080:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+    
+  sdk-api-gateway:
+    build:
+      context: ../..
+      dockerfile: backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Dockerfile
+    container_name: enma-sdk-api-gateway
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8090:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  analytics:
+    build:
+      context: ../..
+      dockerfile: backend/services/analytics/src/Enma.Analytics.Api/Dockerfile
+    container_name: enma-analytics
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8081:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  auth:
+    build:
+      context: ../..
+      dockerfile: backend/services/auth/src/Enma.Auth.Api/Dockerfile
+    container_name: enma-auth
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8082:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  ingest:
+    build:
+      context: ../..
+      dockerfile: backend/services/ingest/src/Enma.Ingest.Api/Dockerfile
+    container_name: enma-ingest
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8083:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  project:
+    build:
+      context: ../..
+      dockerfile: backend/services/project/src/Enma.Project.Api/Dockerfile
+    container_name: enma-project
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "8084:8080"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  bucket-builder:
+    build:
+      context: ../..
+      dockerfile: backend/services/bucket-builder/src/Enma.BucketBuilder.Worker/Dockerfile
+    container_name: enma-bucket-builder
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - enma
+    restart: unless-stopped
+
+  event-processor:
+    build:
+      context: ../..
+      dockerfile: backend/services/event-processor/src/Enma.EventProcessor.Worker/Dockerfile
+    container_name: enma-event-processor
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - enma
+    restart: unless-stopped
+
+networks:
+  enma:
+    name: enma-net
+    driver: bridge
