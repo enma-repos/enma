@@ -18,9 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ingest", "ingest", "{4AA0FE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Ingest.Api", "services\ingest\src\Enma.Ingest.Api\Enma.Ingest.Api.csproj", "{BB96F584-19E3-425C-A7CF-AF5B4C63A420}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{CCDCED60-1450-4CE1-AA05-15B80DBA089A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "admin", "admin", "{CCDCED60-1450-4CE1-AA05-15B80DBA089A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Project.Api", "services\project\src\Enma.Project.Api\Enma.Project.Api.csproj", "{C2AE564D-F748-4C5C-9361-0CD38C9C8B37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Admin.Api", "services\admin\src\Enma.Admin.Api\Enma.Admin.Api.csproj", "{C2AE564D-F748-4C5C-9361-0CD38C9C8B37}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bucket-builder", "bucket-builder", "{6CC12BFC-E76F-4E09-AFF2-FAE0FC9C6B16}"
 EndProject
@@ -86,9 +86,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Ingest.Application", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Ingest.Infrastructure.RabbitMq", "services\ingest\src\Enma.Ingest.Infrastructure.RabbitMq\Enma.Ingest.Infrastructure.RabbitMq.csproj", "{9C09148C-DB79-4F72-98D7-B9D7D0FA0D6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Project.Application", "services\project\src\Enma.Project.Application\Enma.Project.Application.csproj", "{914EF08F-3968-4A3A-8AAE-35E07EDDC3A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Admin.Application", "services\admin\src\Enma.Admin.Application\Enma.Admin.Application.csproj", "{914EF08F-3968-4A3A-8AAE-35E07EDDC3A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Project.Persistence.Postgres", "services\project\src\Enma.Project.Persistence.Postgres\Enma.Project.Persistence.Postgres.csproj", "{7E6B2003-0AE7-4EB1-8113-60CC022C8E86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Admin.Persistence.Postgres", "services\admin\src\Enma.Admin.Persistence.Postgres\Enma.Admin.Persistence.Postgres.csproj", "{7E6B2003-0AE7-4EB1-8113-60CC022C8E86}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Common", "shared\src\Enma.Common\Enma.Common.csproj", "{9A15F6FA-F6A5-4CA1-AA15-FD9826A248A7}"
 EndProject
