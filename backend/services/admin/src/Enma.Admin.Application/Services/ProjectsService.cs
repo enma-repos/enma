@@ -1,0 +1,14 @@
+using Enma.Admin.Application.Abstractions;
+using Enma.Admin.Application.Contracts;
+
+namespace Enma.Admin.Application.Services;
+
+internal sealed class ProjectsService : IProjectsService
+{
+    private readonly IProjectsRepository _projectsRepository;
+
+    public ProjectsService(IProjectsRepository projectsRepository)
+    {
+        _projectsRepository = projectsRepository;
+    }
+}
