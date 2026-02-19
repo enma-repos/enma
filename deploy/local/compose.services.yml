@@ -72,11 +72,11 @@ services:
       - enma
     restart: unless-stopped
 
-  project:
+  admin:
     build:
       context: ../..
-      dockerfile: backend/services/project/src/Enma.Project.Api/Dockerfile
-    container_name: enma-project
+      dockerfile: backend/services/admin/src/Enma.Admin.Api/Dockerfile
+    container_name: enma-admin
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Development"
