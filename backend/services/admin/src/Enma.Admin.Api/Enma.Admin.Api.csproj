@@ -19,10 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Enma.Admin.Application\Enma.Admin.Application.csproj" />
       <ProjectReference Include="..\Enma.Admin.Persistence.Postgres\Enma.Admin.Persistence.Postgres.csproj" />
     </ItemGroup>
