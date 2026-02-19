@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13"/>
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -19,6 +20,11 @@
 
     <ItemGroup>
       <Folder Include="Controllers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Enma.Admin.Application\Enma.Admin.Application.csproj" />
+      <ProjectReference Include="..\Enma.Admin.Persistence.Postgres\Enma.Admin.Persistence.Postgres.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,3 +1,5 @@
+using Enma.Admin.Persistence.Postgres.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +12,8 @@ builder.Services.AddCors(o =>
             .AllowAnyMethod()
     );
 });
+
+builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
