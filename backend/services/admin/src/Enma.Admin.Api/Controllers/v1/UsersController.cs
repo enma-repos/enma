@@ -5,7 +5,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("/api/v1/")]
 [ApiController]
-internal sealed class UsersController(IUsersService usersService) : ControllerBase
+public sealed class UsersController(IUsersService usersService) : ControllerBase
 {
     
 }

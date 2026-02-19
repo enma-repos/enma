@@ -5,7 +5,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("/api/v1/")]
 [ApiController]
-internal sealed class AuditLogsController(IAuditLogsService auditLogsService) : ControllerBase
+public sealed class AuditLogsController(IAuditLogsService auditLogsService) : ControllerBase
 {
     
 }

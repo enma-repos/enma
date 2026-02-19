@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
-[Route("/api/v1/")]
+[Route("api/v1/")]
 [ApiController]
-internal sealed class ApiKeysController(IApiKeysService apiKeysService) : ControllerBase
+public sealed class ApiKeysController(IApiKeysService apiKeysService) : ControllerBase
 {
-    
+    [HttpGet("ping")]
+    public IActionResult Ping()
+    {
+        return Ok("pong");
+    }
 }

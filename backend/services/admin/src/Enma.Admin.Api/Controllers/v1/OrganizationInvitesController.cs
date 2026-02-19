@@ -5,7 +5,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("/api/v1/")]
 [ApiController]
-internal sealed class OrganizationInvitesController(IOrganizationInvitesService organizationInvitesService) 
+public sealed class OrganizationInvitesController(IOrganizationInvitesService organizationInvitesService) 
     : ControllerBase
 {
     

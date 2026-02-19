@@ -5,7 +5,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("/api/v1/")]
 [ApiController]
-internal sealed class SdkClientsController(ISdkClientsService sdkClientsService) : ControllerBase
+public sealed class SdkClientsController(ISdkClientsService sdkClientsService) : ControllerBase
 {
     
 }
