@@ -30,4 +30,18 @@ public sealed class OrganizationMember
 
     internal static OrganizationMember Rehydrate(Guid orgId, Guid userId, OrganizationRole role, DateTime now)
         => new(orgId, userId, role, now);
+
+    public static OrganizationMember Rehydrate(Guid orgId, Guid userId, OrganizationRole role,
+        OrganizationMemberStatus status, DateTime joinedAt, DateTime updatedAt)
+    {
+        return new OrganizationMember
+        {
+            OrganizationId = orgId,
+            UserId = userId,
+            Role = role,
+            Status = status,
+            JoinedAt = joinedAt,
+            UpdatedAt = updatedAt
+        };
+    }
 }

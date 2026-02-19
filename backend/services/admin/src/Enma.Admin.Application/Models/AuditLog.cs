@@ -72,7 +72,7 @@ public sealed class AuditLog
             ip, payload, createdAt));
     }
 
-    internal static AuditLog Rehydrate(Guid id, Guid orgId, Guid? projectId, Guid? actorUserId, string action,
+    public static AuditLog Rehydrate(Guid id, Guid orgId, Guid? projectId, Guid? actorUserId, string action,
         string resourceType, string resourceId, IPAddress? ip, JsonObject? payload, DateTime createdAt)
     {
         return new AuditLog

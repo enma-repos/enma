@@ -63,7 +63,7 @@ public sealed class Organization
         return Result.Ok(new Organization(id, name, description, slugResult.Value, ownerUserId, createdByUserId, createdAt));
     }
 
-    internal static Organization Rehydrate(Guid id, string name, string? description, string slug, 
+    public static Organization Rehydrate(Guid id, string name, string? description, string slug, 
         Guid ownerUserId, Guid createdByUserId, DateTime createdAt, DateTime updatedAt, DateTime? deletedAt)
     {
         return new Organization

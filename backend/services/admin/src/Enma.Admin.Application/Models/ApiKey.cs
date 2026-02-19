@@ -50,15 +50,8 @@ public sealed class ApiKey
         return Result.Ok(new ApiKey(id, sdkClientId, keyPrefix, keyHash, createdAt));
     }
     
-    internal static ApiKey Rehydrate(
-        Guid id,
-        Guid sdkClientId,
-        string keyPrefix,
-        string keyHash,
-        long sentEventsCount,
-        DateTime createdAt,
-        DateTime? lastUsedAt,
-        DateTime? revokedAt)
+    public static ApiKey Rehydrate(Guid id, Guid sdkClientId, string keyPrefix, string keyHash, long sentEventsCount,
+        DateTime createdAt, DateTime? lastUsedAt, DateTime? revokedAt)
     {
         return new ApiKey
         {

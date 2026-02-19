@@ -13,7 +13,7 @@ public sealed class OrganizationInvite
     public EmailAddress TargetEmail { get; private set; }
     public OrganizationRole Role { get; private set; }
 
-    internal string TokenHash { get; private set; } = null!;
+    public string TokenHash { get; private set; } = null!;
 
     public DateTime ExpiresAt { get; private set; }
 
@@ -65,7 +65,7 @@ public sealed class OrganizationInvite
             acceptedAt));
     }
     
-    internal static OrganizationInvite Rehydrate(Guid id, Guid orgId, string email, OrganizationRole role, 
+    public static OrganizationInvite Rehydrate(Guid id, Guid orgId, string email, OrganizationRole role, 
         string tokenHash, Guid createdByUserId, Guid? acceptedUserId, DateTime createdAt, DateTime expiresAt, 
         DateTime? acceptedAt)
     {

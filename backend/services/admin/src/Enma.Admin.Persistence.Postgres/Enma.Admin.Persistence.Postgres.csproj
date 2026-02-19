@@ -18,4 +18,8 @@
       <ProjectReference Include="..\Enma.Admin.Application\Enma.Admin.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Mappers\" />
+    </ItemGroup>
+
 </Project>

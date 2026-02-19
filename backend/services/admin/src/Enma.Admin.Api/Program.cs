@@ -1,29 +1,27 @@
+using Enma.Admin.Application.Extensions;
 using Enma.Admin.Persistence.Postgres.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("OpenApiCors", p =>
-        p.WithOrigins("http://localhost:8080") // где крутится Scalar (gateway)
+        p.WithOrigins("http://localhost:8080") // gateway
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
 });
 
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1");
 
 var app = builder.Build();
 
 app.UseCors();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi().RequireCors("OpenApiCors");;

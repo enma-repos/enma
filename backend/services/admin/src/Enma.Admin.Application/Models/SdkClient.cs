@@ -57,7 +57,7 @@ public sealed class SdkClient
         return Result.Ok(new SdkClient(id, projectId, name, description, type, settings, createdAt));
     }
     
-    internal static SdkClient Rehydrate(Guid id, Guid projectId, string name, string? description, SdkClientType type,
+    public static SdkClient Rehydrate(Guid id, Guid projectId, string name, string? description, SdkClientType type,
         JsonObject? settings, DateTime createdAt, DateTime updatedAt, DateTime? disabledAt)
     {
         return new SdkClient

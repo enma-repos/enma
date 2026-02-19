@@ -75,7 +75,7 @@ public sealed class Project
             createdAt));
     }
     
-    internal static Project Rehydrate(Guid id, Guid orgId, string name, string key, string? description, bool isStared,
+    public static Project Rehydrate(Guid id, Guid orgId, string name, string key, string? description, bool isStared,
         Guid createdByUserId, JsonObject? settings, DateTime createdAt, DateTime updatedAt, DateTime? archivedAt,
         DateTime? deletedAt)
     {

@@ -29,4 +29,17 @@ public sealed class ProjectMember
     
     internal static ProjectMember Rehydrate(Guid projectId, Guid userId, ProjectRole role, DateTime joinedAt)
         => new(projectId, userId, role, joinedAt);
+
+    public static ProjectMember Rehydrate(Guid projectId, Guid userId, ProjectRole role, DateTime joinedAt,
+        DateTime updatedAt)
+    {
+        return new ProjectMember
+        {
+            ProjectId = projectId,
+            UserId = userId,
+            Role = role,
+            JoinedAt = joinedAt,
+            UpdatedAt = updatedAt
+        };
+    }
 }

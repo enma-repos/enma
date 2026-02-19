@@ -42,7 +42,7 @@ public sealed class User
         return Result.Ok(new User(accountId, displayName, avatarUrl, locale, timezone, createdAt));
     }
     
-    internal static User Rehydrate(Guid id, string displayName, string? avatarUrl, string? locale, string? timezone, 
+    public static User Rehydrate(Guid id, string displayName, string? avatarUrl, string? locale, string? timezone, 
         DateTime createdAt, DateTime updatedAt, DateTime? deletedAt)
     {
         return new User
