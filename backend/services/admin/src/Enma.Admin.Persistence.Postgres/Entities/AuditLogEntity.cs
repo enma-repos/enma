@@ -23,5 +23,5 @@ internal sealed class AuditLogEntity
     public IPAddress? Ip { get; set; }
     public JsonObject? Payload { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

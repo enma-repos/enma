@@ -10,12 +10,15 @@
       <Folder Include="Abstractions\" />
       <Folder Include="Dto\" />
       <Folder Include="Extensions\" />
-      <Folder Include="Models\" />
       <Folder Include="Services\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="FluentResults" Version="4.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Common\Enma.Common.csproj" />
     </ItemGroup>
 
 </Project>

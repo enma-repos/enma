@@ -5,14 +5,14 @@ internal sealed class ApiKeyEntity
     public Guid Id { get; set; }
 
     public Guid SdkClientId { get; set; }
-    public SdkClientEntity? ApiClient { get; set; }
+    public SdkClientEntity? SdkClient { get; set; }
     
     public required string KeyPrefix { get; set; }
     public required string KeyHash { get; set; }
 
     public long SentEventsCount { get; set; } = 0;
 
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset? LastUsedAt { get; set; }
-    public DateTimeOffset? RevokedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? LastUsedAt { get; set; }
+    public DateTime? RevokedAt { get; set; }
 }

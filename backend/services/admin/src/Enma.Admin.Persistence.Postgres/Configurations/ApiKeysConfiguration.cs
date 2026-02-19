@@ -22,7 +22,7 @@ internal sealed class ApiKeysConfiguration : IEntityTypeConfiguration<ApiKeyEnti
         builder.HasIndex(x => x.SdkClientId);
         builder.HasIndex(x => x.KeyHash).IsUnique();
 
-        builder.HasOne(x => x.ApiClient)
+        builder.HasOne(x => x.SdkClient)
             .WithMany(c => c.Keys)
             .HasForeignKey(x => x.SdkClientId)
             .OnDelete(DeleteBehavior.Cascade);
