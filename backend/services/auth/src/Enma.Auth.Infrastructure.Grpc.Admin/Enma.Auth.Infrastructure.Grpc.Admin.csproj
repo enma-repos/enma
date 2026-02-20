@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Clients\" />
+      <Folder Include="Extensions\" />
+      <Folder Include="Interceptors\" />
+      <Folder Include="Mapping\" />
+      <Folder Include="Options\" />
+      <Folder Include="Protos\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Enma.Auth.Application\Enma.Auth.Application.csproj" />
+    </ItemGroup>
+
+</Project>

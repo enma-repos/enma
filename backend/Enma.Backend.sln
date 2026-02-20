@@ -98,6 +98,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.ApiGateway.Sdk.Api", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Api.Shared", "shared\src\Enma.Api.Shared\Enma.Api.Shared.csproj", "{DB6E0A33-2D90-47C6-B0EE-CFE6CF3AC027}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Auth.Infrastructure.Security", "services\auth\src\Enma.Auth.Infrastructure.Security\Enma.Auth.Infrastructure.Security.csproj", "{20F8CCCF-DF99-456B-9232-6C178C50D97B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Auth.Infrastructure.ExternalAuth.Google", "services\auth\src\Enma.Auth.Infrastructure.ExternalAuth.Google\Enma.Auth.Infrastructure.ExternalAuth.Google.csproj", "{2DC8D68B-E0C3-46C5-B980-FEA907A5857A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Auth.Infrastructure.Grpc.Admin", "services\auth\src\Enma.Auth.Infrastructure.Grpc.Admin\Enma.Auth.Infrastructure.Grpc.Admin.csproj", "{4F612745-3054-4335-A845-1F6790C8F022}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -204,6 +210,18 @@ Global
 		{DB6E0A33-2D90-47C6-B0EE-CFE6CF3AC027}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB6E0A33-2D90-47C6-B0EE-CFE6CF3AC027}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB6E0A33-2D90-47C6-B0EE-CFE6CF3AC027}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20F8CCCF-DF99-456B-9232-6C178C50D97B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20F8CCCF-DF99-456B-9232-6C178C50D97B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20F8CCCF-DF99-456B-9232-6C178C50D97B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20F8CCCF-DF99-456B-9232-6C178C50D97B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F612745-3054-4335-A845-1F6790C8F022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F612745-3054-4335-A845-1F6790C8F022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F612745-3054-4335-A845-1F6790C8F022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F612745-3054-4335-A845-1F6790C8F022}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3F2DB3B3-1D9B-4FCA-9E50-86DFD49D9B25} = {8DC217B0-CBCE-4CA9-8A9A-DB7DE1F7DD00}
@@ -253,5 +271,8 @@ Global
 		{9A15F6FA-F6A5-4CA1-AA15-FD9826A248A7} = {56AA2B56-7631-4200-B373-35B023A5B422}
 		{9FFDFF74-21BE-4A72-8619-C58CF096D17B} = {3EE4E20C-746B-4578-873E-978669F34AD9}
 		{DB6E0A33-2D90-47C6-B0EE-CFE6CF3AC027} = {56AA2B56-7631-4200-B373-35B023A5B422}
+		{20F8CCCF-DF99-456B-9232-6C178C50D97B} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
+		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
+		{4F612745-3054-4335-A845-1F6790C8F022} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
 	EndGlobalSection
 EndGlobal

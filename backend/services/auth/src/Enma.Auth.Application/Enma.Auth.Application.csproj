@@ -6,4 +6,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Contracts\Infrastructure\ExternalAuth\Google\" />
+      <Folder Include="Contracts\Infrastructure\Grpc\Admin\" />
+      <Folder Include="Contracts\Infrastructure\Security\" />
+      <Folder Include="Dto\" />
+      <Folder Include="Extensions\" />
+      <Folder Include="ValueObjects\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Common\Enma.Common.csproj" />
+    </ItemGroup>
+
 </Project>
