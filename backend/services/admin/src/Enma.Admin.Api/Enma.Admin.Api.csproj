@@ -21,6 +21,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Enma.Admin.Application\Enma.Admin.Application.csproj" />
       <ProjectReference Include="..\Enma.Admin.Persistence.Postgres\Enma.Admin.Persistence.Postgres.csproj" />
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Api.Shared\Enma.Api.Shared.csproj" />
     </ItemGroup>
 
 </Project>

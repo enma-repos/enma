@@ -36,6 +36,6 @@ internal sealed class OrganizationInvitesConfiguration : IEntityTypeConfiguratio
         
         builder.HasIndex(x => new { x.OrganizationId, x.TargetEmail })
             .IsUnique()
-            .HasFilter("\"accepted_at\" IS NULL");
+            .HasFilter("\"AcceptedAt\" IS NULL");
     }
 }

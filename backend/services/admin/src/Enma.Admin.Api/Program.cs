@@ -1,7 +1,15 @@
 using Enma.Admin.Application.Extensions;
 using Enma.Admin.Persistence.Postgres.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("service", "enma-admin")
+    .CreateLogger();
+
+builder.Host.UseSerilog(Log.Logger, dispose: true);
 
 builder.Services.AddCors(o =>
 {

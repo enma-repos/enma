@@ -8,8 +8,7 @@ services:
       dockerfile: backend/services/api-gateway/src/Enma.ApiGateway.Api/Dockerfile
     container_name: enma-api-gateway
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8080:8080"
     networks:
@@ -22,8 +21,7 @@ services:
       dockerfile: backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Dockerfile
     container_name: enma-sdk-api-gateway
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8090:8080"
     networks:
@@ -36,8 +34,7 @@ services:
       dockerfile: backend/services/analytics/src/Enma.Analytics.Api/Dockerfile
     container_name: enma-analytics
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8081:8080"
     networks:
@@ -50,8 +47,7 @@ services:
       dockerfile: backend/services/auth/src/Enma.Auth.Api/Dockerfile
     container_name: enma-auth
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8082:8080"
     networks:
@@ -64,8 +60,7 @@ services:
       dockerfile: backend/services/ingest/src/Enma.Ingest.Api/Dockerfile
     container_name: enma-ingest
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8083:8080"
     networks:
@@ -78,13 +73,18 @@ services:
       dockerfile: backend/services/admin/src/Enma.Admin.Api/Dockerfile
     container_name: enma-admin
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
+
+      - Security__ApiKeyPepper=${API_KEY_PEPPER}
+      - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_admin;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
     ports:
       - "8084:8080"
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   bucket-builder:
     build:
@@ -92,7 +92,7 @@ services:
       dockerfile: backend/services/bucket-builder/src/Enma.BucketBuilder.Worker/Dockerfile
     container_name: enma-bucket-builder
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - enma
     restart: unless-stopped
@@ -103,7 +103,7 @@ services:
       dockerfile: backend/services/event-processor/src/Enma.EventProcessor.Worker/Dockerfile
     container_name: enma-event-processor
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - enma
     restart: unless-stopped
