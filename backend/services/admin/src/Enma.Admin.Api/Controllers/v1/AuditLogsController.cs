@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
-[Route("/api/v1/")]
+[Route("api/v1/organizations/{organizationId}/projects/{projectId}")]
 [ApiController]
 public sealed class AuditLogsController(IAuditLogsService auditLogsService) : ControllerBase
 {

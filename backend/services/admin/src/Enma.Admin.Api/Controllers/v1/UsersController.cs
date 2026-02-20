@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
-[Route("/api/v1/")]
+[Route("api/v1/users")]
 [ApiController]
 public sealed class UsersController(IUsersService usersService) : ControllerBase
 {
