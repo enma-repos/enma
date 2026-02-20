@@ -19,8 +19,8 @@ internal sealed class ApiKeysConfiguration : IEntityTypeConfiguration<ApiKeyEnti
             .HasMaxLength(256)
             .IsRequired();
 
-        builder.HasIndex(x => x.SdkClientId);
         builder.HasIndex(x => x.KeyHash).IsUnique();
+        builder.HasIndex(x => x.KeyPrefix);
 
         builder.HasOne(x => x.SdkClient)
             .WithMany(c => c.Keys)

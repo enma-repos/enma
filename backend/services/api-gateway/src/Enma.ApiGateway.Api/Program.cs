@@ -138,10 +138,11 @@ if (isEnvDevelopment)
     app.MapScalarApiReference(options =>
     {
         options.WithTitle("Enma API Gateway");
+        options.AddServer("http://localhost:8080", "Gateway");
         
         options
             .AddDocument("auth", "Auth API", "http://localhost:8082/openapi/v1.json", isDefault: true)
-            .AddDocument("project", "Project API", "http://localhost:8084/openapi/v1.json")
+            .AddDocument("admin", "Admin API", "http://localhost:8084/openapi/v1.json")
             .AddDocument("analytics", "Analytics API", "http://localhost:8081/openapi/v1.json");
     });
 }
