@@ -1,3 +1,5 @@
+using Enma.Auth.Infrastructure.ExternalAuth.Google.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +16,8 @@ builder.Services.AddCors(o =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1");
+
+builder.Services.AddGoogleAuth(builder.Configuration);
 
 var app = builder.Build();
 

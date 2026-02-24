@@ -17,4 +17,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Enma.Auth.Infrastructure.ExternalAuth.Google\Enma.Auth.Infrastructure.ExternalAuth.Google.csproj" />
+    </ItemGroup>
+
 </Project>

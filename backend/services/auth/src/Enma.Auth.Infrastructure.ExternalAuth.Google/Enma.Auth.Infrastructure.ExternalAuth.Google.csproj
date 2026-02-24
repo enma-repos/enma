@@ -11,12 +11,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dto\" />
-      <Folder Include="Extensions\" />
-      <Folder Include="Http\" />
-      <Folder Include="Mapping\" />
-      <Folder Include="Options\" />
-      <Folder Include="Services\" />
+      <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.13" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.13" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.13" />
     </ItemGroup>
 
 </Project>
