@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Interceptors\" />
+      <Folder Include="Utils\" />
       <Folder Include="Mapping\" />
     </ItemGroup>
 
