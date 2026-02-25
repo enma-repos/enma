@@ -3,10 +3,14 @@ using Enma.Auth.Infrastructure.ExternalAuth.Google.Extensions;
 using Enma.Auth.Infrastructure.Grpc.Admin.Extensions;
 using Enma.Auth.Infrastructure.Security.Extensions;
 using Enma.Auth.Persistence.Postgres.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("service", "enma-auth")
+    .CreateLogger();
 
 builder.Services.AddCors(o =>
 {
