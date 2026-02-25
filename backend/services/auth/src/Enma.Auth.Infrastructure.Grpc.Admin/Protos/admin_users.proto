@@ -11,6 +11,7 @@ import "google/protobuf/timestamp.proto";
 service AdminUsersService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc ExistsUser(ExistsUserRequest) returns (ExistsUserResponse);
 }
 
 message User {
