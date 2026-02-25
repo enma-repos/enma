@@ -7,16 +7,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Clients\" />
-      <Folder Include="Extensions\" />
       <Folder Include="Interceptors\" />
       <Folder Include="Mapping\" />
-      <Folder Include="Options\" />
-      <Folder Include="Protos\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Enma.Auth.Application\Enma.Auth.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.33.5" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
+      <PackageReference Include="Grpc.Net.ClientFactory" Version="2.76.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.78.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Protos\admin_users.proto" GrpcServices="Client" />
+    </ItemGroup>
+    
 </Project>

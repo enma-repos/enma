@@ -19,6 +19,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Enma.Auth.Infrastructure.ExternalAuth.Google\Enma.Auth.Infrastructure.ExternalAuth.Google.csproj" />
+      <ProjectReference Include="..\Enma.Auth.Infrastructure.Grpc.Admin\Enma.Auth.Infrastructure.Grpc.Admin.csproj" />
+      <ProjectReference Include="..\Enma.Auth.Infrastructure.Security\Enma.Auth.Infrastructure.Security.csproj" />
+      <ProjectReference Include="..\Enma.Auth.Persistence.Postgres\Enma.Auth.Persistence.Postgres.csproj" />
     </ItemGroup>
 
 </Project>

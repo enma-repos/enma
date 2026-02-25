@@ -20,4 +20,6 @@ internal sealed class AccountEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
+
+    public ICollection<ExternalAuthEntity> ExternalAuths { get; set; } = new List<ExternalAuthEntity>();
 }

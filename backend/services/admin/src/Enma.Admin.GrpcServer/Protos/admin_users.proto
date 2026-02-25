@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package enma.admin.users.v1;
+
+option csharp_namespace = "Enma.Grpc.Admin.Users.V1";
+
+import "google/protobuf/timestamp.proto";
+
+// Users API exposed by Enma.Admin for other services (e.g. Auth).
+// Primary use-case: create and read user profile by AccountId (shared id across services).
+service AdminUsersService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message User {
+  // Equals auth AccountId (shared id across services).
+  string account_id = 1;
+
+  string display_name = 2;
+  optional string avatar_url = 3;
+  optional string locale = 4;
+  optional string timezone = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  optional google.protobuf.Timestamp deleted_at = 8;
+}
+
+message CreateUserRequest {
+  // UUID string.
+  string account_id = 1;
+
+  string display_name = 2;
+  optional string avatar_url = 3;
+  optional string locale = 4;
+  optional string timezone = 5;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message GetUserRequest {
+  // UUID string.
+  string account_id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message ExistsUserRequest {
+  // UUID string.
+  string account_id = 1;
+}
+
+message ExistsUserResponse {
+  bool exists = 1;
+}

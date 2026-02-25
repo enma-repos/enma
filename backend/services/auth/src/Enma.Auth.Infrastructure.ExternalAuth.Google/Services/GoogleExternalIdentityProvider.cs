@@ -1,5 +1,6 @@
 using Enma.Auth.Application.Contracts.Infrastructure.ExternalAuth;
 using Enma.Auth.Application.Dto;
+using Enma.Auth.Application.Dto.External;
 using Enma.Auth.Infrastructure.ExternalAuth.Google.Abstractions;
 using Enma.Auth.Infrastructure.ExternalAuth.Google.Http;
 using FluentResults;

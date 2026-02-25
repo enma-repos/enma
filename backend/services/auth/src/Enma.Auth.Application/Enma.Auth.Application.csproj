@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Contracts\Infrastructure\Grpc\Admin\" />
-      <Folder Include="Contracts\Infrastructure\Security\" />
       <Folder Include="ValueObjects\" />
     </ItemGroup>
 

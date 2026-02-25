@@ -1,4 +1,4 @@
-namespace Enma.Auth.Application.Dto;
+namespace Enma.Auth.Application.Dto.External;
 
 public sealed record ExternalIdentityDto(
     string Provider,

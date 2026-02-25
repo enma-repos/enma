@@ -1,4 +1,5 @@
 using Enma.Auth.Application.Dto;
+using Enma.Auth.Application.Dto.External;
 using FluentResults;
 
 namespace Enma.Auth.Application.Contracts.Infrastructure.ExternalAuth;

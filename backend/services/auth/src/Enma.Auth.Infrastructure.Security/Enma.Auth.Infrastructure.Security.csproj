@@ -11,9 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions\" />
-      <Folder Include="Options\" />
-      <Folder Include="Services\" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.13" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.13" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
     </ItemGroup>
 
 </Project>

@@ -104,6 +104,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Auth.Infrastructure.Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Auth.Infrastructure.Grpc.Admin", "services\auth\src\Enma.Auth.Infrastructure.Grpc.Admin\Enma.Auth.Infrastructure.Grpc.Admin.csproj", "{4F612745-3054-4335-A845-1F6790C8F022}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Admin.GrpcServer", "services\admin\src\Enma.Admin.GrpcServer\Enma.Admin.GrpcServer.csproj", "{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -222,6 +224,10 @@ Global
 		{4F612745-3054-4335-A845-1F6790C8F022}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F612745-3054-4335-A845-1F6790C8F022}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F612745-3054-4335-A845-1F6790C8F022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3F2DB3B3-1D9B-4FCA-9E50-86DFD49D9B25} = {8DC217B0-CBCE-4CA9-8A9A-DB7DE1F7DD00}
@@ -274,5 +280,6 @@ Global
 		{20F8CCCF-DF99-456B-9232-6C178C50D97B} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
 		{2DC8D68B-E0C3-46C5-B980-FEA907A5857A} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
 		{4F612745-3054-4335-A845-1F6790C8F022} = {93187F8B-8804-4FD0-AE61-B9ACA16C5E7E}
+		{AF3ED5F1-763F-42B8-8F74-95BDB4C3FAA2} = {6502BCB5-65FD-4C6C-9DBE-C616D5162D2F}
 	EndGlobalSection
 EndGlobal
