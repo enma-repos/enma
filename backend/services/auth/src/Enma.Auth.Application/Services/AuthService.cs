@@ -192,7 +192,7 @@ internal sealed class AuthService : IAuthService
         var tokenResult = await _refreshTokensRepository.GetByTokenHashAsync(tokenHash, ct);
         if (tokenResult.IsFailed)
         {
-            return Result.Fail<AuthTokensDto>(tokenResult.Errors);
+            return Result.Fail<AuthTokensDto>(ApplicationErrors.Validation("Invalid refresh token."));
         }
 
         var oldToken = tokenResult.Value;
