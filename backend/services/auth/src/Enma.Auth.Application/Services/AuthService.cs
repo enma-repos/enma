@@ -30,15 +30,15 @@ internal sealed class AuthService : IAuthService
 
     private readonly int _refreshTokenLifetimeDays;
     private readonly int _ttlMinutes;
-    
+
     public AuthService(
-        IExternalAuthProviderFabric externalAuthProviderFabric, 
+        IExternalAuthProviderFabric externalAuthProviderFabric,
         IAccountsRepository accountsRepository,
         IExternalAuthRepository externalAuthRepository,
         IRefreshTokensRepository refreshTokensRepository,
         IAccessTokenProvider accessTokenProvider,
-        IAdminUsersClient adminUsersClient, 
-        ICryptographyService cryptographyService, 
+        IAdminUsersClient adminUsersClient,
+        ICryptographyService cryptographyService,
         ICacheService cacheService,
         IOptions<AuthOptions> authOptions)
     {
@@ -59,18 +59,19 @@ internal sealed class AuthService : IAuthService
     {
         if (!_externalAuthProviderFabric.TryGet(dto.Provider, out var provider))
         {
-            return Result.Fail<string>(ApplicationErrors.Validation($"Unknown external auth provider '{dto.Provider}'."));
+            return Result.Fail<string>(
+                ApplicationErrors.Validation($"Unknown external auth provider '{dto.Provider}'."));
         }
 
         var stateId = Guid.NewGuid();
-        var result = await _cacheService.AddAsync(stateId.ToString(), 
+        var result = await _cacheService.AddAsync(stateId.ToString(),
             new CachedStateDto(provider!.Name, dto.SuccessUrl), _ttlMinutes);
-        
-        return result.IsFailed 
-            ? Result.Fail<string>(ApplicationErrors.Conflict("Cannot cache state.")) 
+
+        return result.IsFailed
+            ? Result.Fail<string>(ApplicationErrors.Conflict("Cannot cache state."))
             : Result.Ok(provider.GetProviderUrl(stateId));
     }
-    
+
     public async Task<Result<(AuthTokensDto AuthTokens, string SuccessUrl)>> AuthenticateExternalAsync(
         ExternalAuthCallbackDto dto,
         CancellationToken ct = default)
@@ -80,10 +81,11 @@ internal sealed class AuthService : IAuthService
         {
             return Result.Fail<(AuthTokensDto, string)>(ApplicationErrors.Validation("Invalid or expired state."));
         }
-        
+
         if (!_externalAuthProviderFabric.TryGet(stateResult.Value.Provider, out var provider))
         {
-            return Result.Fail<(AuthTokensDto, string)>(ApplicationErrors.Validation($"Unknown external auth provider '{stateResult.Value.Provider}'."));
+            return Result.Fail<(AuthTokensDto, string)>(
+                ApplicationErrors.Validation($"Unknown external auth provider '{stateResult.Value.Provider}'."));
         }
 
         var identityResult = await provider!.AuthenticateAsync(
@@ -97,50 +99,43 @@ internal sealed class AuthService : IAuthService
 
         var identity = identityResult.Value;
 
-        var accountResult = await _externalAuthRepository.GetAccountByExternalAsync(identity.Provider, identity.Subject, ct);
+        var accountResult =
+            await _externalAuthRepository.GetAccountByExternalAsync(identity.Provider, identity.Subject, ct);
         Account account;
 
         if (accountResult.IsSuccess)
         {
             account = accountResult.Value;
         }
-        else 
+        else
         {
-            var byEmailResult = await _accountsRepository.GetByEmailAsync(identity.Email, ct);
-            if (byEmailResult.IsSuccess)
+            var now = DateTime.UtcNow;
+
+            var createModelResult = Account.Create(
+                id: Guid.NewGuid(),
+                email: identity.Email,
+                status: AccountStatus.PendingProfile,
+                passwordHash: null,
+                salt: null,
+                lastLoginAt: now,
+                onboardingStartedAt: now,
+                onboardingCompletedAt: null,
+                createdAt: now,
+                updatedAt: now,
+                deletedAt: null);
+
+            if (createModelResult.IsFailed)
             {
-                account = byEmailResult.Value;
+                return Result.Fail<(AuthTokensDto, string)>(createModelResult.Errors);
             }
-            else
+
+            var createResult = await _accountsRepository.CreateAsync(createModelResult.Value, ct);
+            if (createResult.IsFailed)
             {
-                var now = DateTime.UtcNow;
-
-                var createModelResult = Account.Create(
-                    id: Guid.NewGuid(),
-                    email: identity.Email,
-                    status: AccountStatus.PendingProfile,
-                    passwordHash: null,
-                    salt: null,
-                    lastLoginAt: now,
-                    onboardingStartedAt: now,
-                    onboardingCompletedAt: null,
-                    createdAt: now,
-                    updatedAt: now,
-                    deletedAt: null);
-
-                if (createModelResult.IsFailed)
-                {
-                    return Result.Fail<(AuthTokensDto, string)>(createModelResult.Errors);
-                }
-
-                var createResult = await _accountsRepository.CreateAsync(createModelResult.Value, ct);
-                if (createResult.IsFailed)
-                {
-                    return Result.Fail<(AuthTokensDto, string)>(createResult.Errors);
-                }
-
-                account = createModelResult.Value;
+                return Result.Fail<(AuthTokensDto, string)>(createResult.Errors);
             }
+
+            account = createModelResult.Value;
 
             var linkedAt = DateTime.UtcNow;
             var externalAuthRes = ExternalAuth.Create(
@@ -172,12 +167,12 @@ internal sealed class AuthService : IAuthService
         {
             return Result.Fail<(AuthTokensDto, string)>(updateAccResult.Errors);
         }
-        
+
         await _cacheService.RemoveAsync(dto.State);
-        
+
         var tokensResult = await IssueTokensAsync(account, ct);
-        return tokensResult.IsFailed 
-            ? Result.Fail<(AuthTokensDto, string)>(tokensResult.Errors) 
+        return tokensResult.IsFailed
+            ? Result.Fail<(AuthTokensDto, string)>(tokensResult.Errors)
             : Result.Ok((tokensResult.Value, stateResult.Value.SuccessUrl ?? string.Empty));
     }
 
@@ -264,7 +259,9 @@ internal sealed class AuthService : IAuthService
         var userResult = await _adminUsersClient.GetUserAsync(accountId, ct);
         if (userResult.IsFailed)
         {
-            return Result.Fail<MeDto>(userResult.Errors);
+            return Result.Ok(new MeDto(
+                Account: accountResult.Value.ToDto(),
+                User: null));
         }
 
         return Result.Ok(new MeDto(
@@ -359,8 +356,8 @@ internal sealed class AuthService : IAuthService
         }
 
         var createResult = await _refreshTokensRepository.CreateAsync(modelResult.Value, ct);
-        return createResult.IsFailed 
-            ? Result.Fail<(Guid, string, DateTime)>(createResult.Errors) 
+        return createResult.IsFailed
+            ? Result.Fail<(Guid, string, DateTime)>(createResult.Errors)
             : Result.Ok((modelResult.Value.Id, plain, modelResult.Value.ExpiresAt));
     }
 }
