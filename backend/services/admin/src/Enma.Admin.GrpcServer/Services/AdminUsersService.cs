@@ -23,17 +23,6 @@ public sealed class AdminUsersService : Enma.Grpc.Admin.Users.V1.AdminUsersServi
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid account_id."));
         }
 
-        var existsRes = await _usersService.ExistsAsync(accountId, context.CancellationToken);
-        if (existsRes.IsFailed)
-        {
-            throw ToRpcException(existsRes.Errors);
-        }
-
-        if (existsRes.Value)
-        {
-            throw new RpcException(new Status(StatusCode.AlreadyExists, $"User already exists: accountId={accountId}"));
-        }
-
         var dto = new CreateUserDto(
             AccountId: accountId,
             DisplayName: request.DisplayName,
@@ -41,7 +30,7 @@ public sealed class AdminUsersService : Enma.Grpc.Admin.Users.V1.AdminUsersServi
             Locale: request.HasLocale ? request.Locale : null,
             Timezone: request.HasTimezone ? request.Timezone : null);
 
-        var res = await _usersService.CreateAsync(dto, context.CancellationToken);
+        var res = await _usersService.GetOrCreateAsync(dto, context.CancellationToken);
         if (res.IsFailed)
         {
             throw ToRpcException(res.Errors);

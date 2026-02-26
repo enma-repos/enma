@@ -5,7 +5,7 @@ namespace Enma.Admin.Application.Abstractions;
 
 public interface IUsersService
 {
-    Task<Result<UserDto>> CreateAsync(CreateUserDto dto, CancellationToken ct = default);
+    Task<Result<UserDto>> GetOrCreateAsync(CreateUserDto dto, CancellationToken ct = default);
     Task<Result<UserDto>> GetByIdAsync(Guid userId, CancellationToken ct = default);
     Task<Result<bool>> ExistsAsync(Guid userId, CancellationToken ct = default);
 

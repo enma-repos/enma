@@ -11,8 +11,10 @@ namespace Enma.Admin.Application.Contracts;
 /// </summary>
 public interface IUsersRepository
 {
-    /// <summary>Creates a new user profile record.</summary>
-    Task<Result<User>> CreateAsync(User user, CancellationToken ct = default);
+    /// <summary>
+    /// Creates a new user profile record if it doesn't exist, otherwise returns the existing one.
+    /// </summary>
+    Task<Result<User>> GetOrCreateAsync(User user, CancellationToken ct = default);
 
     /// <summary>Gets a user by id (equals auth AccountId).</summary>
     Task<Result<User>> GetByIdAsync(Guid userId, CancellationToken ct = default);

@@ -14,7 +14,7 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
         [FromBody] CreateUserDto dto, 
         CancellationToken ct)
     {
-        var res = await usersService.CreateAsync(dto, ct);
+        var res = await usersService.GetOrCreateAsync(dto, ct);
         return res.ToActionResult();
     }
 

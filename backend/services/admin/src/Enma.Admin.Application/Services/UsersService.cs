@@ -15,7 +15,7 @@ internal sealed class UsersService : IUsersService
         _usersRepository = usersRepository;
     }
 
-    public async Task<Result<UserDto>> CreateAsync(
+    public async Task<Result<UserDto>> GetOrCreateAsync(
         CreateUserDto dto, 
         CancellationToken ct = default)
     {
@@ -34,7 +34,7 @@ internal sealed class UsersService : IUsersService
             return Result.Fail<UserDto>(modelRes.Errors);
         }
 
-        var res = await _usersRepository.CreateAsync(modelRes.Value, ct);
+        var res = await _usersRepository.GetOrCreateAsync(modelRes.Value, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<UserDto>(res.Errors);

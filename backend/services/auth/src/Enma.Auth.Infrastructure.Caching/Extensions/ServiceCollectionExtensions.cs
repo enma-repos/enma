@@ -4,8 +4,7 @@ using Enma.Common.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis.Extensions.Core.Configuration;
-using StackExchange.Redis.Extensions.Newtonsoft;
+using StackExchange.Redis;
 
 namespace Enma.Auth.Infrastructure.Caching.Extensions;
 
@@ -15,19 +14,10 @@ public static class ServiceCollectionExtension
     {
         services.Configure<RedisOptions>(configuration.GetSection("RedisOptions"));
 
-        services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(sp =>
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<RedisOptions>>().Value;
-
-            return new List<RedisConfiguration>
-            {
-                new RedisConfiguration
-                {
-                    ConnectionString = options.ConnectionString,
-                    Database = options.Database,
-                    KeyPrefix = options.KeyPrefix
-                }
-            };
+            return ConnectionMultiplexer.Connect(options.ConnectionString);
         });
 
         services.AddSingleton<ICacheService, RedisCacheService>();

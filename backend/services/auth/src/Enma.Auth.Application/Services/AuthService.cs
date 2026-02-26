@@ -76,7 +76,7 @@ internal sealed class AuthService : IAuthService
         ExternalAuthCallbackDto dto,
         CancellationToken ct = default)
     {
-        var stateResult = await _cacheService.GetAsync<CachedStateDto>(dto.State);
+        var stateResult = await _cacheService.GetDelAsync<CachedStateDto>(dto.State);
         if (stateResult.IsFailed)
         {
             return Result.Fail<(AuthTokensDto, string)>(ApplicationErrors.Validation("Invalid or expired state."));
@@ -168,11 +168,9 @@ internal sealed class AuthService : IAuthService
             return Result.Fail<(AuthTokensDto, string)>(updateAccResult.Errors);
         }
 
-        await _cacheService.RemoveAsync(dto.State);
-
         var tokensResult = await IssueTokensAsync(account, ct);
-        return tokensResult.IsFailed
-            ? Result.Fail<(AuthTokensDto, string)>(tokensResult.Errors)
+        return tokensResult.IsFailed 
+            ? Result.Fail<(AuthTokensDto, string)>(tokensResult.Errors) 
             : Result.Ok((tokensResult.Value, stateResult.Value.SuccessUrl ?? string.Empty));
     }
 

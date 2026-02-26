@@ -18,12 +18,22 @@ internal sealed class UsersRepository : IUsersRepository
         _context = context;
     }
 
-    public async Task<Result<User>> CreateAsync(User user, CancellationToken ct = default)
+    public async Task<Result<User>> GetOrCreateAsync(User user, CancellationToken ct = default)
     {
-        _context.Users.Add(user.ToEntity());
-        await _context.SaveChangesAsync(ct);
+        try
+        {
+            _context.Users.Add(user.ToEntity());
+            await _context.SaveChangesAsync(ct);
 
-        return Result.Ok(user);
+            return Result.Ok(user);
+        }
+        catch (DbUpdateException)
+        {
+            var existingResult = await GetByIdAsync(user.Id, ct);
+            return existingResult.IsSuccess
+                ? Result.Ok(existingResult.Value)
+                : Result.Fail<User>(ApplicationErrors.Conflict("Failed to create user."));
+        }
     }
 
     public async Task<Result<User>> GetByIdAsync(Guid userId, CancellationToken ct = default)
