@@ -9,15 +9,6 @@ namespace Enma.Admin.Api.Controllers.v1;
 [ApiController]
 public sealed class UsersController(IUsersService usersService) : ControllerBase
 {
-    [HttpPost]
-    public async Task<IActionResult> CreateAsync(
-        [FromBody] CreateUserDto dto, 
-        CancellationToken ct)
-    {
-        var res = await usersService.GetOrCreateAsync(dto, ct);
-        return res.ToActionResult();
-    }
-
     [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute] Guid userId,
