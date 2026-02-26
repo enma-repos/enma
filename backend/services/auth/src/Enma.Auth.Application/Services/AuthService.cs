@@ -161,6 +161,12 @@ internal sealed class AuthService : IAuthService
             }
         }
 
+        if (account.Status is AccountStatus.Banned or AccountStatus.Deleted)
+        {
+            return Result.Fail<(AuthTokensDto AuthTokens, string SuccessUrl)>(ApplicationErrors
+                .Forbidden("Account is not allowed to authenticate."));
+        }
+
         var updateAccResult = await _accountsRepository.UpdateLastLoginAsync(account.Id, ct);
         if (updateAccResult.IsFailed)
         {
@@ -206,7 +212,8 @@ internal sealed class AuthService : IAuthService
         var account = accountResult.Value;
         if (account.Status is AccountStatus.Banned or AccountStatus.Deleted)
         {
-            return Result.Fail<AuthTokensDto>(ApplicationErrors.Forbidden("Account is not allowed to authenticate."));
+            return Result.Fail<AuthTokensDto>(ApplicationErrors
+                .Forbidden("Account is not allowed to authenticate."));
         }
 
         var newTokenResult = await CreateRefreshTokenAsync(account.Id, now, ct);
@@ -310,6 +317,11 @@ internal sealed class AuthService : IAuthService
 
     private async Task<Result<AuthTokensDto>> IssueTokensAsync(Account account, CancellationToken ct)
     {
+        if (account.Status is AccountStatus.Banned or AccountStatus.Deleted)
+        {
+            return Result.Fail<AuthTokensDto>(ApplicationErrors.Forbidden("Account is not allowed to authenticate."));
+        }
+
         var now = DateTime.UtcNow;
 
         var newTokenResult = await CreateRefreshTokenAsync(account.Id, now, ct);
