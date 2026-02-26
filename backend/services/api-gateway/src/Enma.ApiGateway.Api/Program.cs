@@ -1,8 +1,10 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using Enma.ApiGateway.Api.Constants;
+using Microsoft.Extensions.Primitives;
 using Scalar.AspNetCore;
 using Serilog;
+using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +78,27 @@ builder.Services.AddRateLimiter(o =>
 builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddTransforms(context =>
+    {
+        context.AddRequestTransform(async transformContext =>
+        {
+            var http = transformContext.HttpContext;
+            
+            if (http.Request.Cookies.TryGetValue("access_token", out var token) &&
+                !string.IsNullOrWhiteSpace(token))
+            {
+                transformContext.ProxyRequest.Headers.Remove("Authorization");
+                transformContext.ProxyRequest.Headers.TryAddWithoutValidation("Authorization", $"Bearer {token}");
+            }
+            
+            transformContext.ProxyRequest.Headers.Remove("Cookie");
+            
+            if (!http.Request.Headers.TryGetValue("X-Request-Id", out var rid) || StringValues.IsNullOrEmpty(rid))
+            {
+                transformContext.ProxyRequest.Headers.TryAddWithoutValidation("X-Request-Id", http.TraceIdentifier);
+            }
+        });
+    })
     .ConfigureHttpClient((sp, handler) =>
     {
         handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -128,9 +151,6 @@ app.UseHttpsRedirection();
 
 app.UseRateLimiter();
 app.UseCors("DefaultCors");
-
-// app.UseAuthentication();
-app.UseAuthorization();
 
 if (isEnvDevelopment)
 {
