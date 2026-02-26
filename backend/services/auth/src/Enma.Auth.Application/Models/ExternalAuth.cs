@@ -11,7 +11,6 @@ public sealed class ExternalAuth
     public Guid AccountId { get; private set; }
 
     public DateTime LinkedAt { get; private set; }
-    public DateTime LastLoginAt { get; private set; }
 
     private ExternalAuth() { }
 
@@ -19,22 +18,19 @@ public sealed class ExternalAuth
         string provider,
         string subject,
         Guid accountId,
-        DateTime linkedAt,
-        DateTime lastLoginAt)
+        DateTime linkedAt)
     {
         Provider = provider;
         Subject = subject;
         AccountId = accountId;
         LinkedAt = linkedAt;
-        LastLoginAt = lastLoginAt;
     }
 
     public static Result<ExternalAuth> Create(
         string provider,
         string subject,
         Guid accountId,
-        DateTime linkedAt,
-        DateTime lastLoginAt)
+        DateTime linkedAt)
     {
         if (string.IsNullOrWhiteSpace(provider))
         {
@@ -55,22 +51,19 @@ public sealed class ExternalAuth
             provider,
             subject,
             accountId,
-            linkedAt,
-            lastLoginAt));
+            linkedAt));
     }
 
     public static ExternalAuth Rehydrate(
         string provider,
         string subject,
         Guid accountId,
-        DateTime linkedAt,
-        DateTime lastLoginAt)
+        DateTime linkedAt)
     {
         return new ExternalAuth(
             provider,
             subject,
             accountId,
-            linkedAt,
-            lastLoginAt);
+            linkedAt);
     }
 }

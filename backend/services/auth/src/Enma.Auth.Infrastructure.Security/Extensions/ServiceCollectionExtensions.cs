@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
         services.AddSingleton<IAccessTokenProvider, JwtProvider>();
+        services.AddSingleton<ICryptographyService, CryptographyService>();
 
         return services;
     }

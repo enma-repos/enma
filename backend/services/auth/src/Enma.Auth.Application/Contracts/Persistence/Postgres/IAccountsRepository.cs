@@ -12,4 +12,5 @@ public interface IAccountsRepository
     Task<Result<Guid>> CreateAsync(Account account, CancellationToken ct);
     Task<Result> UpdateLastLoginAsync(Guid id, CancellationToken ct);
     Task<Result> UpdateStatusAsync(Guid id, AccountStatus status, CancellationToken ct);
+    Task<Result> CompleteOnboardingAsync(Guid id, DateTime completedAt, CancellationToken ct);
 }

@@ -74,17 +74,4 @@ internal sealed class ExternalAuthRepository : IExternalAuthRepository
 
         return Result.Ok();
     }
-
-    public async Task<Result> UpdateLastLoginAsync(string provider, string subject, CancellationToken ct)
-    {
-        var now = DateTime.UtcNow;
-
-        var affected = await _context.ExternalAuth
-            .Where(x => x.Provider == provider && x.Subject == subject)
-            .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastLoginAt, now), ct);
-
-        return affected == 0
-            ? Result.Fail(ApplicationErrors.EntityNotFound("ExternalAuth", $"provider={provider}, subject={subject}"))
-            : Result.Ok();
-    }
 }

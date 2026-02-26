@@ -1,7 +1,7 @@
 using Enma.Auth.Application.Abstractions;
 using Enma.Auth.Application.Contracts.Persistence.Postgres;
 using Enma.Auth.Application.Dto.Responses;
-using Enma.Common.Enums;
+using Enma.Auth.Application.Models;
 using FluentResults;
 
 namespace Enma.Auth.Application.Services;
@@ -16,11 +16,32 @@ internal sealed class AccountsService : IAccountsService
     }
 
     public async Task<Result<GetAccountResponseDto>> GetByIdAsync(Guid accountId, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    {
+        var result = await _accountsRepository.GetByIdAsync(accountId, ct);
+        return result.IsSuccess
+            ? Result.Ok(ToDto(result.Value))
+            : Result.Fail<GetAccountResponseDto>(result.Errors);
+    }
 
     public async Task<Result<GetAccountResponseDto>> GetByEmailAsync(string email, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    {
+        var result = await _accountsRepository.GetByEmailAsync(email, ct);
+        return result.IsSuccess
+            ? Result.Ok(ToDto(result.Value))
+            : Result.Fail<GetAccountResponseDto>(result.Errors);
+    }
 
-    public async Task<Result> UpdateStatusAsync(Guid accountId, AccountStatus status, CancellationToken ct = default)
-        => await _accountsRepository.UpdateStatusAsync(accountId, status, ct);
+    public Task<Result> UpdateStatusAsync(Guid accountId, Enma.Common.Enums.AccountStatus status, CancellationToken ct = default)
+        => _accountsRepository.UpdateStatusAsync(accountId, status, ct);
+
+    private static GetAccountResponseDto ToDto(Account account)
+        => new(
+            Id: account.Id,
+            Email: account.Email,
+            Status: account.Status,
+            LastLoginAt: account.LastLoginAt,
+            OnboardingStartedAt: account.OnboardingStartedAt,
+            OnboardingCompletedAt: account.OnboardingCompletedAt,
+            CreatedAt: account.CreatedAt,
+            UpdatedAt: account.UpdatedAt);
 }

@@ -9,5 +9,4 @@ internal sealed class ExternalAuthEntity
     public AccountEntity Account { get; set; } = null!;
 
     public DateTime LinkedAt { get; set; }
-    public DateTime LastLoginAt { get; set; }
 }

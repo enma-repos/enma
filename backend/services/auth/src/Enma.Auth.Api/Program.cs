@@ -1,4 +1,5 @@
 using Enma.Auth.Application.Extensions;
+using Enma.Auth.Infrastructure.Caching.Extensions;
 using Enma.Auth.Infrastructure.ExternalAuth.Google.Extensions;
 using Enma.Auth.Infrastructure.Grpc.Admin.Extensions;
 using Enma.Auth.Infrastructure.Security.Extensions;
@@ -22,12 +23,13 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi("v1");
 
 builder.Services
     .AddApplication(builder.Configuration)
     .AddPersistence(builder.Configuration)
+    .AddCachingService(builder.Configuration)
     .AddGoogleAuth(builder.Configuration)
     .AddSecurity(builder.Configuration)
     .AddAdminGrpcClient(builder.Configuration);
@@ -36,7 +38,6 @@ var app = builder.Build();
 
 app.UseCors();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi().RequireCors("OpenApiCors");;

@@ -102,4 +102,22 @@ internal sealed class AccountsRepository : IAccountsRepository
             ? Result.Fail(ApplicationErrors.EntityNotFound("Account", $"id={id}"))
             : Result.Ok();
     }
+
+    public async Task<Result> CompleteOnboardingAsync(Guid id, DateTime completedAt, CancellationToken ct)
+    {
+        var now = DateTime.UtcNow;
+
+        var affected = await _context.Accounts
+            .Where(x => x.Id == id && x.DeletedAt == null)
+            .ExecuteUpdateAsync(
+                s => s
+                    .SetProperty(x => x.OnboardingCompletedAt, completedAt)
+                    .SetProperty(x => x.Status, AccountStatus.Created)
+                    .SetProperty(x => x.UpdatedAt, now),
+                ct);
+
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("Account", $"id={id}"))
+            : Result.Ok();
+    }
 }

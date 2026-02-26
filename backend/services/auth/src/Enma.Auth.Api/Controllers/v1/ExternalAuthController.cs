@@ -1,4 +1,4 @@
-using Enma.Auth.Application.Dto.Requests;
+using Enma.Auth.Application.Dto.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Auth.Api.Controllers.v1;

@@ -1,6 +1,7 @@
 using Enma.Auth.Application.Contracts.Persistence.Postgres;
 using Enma.Auth.Application.Models;
 using Enma.Auth.Persistence.Postgres.Connection;
+using Enma.Auth.Persistence.Postgres.Entities;
 using Enma.Auth.Persistence.Postgres.Mappers;
 using Enma.Common.Errors;
 using FluentResults;
@@ -46,6 +47,34 @@ internal sealed class RefreshTokensRepository : IRefreshTokensRepository
         var affected = await _context.RefreshTokens
             .Where(x => x.Id == tokenId)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastUsedAt, now), ct);
+
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("RefreshToken", $"id={tokenId}"))
+            : Result.Ok();
+    }
+
+    public async Task<Result<Guid>> CreateAsync(RefreshToken token, CancellationToken ct)
+    {
+        _context.RefreshTokens.Add(new RefreshTokenEntity
+        {
+            Id = token.Id,
+            AccountId = token.AccountId,
+            Account = null!,
+            TokenHash = token.TokenHash,
+            CreatedAt = token.CreatedAt,
+            ExpiresAt = token.ExpiresAt,
+            LastUsedAt = token.LastUsedAt
+        });
+
+        await _context.SaveChangesAsync(ct);
+        return Result.Ok(token.Id);
+    }
+
+    public async Task<Result> DeleteAsync(Guid tokenId, CancellationToken ct)
+    {
+        var affected = await _context.RefreshTokens
+            .Where(x => x.Id == tokenId)
+            .ExecuteDeleteAsync(ct);
 
         return affected == 0
             ? Result.Fail(ApplicationErrors.EntityNotFound("RefreshToken", $"id={tokenId}"))

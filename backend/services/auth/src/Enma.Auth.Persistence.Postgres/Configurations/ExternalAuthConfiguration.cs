@@ -21,9 +21,6 @@ internal sealed class ExternalAuthConfiguration : IEntityTypeConfiguration<Exter
 
         builder.Property(x => x.LinkedAt)
             .IsRequired();
-
-        builder.Property(x => x.LastLoginAt)
-            .IsRequired();
         
         builder.HasOne(x => x.Account)
             .WithMany(a => a.ExternalAuths)

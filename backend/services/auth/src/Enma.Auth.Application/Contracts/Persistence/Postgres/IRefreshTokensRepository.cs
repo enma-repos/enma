@@ -8,4 +8,6 @@ public interface IRefreshTokensRepository
     Task<Result<RefreshToken>> GetByTokenHashAsync(string tokenHash, CancellationToken ct);
     Task<Result<List<RefreshToken>>> GetByAccountIdAsync(Guid accountId, CancellationToken ct); 
     Task<Result> UpdateLastLoginAsync(Guid tokenId, CancellationToken ct);
+    Task<Result<Guid>> CreateAsync(RefreshToken token, CancellationToken ct);
+    Task<Result> DeleteAsync(Guid tokenId, CancellationToken ct);
 }

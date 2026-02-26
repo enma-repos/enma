@@ -10,8 +10,7 @@ internal static class ExternalAuthMapper
             provider: entity.Provider,
             subject: entity.Subject,
             accountId: entity.AccountId,
-            linkedAt: entity.LinkedAt,
-            lastLoginAt: entity.LastLoginAt);
+            linkedAt: entity.LinkedAt);
 
     internal static ExternalAuthEntity ToEntity(this ExternalAuth model)
         => new()
@@ -19,8 +18,7 @@ internal static class ExternalAuthMapper
             Provider = model.Provider,
             Subject = model.Subject,
             AccountId = model.AccountId,
-            LinkedAt = model.LinkedAt,
-            LastLoginAt = model.LastLoginAt
+            LinkedAt = model.LinkedAt
         };
 }
 
