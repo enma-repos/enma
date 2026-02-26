@@ -63,9 +63,12 @@ internal sealed class AuthService : IAuthService
         }
 
         var stateId = Guid.NewGuid();
-        await _cacheService.AddAsync(stateId.ToString(), new CachedStateDto(provider!.Name, dto.SuccessUrl), _ttlMinutes);
+        var result = await _cacheService.AddAsync(stateId.ToString(), 
+            new CachedStateDto(provider!.Name, dto.SuccessUrl), _ttlMinutes);
         
-        return Result.Ok(provider.GetProviderUrl(stateId));
+        return result.IsFailed 
+            ? Result.Fail<string>(ApplicationErrors.Conflict("Cannot cache state.")) 
+            : Result.Ok(provider.GetProviderUrl(stateId));
     }
     
     public async Task<Result<(AuthTokensDto AuthTokens, string SuccessUrl)>> AuthenticateExternalAsync(
