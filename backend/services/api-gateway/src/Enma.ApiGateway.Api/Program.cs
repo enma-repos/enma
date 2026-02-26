@@ -80,9 +80,10 @@ builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddTransforms(context =>
     {
-        context.AddRequestTransform(async transformContext =>
+        context.AddRequestTransform(transformContext =>
         {
             var http = transformContext.HttpContext;
+            var path = http.Request.Path.Value ?? string.Empty;
             
             if (http.Request.Cookies.TryGetValue("access_token", out var token) &&
                 !string.IsNullOrWhiteSpace(token))
@@ -91,12 +92,18 @@ builder.Services
                 transformContext.ProxyRequest.Headers.TryAddWithoutValidation("Authorization", $"Bearer {token}");
             }
             
-            transformContext.ProxyRequest.Headers.Remove("Cookie");
+            var isAuthPath = path.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase);
+            if (!isAuthPath)
+            {
+                transformContext.ProxyRequest.Headers.Remove("Cookie");
+            }
             
             if (!http.Request.Headers.TryGetValue("X-Request-Id", out var rid) || StringValues.IsNullOrEmpty(rid))
             {
                 transformContext.ProxyRequest.Headers.TryAddWithoutValidation("X-Request-Id", http.TraceIdentifier);
             }
+            
+            return ValueTask.CompletedTask;
         });
     })
     .ConfigureHttpClient((sp, handler) =>

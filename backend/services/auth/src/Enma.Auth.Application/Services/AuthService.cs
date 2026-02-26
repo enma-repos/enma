@@ -29,7 +29,7 @@ internal sealed class AuthService : IAuthService
     private readonly ICacheService _cacheService;
 
     private readonly int _refreshTokenLifetimeDays;
-    private readonly int _ttlMinutes;
+    private readonly int _stateCacheTtlMinutes;
 
     public AuthService(
         IExternalAuthProviderFabric externalAuthProviderFabric,
@@ -51,7 +51,7 @@ internal sealed class AuthService : IAuthService
         _cryptographyService = cryptographyService;
         _cacheService = cacheService;
 
-        _ttlMinutes = authOptions.Value.TtlMinutes;
+        _stateCacheTtlMinutes = authOptions.Value.StateCacheTtlMinutes;
         _refreshTokenLifetimeDays = authOptions.Value.RefreshTokenLifetimeDays;
     }
 
@@ -65,7 +65,7 @@ internal sealed class AuthService : IAuthService
 
         var stateId = Guid.NewGuid();
         var result = await _cacheService.AddAsync(stateId.ToString(),
-            new CachedStateDto(provider!.Name, dto.SuccessUrl), _ttlMinutes);
+            new CachedStateDto(provider!.Name, dto.SuccessUrl), _stateCacheTtlMinutes);
 
         return result.IsFailed
             ? Result.Fail<string>(ApplicationErrors.Conflict("Cannot cache state."))
