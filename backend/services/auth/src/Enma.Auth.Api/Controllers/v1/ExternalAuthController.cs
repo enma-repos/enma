@@ -14,9 +14,7 @@ public sealed class ExternalAuthController(IAuthService authService) : Controlle
     public async Task<IActionResult> StartGoogleAuthAsync(
         [FromBody] StartExternalAuthRequestDto dto)
     {
-        var result = await authService.GetProviderUrlAsync(new StartExternalAuthRequestDto(
-            Provider: "google",
-            SuccessUrl: dto.SuccessUrl));
+        var result = await authService.GetProviderUrlAsync(dto with { Provider = "google" });
 
         return result.IsFailed
             ? result.ToActionResult()
@@ -38,7 +36,7 @@ public sealed class ExternalAuthController(IAuthService authService) : Controlle
         {
             return result.ToActionResult();
         }
-
+        
         return Ok(new ExternalAuthCallbackResponseDto(
             Tokens: result.Value.AuthTokens,
             SuccessUrl: result.Value.SuccessUrl));

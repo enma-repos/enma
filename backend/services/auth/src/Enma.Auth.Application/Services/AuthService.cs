@@ -205,27 +205,26 @@ internal sealed class AuthService : IAuthService
         var account = accountResult.Value;
         if (account.Status is AccountStatus.Banned or AccountStatus.Deleted)
         {
-            return Result.Fail<AuthTokensDto>(ApplicationErrors
-                .Forbidden("Account is not allowed to authenticate."));
+            return Result.Fail<AuthTokensDto>(ApplicationErrors.Forbidden("Account is not allowed to authenticate."));
         }
 
-        var newTokenResult = await CreateRefreshTokenAsync(account.Id, now, ct);
-        if (newTokenResult.IsFailed)
+        var newTokenBuildResult = BuildRefreshToken(account.Id, now);
+        if (newTokenBuildResult.IsFailed)
         {
-            return Result.Fail<AuthTokensDto>(newTokenResult.Errors);
+            return Result.Fail<AuthTokensDto>(newTokenBuildResult.Errors);
         }
 
-        var deleteOldResult = await _refreshTokensRepository.DeleteAsync(oldToken.Id, ct);
-        if (deleteOldResult.IsFailed)
+        var rotateResult = await _refreshTokensRepository.RotateAsync(oldToken.Id, newTokenBuildResult.Value.Model, ct);
+        if (rotateResult.IsFailed)
         {
-            return Result.Fail<AuthTokensDto>(deleteOldResult.Errors);
+            return Result.Fail<AuthTokensDto>(rotateResult.Errors);
         }
 
-        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenResult.Value.TokenId);
+        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenBuildResult.Value.Model.Id);
         return Result.Ok(new AuthTokensDto(
             AccessToken: accessToken,
-            RefreshToken: newTokenResult.Value.PlainToken,
-            RefreshTokenExpiresAt: newTokenResult.Value.ExpiresAt));
+            RefreshToken: newTokenBuildResult.Value.Plain,
+            RefreshTokenExpiresAt: newTokenBuildResult.Value.Model.ExpiresAt));
     }
 
     public async Task<Result> LogoutAsync(LogoutDto dto, CancellationToken ct = default)
@@ -354,8 +353,26 @@ internal sealed class AuthService : IAuthService
         }
 
         var createResult = await _refreshTokensRepository.CreateAsync(modelResult.Value, ct);
-        return createResult.IsFailed
-            ? Result.Fail<(Guid, string, DateTime)>(createResult.Errors)
+        return createResult.IsFailed 
+            ? Result.Fail<(Guid, string, DateTime)>(createResult.Errors) 
             : Result.Ok((modelResult.Value.Id, plain, modelResult.Value.ExpiresAt));
+    }
+
+    private Result<(RefreshToken Model, string Plain)> BuildRefreshToken(Guid accountId, DateTime now)
+    {
+        var plain = _cryptographyService.GenerateToken();
+        var hash = _cryptographyService.ComputeSha256Hex(plain);
+
+        var modelResult = RefreshToken.Create(
+            id: Guid.NewGuid(),
+            accountId: accountId,
+            tokenHash: hash,
+            createdAt: now,
+            expiresAt: now.AddDays(_refreshTokenLifetimeDays),
+            lastUsedAt: now);
+
+        return modelResult.IsFailed
+            ? Result.Fail<(RefreshToken, string)>(modelResult.Errors)
+            : Result.Ok((modelResult.Value, plain));
     }
 }

@@ -70,6 +70,36 @@ internal sealed class RefreshTokensRepository : IRefreshTokensRepository
         return Result.Ok(token.Id);
     }
 
+    public async Task<Result<Guid>> RotateAsync(Guid oldTokenId, RefreshToken newToken, CancellationToken ct)
+    {
+        await using var tx = await _context.Database.BeginTransactionAsync(ct);
+
+        var affected = await _context.RefreshTokens
+            .Where(x => x.Id == oldTokenId)
+            .ExecuteDeleteAsync(ct);
+
+        if (affected == 0)
+        {
+            return Result.Fail<Guid>(ApplicationErrors.Validation("Invalid refresh token."));
+        }
+
+        _context.RefreshTokens.Add(new RefreshTokenEntity
+        {
+            Id = newToken.Id,
+            AccountId = newToken.AccountId,
+            Account = null!,
+            TokenHash = newToken.TokenHash,
+            CreatedAt = newToken.CreatedAt,
+            ExpiresAt = newToken.ExpiresAt,
+            LastUsedAt = newToken.LastUsedAt
+        });
+
+        await _context.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+
+        return Result.Ok(newToken.Id);
+    }
+
     public async Task<Result> DeleteAsync(Guid tokenId, CancellationToken ct)
     {
         var affected = await _context.RefreshTokens
