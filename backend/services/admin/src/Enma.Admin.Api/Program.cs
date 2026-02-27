@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(o =>
 {
     o.ConfigureEndpointDefaults(lo => lo.Protocols = HttpProtocols.Http1AndHttp2);
+    o.ListenAnyIP(8081, lo => lo.Protocols = HttpProtocols.Http2);
 });
 
 Log.Logger = new LoggerConfiguration()

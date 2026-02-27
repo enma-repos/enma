@@ -12,7 +12,7 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddCachingService(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<RedisOptions>(configuration.GetSection("RedisOptions"));
+        services.Configure<RedisOptions>(configuration.GetSection("Redis"));
 
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {

@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<AuthOptions>(configuration.GetSection("AuthOptions"));
+        services.Configure<AuthOptions>(configuration.GetSection("Auth"));
         
         services.AddScoped<IAccountsService, AccountsService>();
         services.AddScoped<IAuthService, AuthService>();

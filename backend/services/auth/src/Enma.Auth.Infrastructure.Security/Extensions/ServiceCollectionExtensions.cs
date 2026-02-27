@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
         services.AddSingleton<IAccessTokenProvider, JwtProvider>();
         services.AddSingleton<ICryptographyService, CryptographyService>();
 

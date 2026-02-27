@@ -51,8 +51,8 @@ services:
 
       - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_auth;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
 
-      - JwtOptions__SecretKey=${AUTH_JWT_SECRET}
-      - JwtOptions__ExpiresMinutes=60
+      - Jwt__SecretKey=${AUTH_JWT_SECRET}
+      - Jwt__ExpiresMinutes=10
 
       - GoogleProvider__BaseAddress=https://oauth2.googleapis.com/
       - GoogleProvider__TimeoutSeconds=10
@@ -62,7 +62,7 @@ services:
       - GoogleProvider__RequireEmailVerified=true
       - GoogleProvider__ClockSkewSeconds=60
 
-      - AdminGrpc__Address=http://admin:8080
+      - AdminGrpc__Address=http://admin:8081
       - AdminGrpc__DeadlineMs=3000
     ports:
       - "8082:8080"
@@ -71,6 +71,8 @@ services:
     restart: unless-stopped
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       admin:
         condition: service_started
