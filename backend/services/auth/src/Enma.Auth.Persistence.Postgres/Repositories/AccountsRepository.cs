@@ -56,7 +56,7 @@ internal sealed class AccountsRepository : IAccountsRepository
     {
         var exists = await _context.Accounts
             .AsNoTracking()
-            .AnyAsync(x => x.Email == account.Email && x.DeletedAt == null, ct);
+            .AnyAsync(x => x.Email == account.Email.Value && x.DeletedAt == null, ct);
 
         if (exists)
         {

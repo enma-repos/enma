@@ -23,7 +23,7 @@ internal static class AccountMapper
         => new()
         {
             Id = model.Id,
-            Email = model.Email,
+            Email = model.Email.Value,
             Status = model.Status,
             PasswordHash = model.PasswordHash,
             Salt = model.Salt,

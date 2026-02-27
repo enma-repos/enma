@@ -1,3 +1,4 @@
+using Enma.Auth.Application.ValueObjects;
 using Enma.Common.Constants;
 using Enma.Common.Enums;
 using Enma.Common.Errors;
@@ -9,7 +10,7 @@ public sealed class Account
 {
     public Guid Id { get; private set; }
 
-    public string Email { get; private set; } = null!;
+    public EmailAddress Email { get; private set; }
     public AccountStatus Status { get; private set; }
 
     public string? PasswordHash { get; private set; }
@@ -28,7 +29,7 @@ public sealed class Account
     
     private Account(
         Guid id,
-        string email,
+        EmailAddress email,
         AccountStatus status,
         string? passwordHash,
         string? salt,
@@ -70,9 +71,15 @@ public sealed class Account
             return Result.Fail<Account>(ApplicationErrors.Validation("Invalid email."));
         }
 
+        var emailResult = EmailAddress.Create(email);
+        if (emailResult.IsFailed)
+        {
+            return Result.Fail<Account>(emailResult.Errors);
+        }
+        
         return Result.Ok(new Account(
             id,
-            email,
+            emailResult.Value,
             status,
             passwordHash,
             salt,
@@ -99,7 +106,7 @@ public sealed class Account
     {
         return new Account(
             id,
-            email,
+            EmailAddress.Create(email).Value,
             status,
             passwordHash,
             salt,

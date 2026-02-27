@@ -8,7 +8,7 @@ internal static class AccountMapping
     public static GetAccountResponseDto ToDto(this Account account)
         => new(
             Id: account.Id,
-            Email: account.Email,
+            Email: account.Email.Value,
             Status: account.Status,
             LastLoginAt: account.LastLoginAt,
             OnboardingStartedAt: account.OnboardingStartedAt,

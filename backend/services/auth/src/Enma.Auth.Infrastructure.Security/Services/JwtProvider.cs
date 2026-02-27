@@ -23,7 +23,7 @@ internal sealed class JwtProvider : IAccessTokenProvider
         Claim[] claims = 
         {
             new("accountId", account.Id.ToString()), 
-            new("accountEmail", account.Email),
+            new("accountEmail", account.Email.Value),
             new("accountStatus", account.Status.ToString()),
             new("sessionId", sessionId.ToString())
         };

@@ -37,7 +37,7 @@ internal sealed class AccountsService : IAccountsService
     private static GetAccountResponseDto ToDto(Account account)
         => new(
             Id: account.Id,
-            Email: account.Email,
+            Email: account.Email.Value,
             Status: account.Status,
             LastLoginAt: account.LastLoginAt,
             OnboardingStartedAt: account.OnboardingStartedAt,
