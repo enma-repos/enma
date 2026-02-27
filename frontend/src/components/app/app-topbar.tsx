@@ -1,0 +1,51 @@
+import { Avatar, Button, IconBell, IconChevronDown, IconGrid, IconMoon, IconSearch, Input } from "@/components/shared";
+
+export function AppTopbar() {
+  return (
+    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur">
+      <div className="flex h-16 items-center gap-4 px-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-10 w-10 rounded-xl p-0"
+          aria-label="Open menu"
+        >
+          <IconGrid className="h-5 w-5" />
+        </Button>
+
+        <div className="relative w-full max-w-md">
+          <IconSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Input placeholder="Type to search" className="pl-9" />
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="rounded-xl">
+            <span className="text-sm font-semibold tabular-nums">3482</span>
+            <IconChevronDown className="h-4 w-4 text-zinc-500" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 w-10 rounded-xl p-0"
+            aria-label="Notifications"
+          >
+            <IconBell className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 w-10 rounded-xl p-0"
+            aria-label="Toggle theme"
+          >
+            <IconMoon className="h-5 w-5" />
+          </Button>
+
+          <Avatar initials="UA" aria-label="User menu" />
+        </div>
+      </div>
+    </header>
+  );
+}
+
