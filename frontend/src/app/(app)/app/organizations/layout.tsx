@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
-import { AppShell } from "@/components/app/app-shell";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return <div>{children}</div>;
+  return children;
 }
-
