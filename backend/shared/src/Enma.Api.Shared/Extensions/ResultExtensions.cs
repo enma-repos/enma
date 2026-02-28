@@ -32,6 +32,7 @@ public static class ResultExtensions
             
             ConflictError conflictError       => BuildProblem(StatusCodes.Status409Conflict, conflictError),
             ForbiddenError forbiddenError     => BuildProblem(StatusCodes.Status403Forbidden, forbiddenError),
+            UnauthorizedError unauthorizedError => BuildProblem(StatusCodes.Status401Unauthorized, unauthorizedError),
             NotFoundError notFoundError       => BuildProblem(StatusCodes.Status404NotFound, notFoundError),
             ValidationError validationError   => BuildProblem(StatusCodes.Status400BadRequest, validationError),
 

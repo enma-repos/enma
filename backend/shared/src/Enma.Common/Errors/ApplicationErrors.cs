@@ -16,6 +16,9 @@ public static class ApplicationErrors
     public static ForbiddenError Forbidden(string message, string code = "forbidden")
         => new(message, code);
 
+    public static UnauthorizedError Unauthorized(string message, string code = "unauthorized")
+        => new(message, code);
+
     public static ValidationError Required(string field)
         => new($"{field} is required.", code: "required");
 
