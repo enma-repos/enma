@@ -1,6 +1,6 @@
 using Enma.Auth.Application.Contracts.Infrastructure.Security;
-using Enma.Auth.Infrastructure.Security.Options;
 using Enma.Auth.Infrastructure.Security.Services;
+using Enma.Common.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

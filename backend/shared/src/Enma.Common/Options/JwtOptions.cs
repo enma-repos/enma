@@ -1,4 +1,4 @@
-namespace Enma.Auth.Infrastructure.Security.Options;
+namespace Enma.Common.Options;
 
 public sealed record JwtOptions
 {

@@ -3,8 +3,9 @@ using Enma.Auth.Application.Abstractions;
 using Enma.Auth.Application.Dto.Auth;
 using Enma.Api.Shared.Extensions;
 using Enma.Auth.Application.Options;
-using Enma.Auth.Infrastructure.Security.Options;
+using Enma.Common.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Enma.Auth.Api.Controllers.v1;
@@ -14,7 +15,8 @@ namespace Enma.Auth.Api.Controllers.v1;
 public sealed class ExternalAuthController(
     IAuthService authService, 
     IOptions<JwtOptions> jwtOptions,
-    IOptions<AuthOptions> authOptions) : ControllerBase
+    IOptions<AuthOptions> authOptions,
+    IWebHostEnvironment env) : ControllerBase
 {
     [HttpPost("google/start")]
     public async Task<IActionResult> StartGoogleAuthAsync(
@@ -40,11 +42,13 @@ public sealed class ExternalAuthController(
         {
             return result.ToActionResult();
         }
+
+        var secure = !env.IsDevelopment();
         
         Response.Cookies.Append("access_token", result.Value.AuthTokens.AccessToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/",
             MaxAge = TimeSpan.FromMinutes(jwtOptions.Value.ExpiresMinutes),
@@ -54,7 +58,7 @@ public sealed class ExternalAuthController(
         Response.Cookies.Append("refresh_token", result.Value.AuthTokens.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/api/auth",
             MaxAge = TimeSpan.FromDays(authOptions.Value.RefreshTokenLifetimeDays),

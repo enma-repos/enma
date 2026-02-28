@@ -7,17 +7,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["services/project/Enma.Project/Enma.Project.csproj", "services/project/Enma.Project/"]
-RUN dotnet restore "services/project/Enma.Project/Enma.Project.csproj"
+COPY ["backend/services/admin/src/Enma.Admin.Api/Enma.Admin.Api.csproj", "backend/services/admin/src/Enma.Admin.Api/"]
+RUN dotnet restore "backend/services/admin/src/Enma.Admin.Api/Enma.Admin.Api.csproj"
 COPY . .
-WORKDIR "/src/services/project/Enma.Project"
-RUN dotnet build "Enma.Project.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/backend/services/admin/src/Enma.Admin.Api"
+RUN dotnet build "Enma.Admin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Enma.Project.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Enma.Admin.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Enma.Project.dll"]
+ENTRYPOINT ["dotnet", "Enma.Admin.Api.dll"]

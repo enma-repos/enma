@@ -1,9 +1,7 @@
 using Enma.Auth.Application.Abstractions;
 using Enma.Auth.Application.Dto.Auth;
 using Enma.Api.Shared.Extensions;
-using Enma.Common.Errors;
-using Enma.Auth.Infrastructure.Security.Options;
-using FluentResults;
+using Enma.Common.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,7 +12,8 @@ namespace Enma.Auth.Api.Controllers.v1;
 [ApiController]
 public sealed class AuthController(
     IAuthService authService,
-    IOptions<JwtOptions> jwtOptions) : ControllerBase
+    IOptions<JwtOptions> jwtOptions,
+    IWebHostEnvironment env) : ControllerBase
 {
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshAsync(CancellationToken ct)
@@ -35,11 +34,12 @@ public sealed class AuthController(
         var now = DateTimeOffset.UtcNow;
         var accessExpiresAt = now + TimeSpan.FromMinutes(jwtOptions.Value.ExpiresMinutes);
         var refreshExpiresAt = new DateTimeOffset(result.Value.RefreshTokenExpiresAt, TimeSpan.Zero);
+        var secure = !env.IsDevelopment();
 
         Response.Cookies.Append("access_token", result.Value.AccessToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
+            Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/",
             MaxAge = accessExpiresAt - now,
@@ -49,7 +49,7 @@ public sealed class AuthController(
         Response.Cookies.Append("refresh_token", result.Value.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
+            Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/api/auth",
             MaxAge = refreshExpiresAt - now,
@@ -67,8 +67,8 @@ public sealed class AuthController(
         var result = await authService.LogoutAsync(dto, ct);
         if (result.IsSuccess)
         {
-            Response.Cookies.Delete("access_token");    
-            Response.Cookies.Delete("refresh_token");  
+            Response.Cookies.Delete("access_token", new CookieOptions { Path = "/" });
+            Response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/api/auth" });
         }
         
         return result.ToActionResult();

@@ -3,11 +3,11 @@ using Enma.Auth.Infrastructure.Caching.Extensions;
 using Enma.Auth.Infrastructure.ExternalAuth.Google.Extensions;
 using Enma.Auth.Infrastructure.Grpc.Admin.Extensions;
 using Enma.Auth.Infrastructure.Security.Extensions;
-using Enma.Auth.Infrastructure.Security.Options;
 using Enma.Auth.Persistence.Postgres.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Enma.Common.Options;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

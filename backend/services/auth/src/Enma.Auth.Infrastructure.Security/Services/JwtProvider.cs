@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Enma.Auth.Application.Contracts.Infrastructure.Security;
 using Enma.Auth.Application.Models;
-using Enma.Auth.Infrastructure.Security.Options;
+using Enma.Common.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

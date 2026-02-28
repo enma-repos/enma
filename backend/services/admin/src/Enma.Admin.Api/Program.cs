@@ -1,15 +1,20 @@
+using System.Text;
 using Enma.Admin.Application.Extensions;
 using Enma.Admin.GrpcServer.Extensions;
 using Enma.Admin.GrpcServer.Services;
 using Enma.Admin.Persistence.Postgres.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(o =>
 {
-    o.ConfigureEndpointDefaults(lo => lo.Protocols = HttpProtocols.Http1AndHttp2);
+    // REST (controllers) - HTTP/1.1 (+HTTP/2 if available)
+    o.ListenAnyIP(8080, lo => lo.Protocols = HttpProtocols.Http1AndHttp2);
+    // gRPC - HTTP/2 only
     o.ListenAnyIP(8081, lo => lo.Protocols = HttpProtocols.Http2);
 });
 
@@ -33,6 +38,32 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddAdminGrpcServer();
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        // options.Authority = builder.Configuration["Auth:Authority"];
+        // options.RequireHttpsMetadata = true;
+
+        var secretKey = builder.Configuration.GetSection("Jwt").GetValue<string>("SecretKey");
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new InvalidOperationException("JWT secret key is not configured (Jwt:SecretKey).");
+        }
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // We issue tokens locally (symmetric key) without Authority/metadata, so we must provide the signing key.
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi("v1");
 
@@ -47,6 +78,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<AdminUsersService>();

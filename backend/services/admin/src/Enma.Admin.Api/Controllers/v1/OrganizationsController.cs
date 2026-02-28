@@ -1,6 +1,7 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.Organizations;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
@@ -36,14 +37,20 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
         return res.ToActionResult();
     }
 
-    [HttpGet("~/api/v1/users/{userId:guid}/organizations")]
+    [HttpGet]
+    [Authorize]
     public async Task<IActionResult> ListByUserAsync(
-        [FromRoute] Guid userId,
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await organizationsService.ListByUserAsync(userId, offset, limit, ct);
+        var accountIdClaim = User.FindFirst("accountId")?.Value;
+        if (!Guid.TryParse(accountIdClaim, out var accountId))
+        {
+            return Unauthorized();
+        }
+        
+        var res = await organizationsService.ListByUserAsync(accountId, offset, limit, ct);
         return res.ToActionResult();
     }
 

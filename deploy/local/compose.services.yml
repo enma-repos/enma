@@ -98,6 +98,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
 
+      - Jwt__SecretKey=${AUTH_JWT_SECRET}
+
       - Security__ApiKeyPepper=${API_KEY_PEPPER}
       - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_admin;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
     ports:
