@@ -1,6 +1,23 @@
+ "use client";
+
 import { Avatar, Button, IconBell, IconChevronDown, IconGrid, IconMoon, IconSearch, Input } from "@/components/shared";
 
-export function AppTopbar() {
+export type AppTopbarProps = {
+  displayName: string | null;
+};
+
+function getInitials(displayName: string | null) {
+  if (!displayName) return "U";
+  const parts = displayName.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] ?? "";
+  const second = parts.length > 1 ? parts[1]?.[0] ?? "" : (parts[0]?.[1] ?? "");
+  const initials = (first + second).toUpperCase();
+  return initials || "U";
+}
+
+export function AppTopbar({ displayName }: AppTopbarProps) {
+  const initials = getInitials(displayName);
+
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur">
       <div className="flex h-16 items-center gap-4 px-6">
@@ -24,6 +41,15 @@ export function AppTopbar() {
             <IconChevronDown className="h-4 w-4 text-zinc-500" />
           </Button>
 
+          {displayName ? (
+            <Button variant="ghost" size="sm" className="max-w-[220px] rounded-xl">
+              <span className="truncate text-sm font-medium text-zinc-700">
+                {displayName}
+              </span>
+              <IconChevronDown className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+            </Button>
+          ) : null}
+
           <Button
             variant="ghost"
             size="sm"
@@ -42,10 +68,9 @@ export function AppTopbar() {
             <IconMoon className="h-5 w-5" />
           </Button>
 
-          <Avatar initials="UA" aria-label="User menu" />
+          <Avatar initials={initials} aria-label="User menu" />
         </div>
       </div>
     </header>
   );
 }
-
