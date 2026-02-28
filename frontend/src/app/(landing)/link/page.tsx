@@ -1,3 +1,3 @@
 export default function Page() {
-  return <div>helloworld</div>;
+  return <div className="mx-200 my-90">helloworld</div>;
 }

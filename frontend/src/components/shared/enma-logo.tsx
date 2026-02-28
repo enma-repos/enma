@@ -1,3 +1,5 @@
+"use client";
+
 import type { SVGProps } from "react";
 
 type EnmaLogoProps = SVGProps<SVGSVGElement>;
@@ -28,4 +30,3 @@ export function EnmaLogo({ className, ...props }: EnmaLogoProps) {
     </svg>
   );
 }
-

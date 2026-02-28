@@ -11,8 +11,8 @@ import type {
 export default class AuthService {
   private readonly baseUrl = "/api/auth/v1";
 
-  public async refresh(dto: RefreshTokensDto): Promise<AuthTokensDto> {
-    const { data } = await apiClient.post<AuthTokensDto>(`${this.baseUrl}/refresh`, dto);
+  public async refresh(dto?: Partial<RefreshTokensDto>): Promise<AuthTokensDto> {
+    const { data } = await apiClient.post<AuthTokensDto>(`${this.baseUrl}/refresh`, dto ?? {});
     return data;
   }
 

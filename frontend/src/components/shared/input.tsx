@@ -1,3 +1,5 @@
+"use client";
+
 import type { InputHTMLAttributes } from "react";
 import { cn } from "@/components/shared/cn";
 
@@ -14,4 +16,3 @@ export function Input({ className, ...props }: InputProps) {
     />
   );
 }
-

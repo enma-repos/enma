@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes } from "react";
 import { cn } from "@/components/shared/cn";
 
@@ -18,4 +20,3 @@ export function Avatar({ className, initials = "U", ...props }: AvatarProps) {
     </div>
   );
 }
-

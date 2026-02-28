@@ -15,11 +15,11 @@ export type FooterColumn = {
 };
 
 export const navigationLinks: NavigationLink[] = [
-  { href: "product", label: "Product", highlighted: true },
-  { href: "sdk", label: "SDK" },
-  { href: "pricing", label: "Pricing" },
-  { href: "contact", label: "Contact" },
-  { href: "link", label: "Link" },
+  { href: "/product", label: "Product",},
+  { href: "/sdk", label: "SDK" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/contact", label: "Contact" },
+  { href: "/link", label: "Link" },
 ];
 
 export const featureItems: FeatureItem[] = [

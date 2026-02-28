@@ -28,7 +28,7 @@ export function HeroSection() {
             Documentation
           </Link>
           <Link
-            href="/auth"
+            href="/app/organizations"
             className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-50 transition-colors hover:bg-zinc-700"
           >
             Get started

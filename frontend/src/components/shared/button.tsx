@@ -1,3 +1,5 @@
+"use client";
+
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/components/shared/cn";
 
@@ -43,4 +45,3 @@ export function Button({
     />
   );
 }
-

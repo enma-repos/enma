@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/components/shared/cn";
 
@@ -64,4 +66,3 @@ export function CardKicker({ children }: { children: ReactNode }) {
     </p>
   );
 }
-
