@@ -35,38 +35,31 @@ export function AppTopbar({ displayName }: AppTopbarProps) {
           <Input placeholder="Type to search" className="pl-9" />
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
           <Button variant="ghost" size="sm" className="rounded-xl">
-            <span className="text-sm font-semibold tabular-nums">3482</span>
+            <span className="text-sm font-semibold tabular-nums">3482$</span>
             <IconChevronDown className="h-4 w-4 text-zinc-500" />
           </Button>
 
           {displayName ? (
-            <Button variant="ghost" size="sm" className="max-w-[220px] rounded-xl">
+              <Button variant="ghost" size="sm" className="max-w-[220px] rounded-xl">
               <span className="truncate text-sm font-medium text-zinc-700">
                 {displayName}
               </span>
-              <IconChevronDown className="h-4 w-4 text-zinc-500" aria-hidden="true" />
-            </Button>
+                <IconChevronDown className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+              </Button>
           ) : null}
 
           <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 rounded-xl p-0"
-            aria-label="Notifications"
+              variant="ghost"
+              size="sm"
+              className="h-10 w-10 rounded-xl p-0"
+              aria-label="Notifications"
           >
             <IconBell className="h-5 w-5" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 rounded-xl p-0"
-            aria-label="Toggle theme"
-          >
-            <IconMoon className="h-5 w-5" />
-          </Button>
+
 
           <Avatar initials={initials} aria-label="User menu" />
         </div>

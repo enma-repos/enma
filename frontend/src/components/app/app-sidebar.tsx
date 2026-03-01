@@ -40,7 +40,7 @@ const product: NavItem[] = [
 const footer: NavItem[] = [
   { href: "/docs", label: "Documentation", icon: <IconList className="h-5 w-5" /> },
   { href: "/app/organizations/some_org/projects/some_proj/access", label: "Manage access", icon: <IconUsers className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/wallet", label: "Wallet", icon: <IconBox className="h-5 w-5" /> },
+  { href: "/app/organizations/some_org/projects/some_proj/logs", label: "Logs", icon: <IconList className="h-5 w-5" /> },
 ];
 
 export type AppSidebarProps = {

@@ -7,7 +7,7 @@ export function HeroSection() {
         className="absolute inset-0 bg-cover bg-center opacity-65 grayscale"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 30% 10%, #eef1f5 0%, #dde2e8 38%, #f5f6f8 100%), url('/hero-background.jpg')",
+            "url('/hero-background.png')",
         }}
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(255,255,255,0.72))]" />

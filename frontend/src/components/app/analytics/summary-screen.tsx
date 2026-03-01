@@ -22,8 +22,8 @@ const popularEvents: PopularEvent[] = Array.from({ length: 9 }).map((_, index) =
 
 export function AnalyticsSummaryScreen() {
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <div className="text-sm font-medium text-zinc-500">Web App</div>
+    <div className="mx-auto w-full max-w-[90rem]">
+      <div className="text-sm font-medium text-zinc-500">All apps</div>
 
       <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
         <div className="font-semibold text-zinc-900">Аналитика</div>
@@ -52,7 +52,7 @@ export function AnalyticsSummaryScreen() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold text-zinc-900">Пользовательские пути</h2>
+        <h2 className="text-xl font-semibold text-zinc-900">Пользовательские пути</h2>
         <p className="mt-1 text-sm text-zinc-500">
           Изучайте паттерны поведения пользователей на основе их путей по вашему приложению
         </p>
