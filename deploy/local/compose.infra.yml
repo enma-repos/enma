@@ -85,27 +85,27 @@ services:
     networks:
       - enma
     restart: unless-stopped
-#
-#  rabbitmq:
-#    image: rabbitmq:3.13-management
-#    container_name: enma-rabbitmq
-#    environment:
-#      RABBITMQ_DEFAULT_USER: enma
-#      RABBITMQ_DEFAULT_PASS: enma
-#      RABBITMQ_DEFAULT_VHOST: /
-#    ports:
-#      - "5672:5672"    # AMQP
-#      - "15672:15672"  # Management UI
-#    volumes:
-#      - enma-rabbitmq-data:/var/lib/rabbitmq
-#    healthcheck:
-#      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 30
-#    networks:
-#      - enma
-#    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: enma-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: enma
+      RABBITMQ_DEFAULT_PASS: enma
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+    volumes:
+      - enma-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    networks:
+      - enma
+    restart: unless-stopped
 
 volumes:
   enma-postgres-data:

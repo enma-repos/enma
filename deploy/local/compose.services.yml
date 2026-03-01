@@ -89,6 +89,9 @@ services:
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   admin:
     build:
