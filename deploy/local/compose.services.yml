@@ -84,6 +84,7 @@ services:
     container_name: enma-ingest
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__ConnectionString=${RABBITMQ_URI}
     ports:
       - "8083:8080"
     networks:

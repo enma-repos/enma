@@ -19,8 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Api.Shared\Enma.Api.Shared.csproj" />
       <ProjectReference Include="..\Enma.Ingest.Application\Enma.Ingest.Application.csproj" />
       <ProjectReference Include="..\Enma.Ingest.Infrastructure.RabbitMq\Enma.Ingest.Infrastructure.RabbitMq.csproj" />
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Api.Shared\Enma.Api.Shared.csproj" />
     </ItemGroup>
 
 </Project>
