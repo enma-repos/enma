@@ -133,9 +133,16 @@ services:
     container_name: enma-event-processor
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMq__ConnectionString=${RABBITMQ_URI}
+      - ClickHouse__ConnectionString=Host=${CLICKHOUSE_HOST};Protocol=http;Port=${CLICKHOUSE_HTTP_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD};JsonWriteMode=Binary
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
 
 networks:
   enma:
