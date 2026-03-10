@@ -1,3 +1,4 @@
+using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
@@ -11,7 +12,7 @@ public sealed class PathNodeBucket
     private static readonly TimeSpan BucketSize = TimeSpan.FromMinutes(5);
 
     public NodeKey Key { get; }
-    public DateTime BucketEndUtc { get; }
+    public BucketBoundaryUtc BucketEndUtc { get; }
     public long VisitsCount { get; }
     public long EntriesCount { get; }
     public long ExitsCount { get; }
@@ -21,7 +22,7 @@ public sealed class PathNodeBucket
 
     private PathNodeBucket(
         NodeKey key,
-        DateTime bucketEndUtc,
+        BucketBoundaryUtc bucketEndUtc,
         long visitsCount,
         long entriesCount,
         long exitsCount,
@@ -56,24 +57,47 @@ public sealed class PathNodeBucket
             errors.Add(ApplicationErrors.Required(nameof(key)));
         }
 
-        ModelValidation.AddUtcDateTime(errors, bucketEndUtc, nameof(bucketEndUtc));
-        if (!ModelValidation.IsFiveMinuteBoundary(bucketEndUtc))
+        var bucketEndVoResult = BucketBoundaryUtc.Create(bucketEndUtc);
+        if (bucketEndVoResult.IsFailed)
         {
-            errors.Add(ApplicationErrors.Validation("bucketEndUtc must be aligned to a 5-minute boundary."));
+            errors.AddRange(bucketEndVoResult.Errors);
         }
 
-        if (key is not null && bucketEndUtc - key.BucketStartUtc != BucketSize)
+        if (key is not null && bucketEndUtc - key.BucketStartUtc.Value != BucketSize)
         {
             errors.Add(ApplicationErrors.Validation(
                 "bucketEndUtc must be exactly 5 minutes after key.BucketStartUtc."));
         }
 
-        ModelValidation.AddNonNegativeLong(errors, visitsCount, nameof(visitsCount));
-        ModelValidation.AddNonNegativeLong(errors, entriesCount, nameof(entriesCount));
-        ModelValidation.AddNonNegativeLong(errors, exitsCount, nameof(exitsCount));
-        ModelValidation.AddNonNegativeLong(errors, uniqueChains, nameof(uniqueChains));
-        ModelValidation.AddNonNegativeInt(errors, projectShard, nameof(projectShard));
-        ModelValidation.AddRequiredGuid(errors, buildId, nameof(buildId));
+        if (visitsCount < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(visitsCount)} must be non-negative."));
+        }
+
+        if (entriesCount < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(entriesCount)} must be non-negative."));
+        }
+
+        if (exitsCount < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(exitsCount)} must be non-negative."));
+        }
+
+        if (uniqueChains < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(uniqueChains)} must be non-negative."));
+        }
+
+        if (projectShard < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(projectShard)} must be non-negative."));
+        }
+
+        if (buildId == Guid.Empty)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(buildId)));
+        }
 
         if (entriesCount > visitsCount)
         {
@@ -94,7 +118,7 @@ public sealed class PathNodeBucket
             ? Result.Fail<PathNodeBucket>(errors)
             : Result.Ok(new PathNodeBucket(
                 key!,
-                bucketEndUtc,
+                bucketEndVoResult.Value,
                 visitsCount,
                 entriesCount,
                 exitsCount,
@@ -112,9 +136,9 @@ public sealed class PathNodeBucket
         long uniqueChains,
         int projectShard,
         Guid buildId)
-        => new PathNodeBucket(
+        => new(
             key,
-            bucketEndUtc,
+            BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             visitsCount,
             entriesCount,
             exitsCount,

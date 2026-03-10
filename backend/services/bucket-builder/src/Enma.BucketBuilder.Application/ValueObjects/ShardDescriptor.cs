@@ -1,22 +1,13 @@
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.Application.ValueObjects;
 
 /// <summary>
 /// Execution shard descriptor used to parallelize processing while preserving per-project ordering.
 /// </summary>
-public sealed class ShardDescriptor
+public readonly record struct ShardDescriptor(int Index, int Count)
 {
-    public int Index { get; }
-    public int Count { get; }
-
-    private ShardDescriptor(int index, int count)
-    {
-        Index = index;
-        Count = count;
-    }
-
     public static Result<ShardDescriptor> Create(int index, int count)
     {
         var errors = new List<IError>();
@@ -41,5 +32,6 @@ public sealed class ShardDescriptor
             : Result.Ok(new ShardDescriptor(index, count));
     }
 
-    public static ShardDescriptor Rehydrate(int index, int count) => new(index, count);
+    public static ShardDescriptor Rehydrate(int index, int count)
+        => new(index, count);
 }

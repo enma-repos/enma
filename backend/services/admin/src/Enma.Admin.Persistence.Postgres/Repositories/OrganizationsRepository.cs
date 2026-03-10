@@ -1,6 +1,5 @@
 using Enma.Admin.Application.Contracts;
 using Enma.Admin.Application.Models;
-using Enma.Admin.Application.ValueTypes;
 using Enma.Admin.Persistence.Postgres.Connection;
 using Enma.Admin.Persistence.Postgres.Entities;
 using Enma.Admin.Persistence.Postgres.Mappers;

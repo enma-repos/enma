@@ -1,5 +1,5 @@
 using System.Text.Json.Nodes;
-using Enma.Admin.Application.ValueTypes;
+using Enma.Admin.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 

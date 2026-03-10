@@ -1,5 +1,6 @@
 using Enma.Common.Errors;
 using FluentResults;
+using Enma.BucketBuilder.Application.ValueObjects;
 
 namespace Enma.BucketBuilder.Application.Models;
 
@@ -38,8 +39,8 @@ public sealed class WindowBuildResult
     }
 
     public static Result<WindowBuildResult> Create(
-        BucketWindow? window,
-        ShardDescriptor? shard,
+        BucketWindow window,
+        ShardDescriptor shard,
         long eventsRead,
         long distinctChains,
         long edgesUpserted,
@@ -49,28 +50,41 @@ public sealed class WindowBuildResult
     {
         var errors = new List<IError>();
 
-        if (window is null)
+        if (eventsRead < 0)
         {
-            errors.Add(ApplicationErrors.Required(nameof(window)));
+            errors.Add(ApplicationErrors.Validation($"{nameof(eventsRead)} must be non-negative."));
         }
 
-        if (shard is null)
+        if (distinctChains < 0)
         {
-            errors.Add(ApplicationErrors.Required(nameof(shard)));
+            errors.Add(ApplicationErrors.Validation($"{nameof(distinctChains)} must be non-negative."));
         }
 
-        ModelValidation.AddNonNegativeLong(errors, eventsRead, nameof(eventsRead));
-        ModelValidation.AddNonNegativeLong(errors, distinctChains, nameof(distinctChains));
-        ModelValidation.AddNonNegativeLong(errors, edgesUpserted, nameof(edgesUpserted));
-        ModelValidation.AddNonNegativeLong(errors, nodesUpserted, nameof(nodesUpserted));
-        ModelValidation.AddNonNegativeLong(errors, cursorsUpserted, nameof(cursorsUpserted));
-        ModelValidation.AddNonNegativeLong(errors, durationMs, nameof(durationMs));
+        if (edgesUpserted < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(edgesUpserted)} must be non-negative."));
+        }
+
+        if (nodesUpserted < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(nodesUpserted)} must be non-negative."));
+        }
+
+        if (cursorsUpserted < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(cursorsUpserted)} must be non-negative."));
+        }
+
+        if (durationMs < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(durationMs)} must be non-negative."));
+        }
 
         return errors.Count > 0
             ? Result.Fail<WindowBuildResult>(errors)
             : Result.Ok(new WindowBuildResult(
-                window!,
-                shard!,
+                window,
+                shard,
                 eventsRead,
                 distinctChains,
                 edgesUpserted,

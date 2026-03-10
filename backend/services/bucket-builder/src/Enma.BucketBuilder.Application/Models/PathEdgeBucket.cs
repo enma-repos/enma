@@ -1,3 +1,4 @@
+using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
@@ -11,7 +12,7 @@ public sealed class PathEdgeBucket
     private static readonly TimeSpan BucketSize = TimeSpan.FromMinutes(5);
 
     public EdgeKey Key { get; }
-    public DateTime BucketEndUtc { get; }
+    public BucketBoundaryUtc BucketEndUtc { get; }
     public long TransitionsCount { get; }
     public long UniqueChains { get; }
     public long UniqueUsers { get; }
@@ -21,7 +22,7 @@ public sealed class PathEdgeBucket
 
     private PathEdgeBucket(
         EdgeKey key,
-        DateTime bucketEndUtc,
+        BucketBoundaryUtc bucketEndUtc,
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
@@ -56,24 +57,47 @@ public sealed class PathEdgeBucket
             errors.Add(ApplicationErrors.Required(nameof(key)));
         }
 
-        ModelValidation.AddUtcDateTime(errors, bucketEndUtc, nameof(bucketEndUtc));
-        if (!ModelValidation.IsFiveMinuteBoundary(bucketEndUtc))
+        var bucketEndVoResult = BucketBoundaryUtc.Create(bucketEndUtc);
+        if (bucketEndVoResult.IsFailed)
         {
-            errors.Add(ApplicationErrors.Validation("bucketEndUtc must be aligned to a 5-minute boundary."));
+            errors.AddRange(bucketEndVoResult.Errors);
         }
 
-        if (key is not null && bucketEndUtc - key.BucketStartUtc != BucketSize)
+        if (key is not null && bucketEndUtc - key.BucketStartUtc.Value != BucketSize)
         {
             errors.Add(ApplicationErrors.Validation(
                 "bucketEndUtc must be exactly 5 minutes after key.BucketStartUtc."));
         }
 
-        ModelValidation.AddNonNegativeLong(errors, transitionsCount, nameof(transitionsCount));
-        ModelValidation.AddNonNegativeLong(errors, uniqueChains, nameof(uniqueChains));
-        ModelValidation.AddNonNegativeLong(errors, uniqueUsers, nameof(uniqueUsers));
-        ModelValidation.AddNonNegativeLong(errors, uniqueAnonymous, nameof(uniqueAnonymous));
-        ModelValidation.AddNonNegativeInt(errors, projectShard, nameof(projectShard));
-        ModelValidation.AddRequiredGuid(errors, buildId, nameof(buildId));
+        if (transitionsCount < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(transitionsCount)} must be non-negative."));
+        }
+
+        if (uniqueChains < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(uniqueChains)} must be non-negative."));
+        }
+
+        if (uniqueUsers < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(uniqueUsers)} must be non-negative."));
+        }
+
+        if (uniqueAnonymous < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(uniqueAnonymous)} must be non-negative."));
+        }
+
+        if (projectShard < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(projectShard)} must be non-negative."));
+        }
+
+        if (buildId == Guid.Empty)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(buildId)));
+        }
 
         if (transitionsCount == 0 && (uniqueChains > 0 || uniqueUsers > 0 || uniqueAnonymous > 0))
         {
@@ -102,7 +126,7 @@ public sealed class PathEdgeBucket
             ? Result.Fail<PathEdgeBucket>(errors)
             : Result.Ok(new PathEdgeBucket(
                 key!,
-                bucketEndUtc,
+                bucketEndVoResult.Value,
                 transitionsCount,
                 uniqueChains,
                 uniqueUsers,
@@ -120,9 +144,9 @@ public sealed class PathEdgeBucket
         long uniqueAnonymous,
         int projectShard,
         Guid buildId)
-        => new PathEdgeBucket(
+        => new(
             key,
-            bucketEndUtc,
+            BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             transitionsCount,
             uniqueChains,
             uniqueUsers,

@@ -1,5 +1,6 @@
 using Enma.Common.Errors;
 using FluentResults;
+using Enma.BucketBuilder.Application.ValueObjects;
 
 namespace Enma.BucketBuilder.Application.Models;
 
@@ -10,19 +11,19 @@ public sealed class ChainCursor
 {
     public ChainKey ChainKey { get; }
     public Guid LastEventId { get; }
-    public string LastEventName { get; }
+    public EventName LastEventName { get; }
     public DateTime LastOccurredAtUtc { get; }
-    public string? LastActorUserId { get; }
-    public string? LastActorAnonymousId { get; }
+    public ActorIdentifier? LastActorUserId { get; }
+    public ActorIdentifier? LastActorAnonymousId { get; }
     public DateTime UpdatedAtUtc { get; }
 
     private ChainCursor(
         ChainKey chainKey,
         Guid lastEventId,
-        string lastEventName,
+        EventName lastEventName,
         DateTime lastOccurredAtUtc,
-        string? lastActorUserId,
-        string? lastActorAnonymousId,
+        ActorIdentifier? lastActorUserId,
+        ActorIdentifier? lastActorAnonymousId,
         DateTime updatedAtUtc)
     {
         ChainKey = chainKey;
@@ -35,7 +36,7 @@ public sealed class ChainCursor
     }
 
     public static Result<ChainCursor> Create(
-        ChainKey? chainKey,
+        ChainKey chainKey,
         Guid lastEventId,
         string? lastEventName,
         DateTime lastOccurredAtUtc,
@@ -45,49 +46,53 @@ public sealed class ChainCursor
     {
         var errors = new List<IError>();
 
-        if (chainKey is null)
+        if (lastEventId == Guid.Empty)
         {
-            errors.Add(ApplicationErrors.Required(nameof(chainKey)));
+            errors.Add(ApplicationErrors.Required(nameof(lastEventId)));
         }
 
-        ModelValidation.AddRequiredGuid(errors, lastEventId, nameof(lastEventId));
+        var lastEventNameVoResult = EventName.Create(lastEventName);
+        if (lastEventNameVoResult.IsFailed)
+        {
+            errors.AddRange(lastEventNameVoResult.Errors);
+        }
 
-        var normalizedLastEventName = ModelValidation.ValidateRequiredString(
-            errors,
-            lastEventName,
-            nameof(lastEventName),
-            minLength: 1,
-            maxLength: 200);
+        if (lastOccurredAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(lastOccurredAtUtc)} must be UTC."));
+        }
 
-        ModelValidation.AddUtcDateTime(errors, lastOccurredAtUtc, nameof(lastOccurredAtUtc));
-        ModelValidation.AddUtcDateTime(errors, updatedAtUtc, nameof(updatedAtUtc));
+        if (updatedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(updatedAtUtc)} must be UTC."));
+        }
 
         if (updatedAtUtc < lastOccurredAtUtc)
         {
             errors.Add(ApplicationErrors.Validation("updatedAtUtc cannot be earlier than lastOccurredAtUtc."));
         }
 
-        var normalizedLastActorUserId = ModelValidation.ValidateOptionalString(
-            errors,
-            lastActorUserId,
-            nameof(lastActorUserId),
-            maxLength: 256);
+        var lastActorUserIdVoResult = ActorIdentifier.CreateOptional(lastActorUserId);
+        if (lastActorUserIdVoResult.IsFailed)
+        {
+            errors.AddRange(lastActorUserIdVoResult.Errors);
+        }
 
-        var normalizedLastActorAnonymousId = ModelValidation.ValidateOptionalString(
-            errors,
-            lastActorAnonymousId,
-            nameof(lastActorAnonymousId),
-            maxLength: 256);
+        var lastActorAnonymousIdVoResult = ActorIdentifier.CreateOptional(lastActorAnonymousId);
+        if (lastActorAnonymousIdVoResult.IsFailed)
+        {
+            errors.AddRange(lastActorAnonymousIdVoResult.Errors);
+        }
 
         return errors.Count > 0
             ? Result.Fail<ChainCursor>(errors)
             : Result.Ok(new ChainCursor(
-                chainKey!,
+                chainKey,
                 lastEventId,
-                normalizedLastEventName,
+                lastEventNameVoResult.Value,
                 lastOccurredAtUtc,
-                normalizedLastActorUserId,
-                normalizedLastActorAnonymousId,
+                lastActorUserIdVoResult.Value,
+                lastActorAnonymousIdVoResult.Value,
                 updatedAtUtc));
     }
 
@@ -102,9 +107,9 @@ public sealed class ChainCursor
         => new(
             chainKey,
             lastEventId,
-            lastEventName,
+            EventName.Rehydrate(lastEventName),
             lastOccurredAtUtc,
-            lastActorUserId,
-            lastActorAnonymousId,
+            string.IsNullOrWhiteSpace(lastActorUserId) ? null : ActorIdentifier.Rehydrate(lastActorUserId),
+            string.IsNullOrWhiteSpace(lastActorAnonymousId) ? null : ActorIdentifier.Rehydrate(lastActorAnonymousId),
             updatedAtUtc);
 }

@@ -1,3 +1,4 @@
+using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
@@ -9,18 +10,18 @@ namespace Enma.BucketBuilder.Application.Models;
 /// </summary>
 public sealed class ShardCheckpoint
 {
-    public string Pipeline { get; }
+    public PipelineName Pipeline { get; }
     public ShardDescriptor Shard { get; }
-    public DateTime? LastCompletedBucketEndUtc { get; }
-    public string? LeaseOwner { get; }
+    public BucketBoundaryUtc? LastCompletedBucketEndUtc { get; }
+    public LeaseOwnerId? LeaseOwner { get; }
     public DateTime? LeaseUntilUtc { get; }
     public DateTime UpdatedAtUtc { get; }
 
     private ShardCheckpoint(
-        string pipeline,
+        PipelineName pipeline,
         ShardDescriptor shard,
-        DateTime? lastCompletedBucketEndUtc,
-        string? leaseOwner,
+        BucketBoundaryUtc? lastCompletedBucketEndUtc,
+        LeaseOwnerId? leaseOwner,
         DateTime? leaseUntilUtc,
         DateTime updatedAtUtc)
     {
@@ -34,7 +35,7 @@ public sealed class ShardCheckpoint
 
     public static Result<ShardCheckpoint> Create(
         string? pipeline,
-        ShardDescriptor? shard,
+        ShardDescriptor shard,
         DateTime? lastCompletedBucketEndUtc,
         string? leaseOwner,
         DateTime? leaseUntilUtc,
@@ -42,54 +43,50 @@ public sealed class ShardCheckpoint
     {
         var errors = new List<IError>();
 
-        var normalizedPipeline = ModelValidation.ValidateRequiredString(
-            errors,
-            pipeline,
-            nameof(pipeline),
-            minLength: 1,
-            maxLength: 64);
-
-        if (shard is null)
+        var pipelineVoResult = PipelineName.Create(pipeline);
+        if (pipelineVoResult.IsFailed)
         {
-            errors.Add(ApplicationErrors.Required(nameof(shard)));
+            errors.AddRange(pipelineVoResult.Errors);
         }
 
+        Result<BucketBoundaryUtc>? lastCompletedVoResult = null;
         if (lastCompletedBucketEndUtc.HasValue)
         {
-            ModelValidation.AddUtcDateTime(errors, lastCompletedBucketEndUtc.Value, nameof(lastCompletedBucketEndUtc));
-            if (!ModelValidation.IsFiveMinuteBoundary(lastCompletedBucketEndUtc.Value))
+            lastCompletedVoResult = BucketBoundaryUtc.Create(lastCompletedBucketEndUtc.Value);
+            if (lastCompletedVoResult.IsFailed)
             {
-                errors.Add(ApplicationErrors.Validation(
-                    "lastCompletedBucketEndUtc must be aligned to a 5-minute boundary."));
+                errors.AddRange(lastCompletedVoResult.Errors);
             }
         }
 
-        var normalizedLeaseOwner = ModelValidation.ValidateOptionalString(
-            errors,
-            leaseOwner,
-            nameof(leaseOwner),
-            maxLength: 200);
-
-        if (leaseUntilUtc.HasValue)
+        var leaseOwnerVoResult = LeaseOwnerId.CreateOptional(leaseOwner);
+        if (leaseOwnerVoResult.IsFailed)
         {
-            ModelValidation.AddUtcDateTime(errors, leaseUntilUtc.Value, nameof(leaseUntilUtc));
+            errors.AddRange(leaseOwnerVoResult.Errors);
         }
 
-        if (normalizedLeaseOwner is null ^ leaseUntilUtc is null)
+        if (leaseUntilUtc.HasValue && leaseUntilUtc.Value.Kind != DateTimeKind.Utc)
         {
-            errors.Add(ApplicationErrors.Validation(
-                "leaseOwner and leaseUntilUtc must be set together or both be null."));
+            errors.Add(ApplicationErrors.Validation($"{nameof(leaseUntilUtc)} must be UTC when provided."));
         }
 
-        ModelValidation.AddUtcDateTime(errors, updatedAtUtc, nameof(updatedAtUtc));
+        if (leaseOwnerVoResult.Value is null ^ leaseUntilUtc is null)
+        {
+            errors.Add(ApplicationErrors.Validation("leaseOwner and leaseUntilUtc must be set together or both be null."));
+        }
+
+        if (updatedAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(updatedAtUtc)} must be UTC."));
+        }
 
         return errors.Count > 0
             ? Result.Fail<ShardCheckpoint>(errors)
             : Result.Ok(new ShardCheckpoint(
-                normalizedPipeline,
-                shard!,
-                lastCompletedBucketEndUtc,
-                normalizedLeaseOwner,
+                pipelineVoResult.Value,
+                shard,
+                lastCompletedVoResult?.Value,
+                leaseOwnerVoResult.Value,
                 leaseUntilUtc,
                 updatedAtUtc));
     }
@@ -101,11 +98,11 @@ public sealed class ShardCheckpoint
         string? leaseOwner,
         DateTime? leaseUntilUtc,
         DateTime updatedAtUtc)
-        => new ShardCheckpoint(
-            pipeline,
+        => new(
+            PipelineName.Rehydrate(pipeline),
             shard,
-            lastCompletedBucketEndUtc,
-            leaseOwner,
+            lastCompletedBucketEndUtc.HasValue ? BucketBoundaryUtc.Rehydrate(lastCompletedBucketEndUtc.Value) : null,
+            string.IsNullOrWhiteSpace(leaseOwner) ? null : LeaseOwnerId.Rehydrate(leaseOwner),
             leaseUntilUtc,
             updatedAtUtc);
 }

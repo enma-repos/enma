@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.Admin.Application.ValueTypes;
+namespace Enma.Admin.Application.ValueObjects;
 
 public readonly record struct OrganizationSlug(string Value)
 {

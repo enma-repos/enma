@@ -1,3 +1,4 @@
+using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
@@ -8,16 +9,16 @@ namespace Enma.BucketBuilder.Application.Models;
 /// </summary>
 public sealed class LeaseToken
 {
-    public string Pipeline { get; }
+    public PipelineName Pipeline { get; }
     public ShardDescriptor Shard { get; }
-    public string OwnerId { get; }
+    public LeaseOwnerId OwnerId { get; }
     public DateTime AcquiredAtUtc { get; }
     public DateTime ExpiresAtUtc { get; }
 
     private LeaseToken(
-        string pipeline,
+        PipelineName pipeline,
         ShardDescriptor shard,
-        string ownerId,
+        LeaseOwnerId ownerId,
         DateTime acquiredAtUtc,
         DateTime expiresAtUtc)
     {
@@ -30,34 +31,34 @@ public sealed class LeaseToken
 
     public static Result<LeaseToken> Create(
         string? pipeline,
-        ShardDescriptor? shard,
+        ShardDescriptor shard,
         string? ownerId,
         DateTime acquiredAtUtc,
         DateTime expiresAtUtc)
     {
         var errors = new List<IError>();
 
-        var normalizedPipeline = ModelValidation.ValidateRequiredString(
-            errors,
-            pipeline,
-            nameof(pipeline),
-            minLength: 1,
-            maxLength: 64);
-
-        if (shard is null)
+        var pipelineVoResult = PipelineName.Create(pipeline);
+        if (pipelineVoResult.IsFailed)
         {
-            errors.Add(ApplicationErrors.Required(nameof(shard)));
+            errors.AddRange(pipelineVoResult.Errors);
         }
 
-        var normalizedOwnerId = ModelValidation.ValidateRequiredString(
-            errors,
-            ownerId,
-            nameof(ownerId),
-            minLength: 1,
-            maxLength: 200);
+        var ownerIdVoResult = LeaseOwnerId.Create(ownerId);
+        if (ownerIdVoResult.IsFailed)
+        {
+            errors.AddRange(ownerIdVoResult.Errors);
+        }
 
-        ModelValidation.AddUtcDateTime(errors, acquiredAtUtc, nameof(acquiredAtUtc));
-        ModelValidation.AddUtcDateTime(errors, expiresAtUtc, nameof(expiresAtUtc));
+        if (acquiredAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(acquiredAtUtc)} must be UTC."));
+        }
+
+        if (expiresAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(expiresAtUtc)} must be UTC."));
+        }
 
         if (expiresAtUtc <= acquiredAtUtc)
         {
@@ -66,7 +67,12 @@ public sealed class LeaseToken
 
         return errors.Count > 0
             ? Result.Fail<LeaseToken>(errors)
-            : Result.Ok(new LeaseToken(normalizedPipeline, shard!, normalizedOwnerId, acquiredAtUtc, expiresAtUtc));
+            : Result.Ok(new LeaseToken(
+                pipelineVoResult.Value,
+                shard,
+                ownerIdVoResult.Value,
+                acquiredAtUtc,
+                expiresAtUtc));
     }
 
     public static LeaseToken Rehydrate(
@@ -75,5 +81,10 @@ public sealed class LeaseToken
         string ownerId,
         DateTime acquiredAtUtc,
         DateTime expiresAtUtc)
-        => new LeaseToken(pipeline, shard, ownerId, acquiredAtUtc, expiresAtUtc);
+        => new(
+            PipelineName.Rehydrate(pipeline),
+            shard,
+            LeaseOwnerId.Rehydrate(ownerId),
+            acquiredAtUtc,
+            expiresAtUtc);
 }

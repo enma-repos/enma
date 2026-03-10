@@ -1,5 +1,6 @@
 using Enma.Common.Errors;
 using FluentResults;
+using Enma.BucketBuilder.Application.ValueObjects;
 
 namespace Enma.BucketBuilder.Application.Models;
 
@@ -12,18 +13,18 @@ public sealed class PathSourceEvent
 {
     public Guid EventId { get; }
     public ChainKey ChainKey { get; }
-    public string EventName { get; }
+    public EventName EventName { get; }
     public DateTime OccurredAtUtc { get; }
-    public string? ActorUserId { get; }
-    public string? ActorAnonymousId { get; }
+    public ActorIdentifier? ActorUserId { get; }
+    public ActorIdentifier? ActorAnonymousId { get; }
 
     private PathSourceEvent(
         Guid eventId,
         ChainKey chainKey,
-        string eventName,
+        EventName eventName,
         DateTime occurredAtUtc,
-        string? actorUserId,
-        string? actorAnonymousId)
+        ActorIdentifier? actorUserId,
+        ActorIdentifier? actorAnonymousId)
     {
         EventId = eventId;
         ChainKey = chainKey;
@@ -35,7 +36,7 @@ public sealed class PathSourceEvent
 
     public static Result<PathSourceEvent> Create(
         Guid eventId,
-        ChainKey? chainKey,
+        ChainKey chainKey,
         string? eventName,
         DateTime occurredAtUtc,
         string? actorUserId,
@@ -43,43 +44,43 @@ public sealed class PathSourceEvent
     {
         var errors = new List<IError>();
 
-        ModelValidation.AddRequiredGuid(errors, eventId, nameof(eventId));
-
-        if (chainKey is null)
+        if (eventId == Guid.Empty)
         {
-            errors.Add(ApplicationErrors.Required(nameof(chainKey)));
+            errors.Add(ApplicationErrors.Required(nameof(eventId)));
         }
 
-        var normalizedEventName = ModelValidation.ValidateRequiredString(
-            errors,
-            eventName,
-            nameof(eventName),
-            minLength: 1,
-            maxLength: 200);
+        var eventNameVoResult = EventName.Create(eventName);
+        if (eventNameVoResult.IsFailed)
+        {
+            errors.AddRange(eventNameVoResult.Errors);
+        }
 
-        ModelValidation.AddUtcDateTime(errors, occurredAtUtc, nameof(occurredAtUtc));
+        if (occurredAtUtc.Kind != DateTimeKind.Utc)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(occurredAtUtc)} must be UTC."));
+        }
 
-        var normalizedActorUserId = ModelValidation.ValidateOptionalString(
-            errors,
-            actorUserId,
-            nameof(actorUserId),
-            maxLength: 256);
+        var actorUserIdVoResult = ActorIdentifier.CreateOptional(actorUserId);
+        if (actorUserIdVoResult.IsFailed)
+        {
+            errors.AddRange(actorUserIdVoResult.Errors);
+        }
 
-        var normalizedActorAnonymousId = ModelValidation.ValidateOptionalString(
-            errors,
-            actorAnonymousId,
-            nameof(actorAnonymousId),
-            maxLength: 256);
+        var actorAnonymousIdVoResult = ActorIdentifier.CreateOptional(actorAnonymousId);
+        if (actorAnonymousIdVoResult.IsFailed)
+        {
+            errors.AddRange(actorAnonymousIdVoResult.Errors);
+        }
 
         return errors.Count > 0
             ? Result.Fail<PathSourceEvent>(errors)
             : Result.Ok(new PathSourceEvent(
                 eventId,
-                chainKey!,
-                normalizedEventName,
+                chainKey,
+                eventNameVoResult.Value,
                 occurredAtUtc,
-                normalizedActorUserId,
-                normalizedActorAnonymousId));
+                actorUserIdVoResult.Value,
+                actorAnonymousIdVoResult.Value));
     }
 
     public static PathSourceEvent Rehydrate(
@@ -89,5 +90,11 @@ public sealed class PathSourceEvent
         DateTime occurredAtUtc,
         string? actorUserId,
         string? actorAnonymousId)
-        => new(eventId, chainKey, eventName, occurredAtUtc, actorUserId, actorAnonymousId);
+        => new(
+            eventId,
+            chainKey,
+            EventName.Rehydrate(eventName),
+            occurredAtUtc,
+            string.IsNullOrWhiteSpace(actorUserId) ? null : ActorIdentifier.Rehydrate(actorUserId),
+            string.IsNullOrWhiteSpace(actorAnonymousId) ? null : ActorIdentifier.Rehydrate(actorAnonymousId));
 }

@@ -1,25 +1,25 @@
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.Application.ValueObjects;
 
 /// <summary>
 /// Unique key of an event-node bucket for one project and one window.
 /// </summary>
 public sealed class NodeKey
 {
-    public DateTime BucketStartUtc { get; }
+    public BucketBoundaryUtc BucketStartUtc { get; }
     public Guid OrganizationId { get; }
     public Guid ProjectId { get; }
     public Guid ProcessDefinitionId { get; }
-    public string EventName { get; }
+    public EventName EventName { get; }
 
     private NodeKey(
-        DateTime bucketStartUtc,
+        BucketBoundaryUtc bucketStartUtc,
         Guid organizationId,
         Guid projectId,
         Guid processDefinitionId,
-        string eventName)
+        EventName eventName)
     {
         BucketStartUtc = bucketStartUtc;
         OrganizationId = organizationId;
@@ -37,31 +37,41 @@ public sealed class NodeKey
     {
         var errors = new List<IError>();
 
-        ModelValidation.AddUtcDateTime(errors, bucketStartUtc, nameof(bucketStartUtc));
-        if (!ModelValidation.IsFiveMinuteBoundary(bucketStartUtc))
+        var bucketStartVoResult = BucketBoundaryUtc.Create(bucketStartUtc);
+        if (bucketStartVoResult.IsFailed)
         {
-            errors.Add(ApplicationErrors.Validation("bucketStartUtc must be aligned to a 5-minute boundary."));
+            errors.AddRange(bucketStartVoResult.Errors);
         }
 
-        ModelValidation.AddRequiredGuid(errors, organizationId, nameof(organizationId));
-        ModelValidation.AddRequiredGuid(errors, projectId, nameof(projectId));
-        ModelValidation.AddRequiredGuid(errors, processDefinitionId, nameof(processDefinitionId));
+        if (organizationId == Guid.Empty)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(organizationId)));
+        }
 
-        var normalizedEventName = ModelValidation.ValidateRequiredString(
-            errors,
-            eventName,
-            nameof(eventName),
-            minLength: 1,
-            maxLength: 200);
+        if (projectId == Guid.Empty)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(projectId)));
+        }
+
+        if (processDefinitionId == Guid.Empty)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(processDefinitionId)));
+        }
+
+        var eventNameVoResult = EventName.Create(eventName);
+        if (eventNameVoResult.IsFailed)
+        {
+            errors.AddRange(eventNameVoResult.Errors);
+        }
 
         return errors.Count > 0
             ? Result.Fail<NodeKey>(errors)
             : Result.Ok(new NodeKey(
-                bucketStartUtc,
+                bucketStartVoResult.Value,
                 organizationId,
                 projectId,
                 processDefinitionId,
-                normalizedEventName));
+                eventNameVoResult.Value));
     }
 
     public static NodeKey Rehydrate(
@@ -70,10 +80,10 @@ public sealed class NodeKey
         Guid projectId,
         Guid processDefinitionId,
         string eventName)
-        => new NodeKey(
-            bucketStartUtc,
+        => new(
+            BucketBoundaryUtc.Rehydrate(bucketStartUtc),
             organizationId,
             projectId,
             processDefinitionId,
-            eventName);
+            EventName.Rehydrate(eventName));
 }

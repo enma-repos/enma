@@ -1,5 +1,6 @@
 using Enma.Common.Errors;
 using FluentResults;
+using Enma.BucketBuilder.Application.ValueObjects;
 
 namespace Enma.BucketBuilder.Application.Models;
 
@@ -32,7 +33,7 @@ public sealed class ShardRunResult
     }
 
     public static Result<ShardRunResult> Create(
-        ShardDescriptor? shard,
+        ShardDescriptor shard,
         int windowsProcessed,
         DateTime? fromCheckpointUtc,
         DateTime? toCheckpointUtc,
@@ -41,11 +42,6 @@ public sealed class ShardRunResult
     {
         var errors = new List<IError>();
 
-        if (shard is null)
-        {
-            errors.Add(ApplicationErrors.Required(nameof(shard)));
-        }
-
         if (windowsProcessed < 0)
         {
             errors.Add(ApplicationErrors.Validation("windowsProcessed must be non-negative."));
@@ -53,12 +49,18 @@ public sealed class ShardRunResult
 
         if (fromCheckpointUtc.HasValue)
         {
-            ModelValidation.AddUtcDateTime(errors, fromCheckpointUtc.Value, nameof(fromCheckpointUtc));
+            if (fromCheckpointUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                errors.Add(ApplicationErrors.Validation($"{nameof(fromCheckpointUtc)} must be UTC when provided."));
+            }
         }
 
         if (toCheckpointUtc.HasValue)
         {
-            ModelValidation.AddUtcDateTime(errors, toCheckpointUtc.Value, nameof(toCheckpointUtc));
+            if (toCheckpointUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                errors.Add(ApplicationErrors.Validation($"{nameof(toCheckpointUtc)} must be UTC when provided."));
+            }
         }
 
         if (fromCheckpointUtc.HasValue && toCheckpointUtc.HasValue && toCheckpointUtc < fromCheckpointUtc)
@@ -66,13 +68,20 @@ public sealed class ShardRunResult
             errors.Add(ApplicationErrors.Validation("toCheckpointUtc cannot be earlier than fromCheckpointUtc."));
         }
 
-        ModelValidation.AddNonNegativeLong(errors, totalEventsRead, nameof(totalEventsRead));
-        ModelValidation.AddNonNegativeLong(errors, totalDurationMs, nameof(totalDurationMs));
+        if (totalEventsRead < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(totalEventsRead)} must be non-negative."));
+        }
+
+        if (totalDurationMs < 0)
+        {
+            errors.Add(ApplicationErrors.Validation($"{nameof(totalDurationMs)} must be non-negative."));
+        }
 
         return errors.Count > 0
             ? Result.Fail<ShardRunResult>(errors)
             : Result.Ok(new ShardRunResult(
-                shard!,
+                shard,
                 windowsProcessed,
                 fromCheckpointUtc,
                 toCheckpointUtc,
