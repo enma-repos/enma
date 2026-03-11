@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -8,6 +8,10 @@
 
     <ItemGroup>
       <PackageReference Include="MongoDB.Driver" Version="3.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Enma.BucketBuilder.Application\Enma.BucketBuilder.Application.csproj" />
     </ItemGroup>
 
 </Project>

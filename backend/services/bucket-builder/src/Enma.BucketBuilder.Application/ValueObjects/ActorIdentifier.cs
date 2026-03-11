@@ -3,8 +3,15 @@ using FluentResults;
 
 namespace Enma.BucketBuilder.Application.ValueObjects;
 
-public readonly record struct ActorIdentifier(string Value)
+public sealed record ActorIdentifier
 {
+    public string Value { get; }
+
+    private ActorIdentifier(string value)
+    {
+        Value = value;
+    }
+
     public static Result<ActorIdentifier> Create(string? value)
     {
         var normalized = (value ?? string.Empty).Trim();

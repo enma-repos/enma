@@ -1,8 +1,8 @@
-using Enma.BucketBuilder.Application.ValueObjects;
+using Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.JobsOrchestration.Models;
 
 /// <summary>
 /// Lease owner identity used to guard shard execution from concurrent workers.

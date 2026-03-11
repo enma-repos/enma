@@ -36,13 +36,18 @@ public sealed class PathSourceEvent
 
     public static Result<PathSourceEvent> Create(
         Guid eventId,
-        ChainKey chainKey,
+        ChainKey? chainKey,
         string? eventName,
         DateTime occurredAtUtc,
         string? actorUserId,
         string? actorAnonymousId)
     {
         var errors = new List<IError>();
+
+        if (chainKey is null)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(chainKey)));
+        }
 
         if (eventId == Guid.Empty)
         {
@@ -76,7 +81,7 @@ public sealed class PathSourceEvent
             ? Result.Fail<PathSourceEvent>(errors)
             : Result.Ok(new PathSourceEvent(
                 eventId,
-                chainKey,
+                chainKey!,
                 eventNameVoResult.Value,
                 occurredAtUtc,
                 actorUserIdVoResult.Value,

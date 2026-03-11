@@ -6,7 +6,7 @@ namespace Enma.BucketBuilder.Application.ValueObjects;
 /// <summary>
 /// Unique key of an event-node bucket for one project and one window.
 /// </summary>
-public sealed class NodeKey
+public sealed record NodeKey
 {
     public BucketBoundaryUtc BucketStartUtc { get; }
     public Guid OrganizationId { get; }

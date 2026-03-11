@@ -6,9 +6,18 @@ namespace Enma.BucketBuilder.Application.ValueObjects;
 /// <summary>
 /// Fixed 5-minute UTC window used as a deterministic unit of bucket calculation.
 /// </summary>
-public readonly record struct BucketWindow(BucketBoundaryUtc StartUtc, BucketBoundaryUtc EndUtc)
+public sealed record BucketWindow
 {
     private static readonly TimeSpan BucketSize = TimeSpan.FromMinutes(5);
+
+    public BucketBoundaryUtc StartUtc { get; }
+    public BucketBoundaryUtc EndUtc { get; }
+
+    private BucketWindow(BucketBoundaryUtc startUtc, BucketBoundaryUtc endUtc)
+    {
+        StartUtc = startUtc;
+        EndUtc = endUtc;
+    }
 
     public static Result<BucketWindow> Create(DateTime startUtc, DateTime endUtc)
     {

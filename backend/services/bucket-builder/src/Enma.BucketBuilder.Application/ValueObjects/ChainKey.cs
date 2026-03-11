@@ -7,12 +7,25 @@ namespace Enma.BucketBuilder.Application.ValueObjects;
 /// Stable chain identifier for path stitching:
 /// organization + project + process definition + process instance.
 /// </summary>
-public readonly record struct ChainKey(
-    Guid OrganizationId,
-    Guid ProjectId,
-    Guid ProcessDefinitionId,
-    ProcessId ProcessId)
+public sealed record ChainKey
 {
+    public Guid OrganizationId { get; }
+    public Guid ProjectId { get; }
+    public Guid ProcessDefinitionId { get; }
+    public ProcessId ProcessId { get; }
+
+    private ChainKey(
+        Guid organizationId,
+        Guid projectId,
+        Guid processDefinitionId,
+        ProcessId processId)
+    {
+        OrganizationId = organizationId;
+        ProjectId = projectId;
+        ProcessDefinitionId = processDefinitionId;
+        ProcessId = processId;
+    }
+
     public static Result<ChainKey> Create(
         Guid organizationId,
         Guid projectId,
@@ -57,9 +70,4 @@ public readonly record struct ChainKey(
         Guid processDefinitionId,
         string processId)
         => new(organizationId, projectId, processDefinitionId, ProcessId.Rehydrate(processId));
-
-    public string ToStorageKey()
-    {
-        return $"{OrganizationId:N}:{ProjectId:N}:{ProcessDefinitionId:N}:{ProcessId}";
-    }
 }

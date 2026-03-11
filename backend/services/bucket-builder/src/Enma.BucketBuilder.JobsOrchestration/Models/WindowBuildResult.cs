@@ -1,8 +1,9 @@
+using Enma.BucketBuilder.Application.ValueObjects;
+using Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
-using Enma.BucketBuilder.Application.ValueObjects;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.JobsOrchestration.Models;
 
 /// <summary>
 /// Immutable execution metrics for a single processed bucket window.
@@ -39,7 +40,7 @@ public sealed class WindowBuildResult
     }
 
     public static Result<WindowBuildResult> Create(
-        BucketWindow window,
+        BucketWindow? window,
         ShardDescriptor shard,
         long eventsRead,
         long distinctChains,
@@ -49,6 +50,11 @@ public sealed class WindowBuildResult
         long durationMs)
     {
         var errors = new List<IError>();
+
+        if (window is null)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(window)));
+        }
 
         if (eventsRead < 0)
         {
@@ -83,7 +89,7 @@ public sealed class WindowBuildResult
         return errors.Count > 0
             ? Result.Fail<WindowBuildResult>(errors)
             : Result.Ok(new WindowBuildResult(
-                window,
+                window!,
                 shard,
                 eventsRead,
                 distinctChains,

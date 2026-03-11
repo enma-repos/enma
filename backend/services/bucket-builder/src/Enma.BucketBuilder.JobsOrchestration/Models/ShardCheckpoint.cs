@@ -1,8 +1,9 @@
 using Enma.BucketBuilder.Application.ValueObjects;
+using Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.JobsOrchestration.Models;
 
 /// <summary>
 /// Persistent processing state for one pipeline shard:
@@ -70,7 +71,7 @@ public sealed class ShardCheckpoint
             errors.Add(ApplicationErrors.Validation($"{nameof(leaseUntilUtc)} must be UTC when provided."));
         }
 
-        if (leaseOwnerVoResult.Value is null ^ leaseUntilUtc is null)
+        if (leaseOwnerVoResult.IsSuccess && (leaseOwnerVoResult.Value is null ^ leaseUntilUtc is null))
         {
             errors.Add(ApplicationErrors.Validation("leaseOwner and leaseUntilUtc must be set together or both be null."));
         }

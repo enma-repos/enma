@@ -3,8 +3,15 @@ using FluentResults;
 
 namespace Enma.BucketBuilder.Application.ValueObjects;
 
-public readonly record struct EventName(string Value)
+public sealed record EventName
 {
+    public string Value { get; }
+
+    private EventName(string value)
+    {
+        Value = value;
+    }
+
     public static Result<EventName> Create(string? value)
     {
         var normalized = (value ?? string.Empty).Trim();

@@ -36,7 +36,7 @@ public sealed class ChainCursor
     }
 
     public static Result<ChainCursor> Create(
-        ChainKey chainKey,
+        ChainKey? chainKey,
         Guid lastEventId,
         string? lastEventName,
         DateTime lastOccurredAtUtc,
@@ -45,6 +45,11 @@ public sealed class ChainCursor
         DateTime updatedAtUtc)
     {
         var errors = new List<IError>();
+
+        if (chainKey is null)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(chainKey)));
+        }
 
         if (lastEventId == Guid.Empty)
         {
@@ -87,7 +92,7 @@ public sealed class ChainCursor
         return errors.Count > 0
             ? Result.Fail<ChainCursor>(errors)
             : Result.Ok(new ChainCursor(
-                chainKey,
+                chainKey!,
                 lastEventId,
                 lastEventNameVoResult.Value,
                 lastOccurredAtUtc,

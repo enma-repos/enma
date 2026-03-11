@@ -17,8 +17,6 @@ public sealed class PathNodeBucket
     public long EntriesCount { get; }
     public long ExitsCount { get; }
     public long UniqueChains { get; }
-    public int ProjectShard { get; }
-    public Guid BuildId { get; }
 
     private PathNodeBucket(
         NodeKey key,
@@ -26,9 +24,7 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains,
-        int projectShard,
-        Guid buildId)
+        long uniqueChains)
     {
         Key = key;
         BucketEndUtc = bucketEndUtc;
@@ -36,8 +32,6 @@ public sealed class PathNodeBucket
         EntriesCount = entriesCount;
         ExitsCount = exitsCount;
         UniqueChains = uniqueChains;
-        ProjectShard = projectShard;
-        BuildId = buildId;
     }
 
     public static Result<PathNodeBucket> Create(
@@ -46,9 +40,7 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains,
-        int projectShard,
-        Guid buildId)
+        long uniqueChains)
     {
         var errors = new List<IError>();
 
@@ -89,16 +81,6 @@ public sealed class PathNodeBucket
             errors.Add(ApplicationErrors.Validation($"{nameof(uniqueChains)} must be non-negative."));
         }
 
-        if (projectShard < 0)
-        {
-            errors.Add(ApplicationErrors.Validation($"{nameof(projectShard)} must be non-negative."));
-        }
-
-        if (buildId == Guid.Empty)
-        {
-            errors.Add(ApplicationErrors.Required(nameof(buildId)));
-        }
-
         if (entriesCount > visitsCount)
         {
             errors.Add(ApplicationErrors.Validation("entriesCount cannot be greater than visitsCount."));
@@ -122,9 +104,7 @@ public sealed class PathNodeBucket
                 visitsCount,
                 entriesCount,
                 exitsCount,
-                uniqueChains,
-                projectShard,
-                buildId));
+                uniqueChains));
     }
 
     public static PathNodeBucket Rehydrate(
@@ -133,16 +113,12 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains,
-        int projectShard,
-        Guid buildId)
+        long uniqueChains)
         => new(
             key,
             BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             visitsCount,
             entriesCount,
             exitsCount,
-            uniqueChains,
-            projectShard,
-            buildId);
+            uniqueChains);
 }

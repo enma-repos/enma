@@ -3,8 +3,15 @@ using FluentResults;
 
 namespace Enma.BucketBuilder.Application.ValueObjects;
 
-public readonly record struct ProcessId(string Value)
+public sealed record ProcessId
 {
+    public string Value { get; }
+
+    private ProcessId(string value)
+    {
+        Value = value;
+    }
+
     public static Result<ProcessId> Create(string? value)
     {
         var normalized = (value ?? string.Empty).Trim();

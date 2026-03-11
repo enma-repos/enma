@@ -3,8 +3,15 @@ using FluentResults;
 
 namespace Enma.BucketBuilder.Application.ValueObjects;
 
-public readonly record struct BucketBoundaryUtc(DateTime Value)
+public readonly record struct BucketBoundaryUtc
 {
+    public DateTime Value { get; }
+
+    private BucketBoundaryUtc(DateTime value)
+    {
+        Value = value;
+    }
+
     public static Result<BucketBoundaryUtc> Create(DateTime value)
     {
         var errors = new List<IError>();
@@ -14,7 +21,7 @@ public readonly record struct BucketBoundaryUtc(DateTime Value)
             errors.Add(ApplicationErrors.Validation("Bucket boundary must be UTC."));
         }
 
-        if (value.Second != 0 || value.Millisecond != 0 || value.Microsecond != 0)
+        if (value.Ticks % TimeSpan.TicksPerMinute != 0)
         {
             errors.Add(ApplicationErrors.Validation("Bucket boundary must be minute-aligned."));
         }

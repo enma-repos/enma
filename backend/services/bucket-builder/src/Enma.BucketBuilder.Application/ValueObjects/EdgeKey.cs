@@ -6,7 +6,7 @@ namespace Enma.BucketBuilder.Application.ValueObjects;
 /// <summary>
 /// Unique key of a transition bucket (from_event -> to_event) for one project and one window.
 /// </summary>
-public sealed class EdgeKey
+public sealed record EdgeKey
 {
     public BucketBoundaryUtc BucketStartUtc { get; }
     public Guid OrganizationId { get; }

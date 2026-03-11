@@ -17,8 +17,6 @@ public sealed class PathEdgeBucket
     public long UniqueChains { get; }
     public long UniqueUsers { get; }
     public long UniqueAnonymous { get; }
-    public int ProjectShard { get; }
-    public Guid BuildId { get; }
 
     private PathEdgeBucket(
         EdgeKey key,
@@ -26,9 +24,7 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous,
-        int projectShard,
-        Guid buildId)
+        long uniqueAnonymous)
     {
         Key = key;
         BucketEndUtc = bucketEndUtc;
@@ -36,8 +32,6 @@ public sealed class PathEdgeBucket
         UniqueChains = uniqueChains;
         UniqueUsers = uniqueUsers;
         UniqueAnonymous = uniqueAnonymous;
-        ProjectShard = projectShard;
-        BuildId = buildId;
     }
 
     public static Result<PathEdgeBucket> Create(
@@ -46,9 +40,7 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous,
-        int projectShard,
-        Guid buildId)
+        long uniqueAnonymous)
     {
         var errors = new List<IError>();
 
@@ -89,16 +81,6 @@ public sealed class PathEdgeBucket
             errors.Add(ApplicationErrors.Validation($"{nameof(uniqueAnonymous)} must be non-negative."));
         }
 
-        if (projectShard < 0)
-        {
-            errors.Add(ApplicationErrors.Validation($"{nameof(projectShard)} must be non-negative."));
-        }
-
-        if (buildId == Guid.Empty)
-        {
-            errors.Add(ApplicationErrors.Required(nameof(buildId)));
-        }
-
         if (transitionsCount == 0 && (uniqueChains > 0 || uniqueUsers > 0 || uniqueAnonymous > 0))
         {
             errors.Add(ApplicationErrors.Validation("Unique counters must be zero when transitionsCount is zero."));
@@ -130,9 +112,7 @@ public sealed class PathEdgeBucket
                 transitionsCount,
                 uniqueChains,
                 uniqueUsers,
-                uniqueAnonymous,
-                projectShard,
-                buildId));
+                uniqueAnonymous));
     }
 
     public static PathEdgeBucket Rehydrate(
@@ -141,16 +121,12 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous,
-        int projectShard,
-        Guid buildId)
+        long uniqueAnonymous)
         => new(
             key,
             BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             transitionsCount,
             uniqueChains,
             uniqueUsers,
-            uniqueAnonymous,
-            projectShard,
-            buildId);
+            uniqueAnonymous);
 }

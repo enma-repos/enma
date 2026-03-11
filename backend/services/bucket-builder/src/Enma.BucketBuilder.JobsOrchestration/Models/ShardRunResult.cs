@@ -1,8 +1,8 @@
+using Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
-using Enma.BucketBuilder.Application.ValueObjects;
 
-namespace Enma.BucketBuilder.Application.Models;
+namespace Enma.BucketBuilder.JobsOrchestration.Models;
 
 /// <summary>
 /// Execution summary for one shard job run.

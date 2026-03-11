@@ -1,10 +1,17 @@
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.ValueObjects;
+namespace Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 
-public readonly record struct LeaseOwnerId(string Value)
+public sealed record LeaseOwnerId
 {
+    public string Value { get; }
+
+    private LeaseOwnerId(string value)
+    {
+        Value = value;
+    }
+
     public static Result<LeaseOwnerId> Create(string? value)
     {
         var normalized = (value ?? string.Empty).Trim();

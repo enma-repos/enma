@@ -1,10 +1,17 @@
 using Enma.Common.Errors;
 using FluentResults;
 
-namespace Enma.BucketBuilder.Application.ValueObjects;
+namespace Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 
-public readonly record struct PipelineName(string Value)
+public sealed record PipelineName
 {
+    public string Value { get; }
+
+    private PipelineName(string value)
+    {
+        Value = value;
+    }
+
     public static Result<PipelineName> Create(string? value)
     {
         var normalized = (value ?? string.Empty).Trim();
