@@ -3,17 +3,23 @@ using Enma.BucketBuilder.Application.Models;
 using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.Common.Errors;
 using FluentResults;
+using Microsoft.Extensions.Logging;
 
 namespace Enma.BucketBuilder.Application.Services;
 
 internal sealed class PathAggregationService : IPathAggregationService
 {
     private readonly IChainStitchingService _chainStitchingService;
+    private readonly ILogger<PathAggregationService> _logger;
 
-    public PathAggregationService(IChainStitchingService chainStitchingService)
+    public PathAggregationService(
+        IChainStitchingService chainStitchingService,
+        ILogger<PathAggregationService> logger)
     {
         ArgumentNullException.ThrowIfNull(chainStitchingService);
+        ArgumentNullException.ThrowIfNull(logger);
         _chainStitchingService = chainStitchingService;
+        _logger = logger;
     }
 
     public Result<WindowProjectionBatch> Aggregate(
@@ -70,16 +76,15 @@ internal sealed class PathAggregationService : IPathAggregationService
             var sliceResult = _chainStitchingService.BuildSlice(window!, existingCursor, orderedEvents);
             if (sliceResult.IsFailed)
             {
-                errors.AddRange(sliceResult.Errors);
+                _logger.LogWarning(
+                    "Skipping chain {ChainKey} in window {WindowStart}: {Errors}",
+                    group.Key,
+                    window!.StartUtc,
+                    string.Join("; ", sliceResult.Errors.Select(e => e.Message)));
                 continue;
             }
 
             slices.Add(sliceResult.Value);
-        }
-
-        if (errors.Count > 0)
-        {
-            return Result.Fail<WindowProjectionBatch>(errors);
         }
 
         var nodeBucketsResult = BuildNodeBuckets(window!, slices);
@@ -117,15 +122,26 @@ internal sealed class PathAggregationService : IPathAggregationService
 
         foreach (var group in slices.SelectMany(x => x.NodeVisits).GroupBy(x => x.Key))
         {
-            var visits = group.ToArray();
+            long totalVisits = 0;
+            long entries = 0;
+            long exits = 0;
+            var uniqueChains = new HashSet<ChainKey>();
+
+            foreach (var visit in group)
+            {
+                totalVisits++;
+                if (visit.IsEntry) entries++;
+                if (visit.IsExit) exits++;
+                uniqueChains.Add(visit.ChainKey);
+            }
 
             var bucketResult = PathNodeBucket.Create(
                 group.Key,
                 window.EndUtc.Value,
-                visits.LongLength,
-                visits.LongCount(x => x.IsEntry),
-                visits.LongCount(x => x.IsExit),
-                visits.Select(x => x.ChainKey).Distinct().LongCount());
+                totalVisits,
+                entries,
+                exits,
+                uniqueChains.Count);
 
             if (bucketResult.IsFailed)
             {
@@ -150,15 +166,26 @@ internal sealed class PathAggregationService : IPathAggregationService
 
         foreach (var group in slices.SelectMany(x => x.EdgeTransitions).GroupBy(x => x.Key))
         {
-            var transitions = group.ToArray();
+            long totalTransitions = 0;
+            var uniqueChains = new HashSet<ChainKey>();
+            var uniqueUsers = new HashSet<ActorIdentifier>();
+            var uniqueAnonymous = new HashSet<ActorIdentifier>();
+
+            foreach (var transition in group)
+            {
+                totalTransitions++;
+                uniqueChains.Add(transition.ChainKey);
+                if (transition.ActorUserId is not null) uniqueUsers.Add(transition.ActorUserId);
+                if (transition.ActorAnonymousId is not null) uniqueAnonymous.Add(transition.ActorAnonymousId);
+            }
 
             var bucketResult = PathEdgeBucket.Create(
                 group.Key,
                 window.EndUtc.Value,
-                transitions.LongLength,
-                transitions.Select(x => x.ChainKey).Distinct().LongCount(),
-                transitions.Where(x => x.ActorUserId is not null).Select(x => x.ActorUserId!).Distinct().LongCount(),
-                transitions.Where(x => x.ActorAnonymousId is not null).Select(x => x.ActorAnonymousId!).Distinct().LongCount());
+                totalTransitions,
+                uniqueChains.Count,
+                uniqueUsers.Count,
+                uniqueAnonymous.Count);
 
             if (bucketResult.IsFailed)
             {

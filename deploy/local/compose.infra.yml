@@ -48,27 +48,27 @@ services:
     networks:
       - enma
     restart: unless-stopped
-#
-#  mongo:
-#    image: mongo:7
-#    container_name: enma-mongo
-#    environment:
-#      MONGO_INITDB_DATABASE: enma
-#      MONGO_INITDB_ROOT_USERNAME: enma
-#      MONGO_INITDB_ROOT_PASSWORD: enma
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - enma-mongo-data:/data/db
-#    healthcheck:
-#      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' localhost:27017 | grep -q 1"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 30
-#    networks:
-#      - enma
-#    restart: unless-stopped
-#
+
+  mongo:
+    image: mongo:7
+    container_name: enma-mongo
+    environment:
+      MONGO_INITDB_DATABASE: enma
+      MONGO_INITDB_ROOT_USERNAME: enma
+      MONGO_INITDB_ROOT_PASSWORD: enma
+    ports:
+      - "27017:27017"
+    volumes:
+      - enma-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' localhost:27017 | grep -q 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    networks:
+      - enma
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: enma-redis

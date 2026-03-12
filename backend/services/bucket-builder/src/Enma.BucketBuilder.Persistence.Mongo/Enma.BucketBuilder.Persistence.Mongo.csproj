@@ -8,10 +8,14 @@
 
     <ItemGroup>
       <PackageReference Include="MongoDB.Driver" Version="3.6.0" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Enma.BucketBuilder.Application\Enma.BucketBuilder.Application.csproj" />
+      <ProjectReference Include="..\Enma.BucketBuilder.JobsOrchestration\Enma.BucketBuilder.JobsOrchestration.csproj" />
+      <ProjectReference Include="..\..\..\..\shared\src\Enma.Common\Enma.Common.csproj" />
     </ItemGroup>
 
 </Project>

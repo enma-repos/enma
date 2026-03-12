@@ -10,11 +10,15 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.13"/>
+        <PackageReference Include="Quartz" Version="3.14.0" />
+        <PackageReference Include="Quartz.Extensions.Hosting" Version="3.14.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Enma.BucketBuilder.Application\Enma.BucketBuilder.Application.csproj" />
       <ProjectReference Include="..\Enma.BucketBuilder.JobsOrchestration\Enma.BucketBuilder.JobsOrchestration.csproj" />
+      <ProjectReference Include="..\Enma.BucketBuilder.Persistence.ClickHouse\Enma.BucketBuilder.Persistence.ClickHouse.csproj" />
+      <ProjectReference Include="..\Enma.BucketBuilder.Persistence.Mongo\Enma.BucketBuilder.Persistence.Mongo.csproj" />
     </ItemGroup>
 
     <ItemGroup>

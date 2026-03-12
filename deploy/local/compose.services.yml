@@ -122,9 +122,17 @@ services:
     container_name: enma-bucket-builder
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ClickHouse__ConnectionString=Host=${CLICKHOUSE_HOST};Protocol=http;Port=${CLICKHOUSE_HTTP_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD}
+      - MongoDb__ConnectionString=${MONGO_CONNECTION_STRING}
+      - MongoDb__DatabaseName=${MONGO_DB}
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
 
   event-processor:
     build:
