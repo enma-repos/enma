@@ -14,6 +14,7 @@ internal sealed class PostgresDbContext : DbContext
     public DbSet<SdkClientEntity> ApiClients { get; set; }
     public DbSet<ApiKeyEntity> ApiKeys { get; set; }
     public DbSet<AuditLogEntity> AuditLogs { get; set; }
+    public DbSet<ProcessDefinitionEntity> ProcessDefinitions { get; set; }
 
     public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options)
     {

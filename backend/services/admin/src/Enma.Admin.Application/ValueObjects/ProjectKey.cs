@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using Enma.Common.Constants;
 using Enma.Common.Errors;
 using FluentResults;
 
@@ -6,8 +6,6 @@ namespace Enma.Admin.Application.ValueObjects;
 
 public readonly record struct ProjectKey(string Value)
 {
-    private static readonly Regex Rx = new("^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.Compiled);
-    
     public static Result<ProjectKey> Create(string? key)
     {
         key = (key ?? string.Empty).Trim().ToLowerInvariant();
@@ -17,11 +15,11 @@ public readonly record struct ProjectKey(string Value)
             return Result.Fail<ProjectKey>(ApplicationErrors.Length("Project key", 2, 64));
         }
 
-        if (!Rx.IsMatch(key))
+        if (!RegexPatterns.KebabCase().IsMatch(key))
         {
             return Result.Fail<ProjectKey>(ApplicationErrors.Validation("Project key must match [a-z0-9-] pattern."));
         }
-        
+
         return Result.Ok(new ProjectKey(key));
     }
 

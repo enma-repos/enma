@@ -49,7 +49,13 @@ internal sealed class WindowBucketBuildService : IWindowBucketBuildService
 
         _logger.LogDebug("Processing window {WindowStart} - {WindowEnd}", window.StartUtc, window.EndUtc);
 
-        var sourceEvents = await _pathSourceEventReader.GetWindowAsync(window, ct);
+        var sourceEventsResult = await _pathSourceEventReader.GetWindowAsync(window, ct);
+        if (sourceEventsResult.IsFailed)
+        {
+            return Result.Fail<WindowProjectionBatch>(sourceEventsResult.Errors);
+        }
+
+        var sourceEvents = sourceEventsResult.Value;
 
         _logger.LogDebug("Read {EventCount} source events for window {WindowStart}", sourceEvents.Count, window.StartUtc);
 
@@ -58,9 +64,22 @@ internal sealed class WindowBucketBuildService : IWindowBucketBuildService
             .Distinct()
             .ToArray();
 
-        var existingCursors = chainKeys.Length == 0
-            ? new Dictionary<ChainKey, ChainCursor>()
-            : await _chainCursorRepository.GetByChainKeysAsync(chainKeys, ct);
+        IReadOnlyDictionary<ChainKey, ChainCursor> existingCursors;
+
+        if (chainKeys.Length == 0)
+        {
+            existingCursors = new Dictionary<ChainKey, ChainCursor>();
+        }
+        else
+        {
+            var cursorsResult = await _chainCursorRepository.GetByChainKeysAsync(chainKeys, ct);
+            if (cursorsResult.IsFailed)
+            {
+                return Result.Fail<WindowProjectionBatch>(cursorsResult.Errors);
+            }
+
+            existingCursors = cursorsResult.Value;
+        }
 
         var aggregationResult = _pathAggregationService.Aggregate(window, sourceEvents, existingCursors);
         if (aggregationResult.IsFailed)
@@ -72,17 +91,29 @@ internal sealed class WindowBucketBuildService : IWindowBucketBuildService
 
         if (batch.NodeBuckets.Count > 0)
         {
-            await _pathNodeBucketRepository.UpsertBatchAsync(batch.NodeBuckets, ct);
+            var nodesResult = await _pathNodeBucketRepository.UpsertBatchAsync(batch.NodeBuckets, ct);
+            if (nodesResult.IsFailed)
+            {
+                return Result.Fail<WindowProjectionBatch>(nodesResult.Errors);
+            }
         }
 
         if (batch.EdgeBuckets.Count > 0)
         {
-            await _pathEdgeBucketRepository.UpsertBatchAsync(batch.EdgeBuckets, ct);
+            var edgesResult = await _pathEdgeBucketRepository.UpsertBatchAsync(batch.EdgeBuckets, ct);
+            if (edgesResult.IsFailed)
+            {
+                return Result.Fail<WindowProjectionBatch>(edgesResult.Errors);
+            }
         }
 
         if (batch.UpdatedCursors.Count > 0)
         {
-            await _chainCursorRepository.UpsertBatchAsync(batch.UpdatedCursors, ct);
+            var cursorsUpsertResult = await _chainCursorRepository.UpsertBatchAsync(batch.UpdatedCursors, ct);
+            if (cursorsUpsertResult.IsFailed)
+            {
+                return Result.Fail<WindowProjectionBatch>(cursorsUpsertResult.Errors);
+            }
         }
 
         _logger.LogInformation(

@@ -16,4 +16,9 @@ public static partial class RegexPatterns
     
     [GeneratedRegex(ClickHouseTableIdentifierPattern, RegexOptions.Compiled)]
     public static partial Regex ClickHouseTableIdentifier();
+
+    private const string KebabCasePattern = @"^[a-z0-9]+(?:-[a-z0-9]+)*$";
+
+    [GeneratedRegex(KebabCasePattern)]
+    public static partial Regex KebabCase();
 }

@@ -3,6 +3,7 @@ using Enma.BucketBuilder.Application.Models;
 using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.BucketBuilder.Persistence.Mongo.Connection;
 using Enma.BucketBuilder.Persistence.Mongo.Documents;
+using FluentResults;
 using MongoDB.Driver;
 
 namespace Enma.BucketBuilder.Persistence.Mongo.Repositories;
@@ -17,13 +18,14 @@ internal sealed class ChainCursorRepository : IChainCursorRepository
         _collection = context.ChainCursors;
     }
 
-    public async Task<IReadOnlyDictionary<ChainKey, ChainCursor>> GetByChainKeysAsync(
+    public async Task<Result<IReadOnlyDictionary<ChainKey, ChainCursor>>> GetByChainKeysAsync(
         IReadOnlyCollection<ChainKey> chainKeys,
         CancellationToken ct = default)
     {
         if (chainKeys.Count == 0)
         {
-            return new Dictionary<ChainKey, ChainCursor>();
+            return Result.Ok<IReadOnlyDictionary<ChainKey, ChainCursor>>(
+                new Dictionary<ChainKey, ChainCursor>());
         }
 
         var allDocs = new List<ChainCursorDocument>();
@@ -68,12 +70,12 @@ internal sealed class ChainCursorRepository : IChainCursorRepository
             result[chainKey] = cursor;
         }
 
-        return result;
+        return Result.Ok<IReadOnlyDictionary<ChainKey, ChainCursor>>(result);
     }
 
-    public async Task UpsertBatchAsync(IReadOnlyCollection<ChainCursor> cursors, CancellationToken ct = default)
+    public async Task<Result> UpsertBatchAsync(IReadOnlyCollection<ChainCursor> cursors, CancellationToken ct = default)
     {
-        if (cursors.Count == 0) return;
+        if (cursors.Count == 0) return Result.Ok();
 
         var models = new List<WriteModel<ChainCursorDocument>>(cursors.Count);
 
@@ -103,5 +105,6 @@ internal sealed class ChainCursorRepository : IChainCursorRepository
         }
 
         await _collection.BulkWriteAsync(models, cancellationToken: ct);
+        return Result.Ok();
     }
 }

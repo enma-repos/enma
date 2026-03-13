@@ -2,6 +2,7 @@ using Enma.BucketBuilder.Application.Contracts.Persistence;
 using Enma.BucketBuilder.Application.Models;
 using Enma.BucketBuilder.Persistence.Mongo.Connection;
 using Enma.BucketBuilder.Persistence.Mongo.Documents;
+using FluentResults;
 using MongoDB.Driver;
 
 namespace Enma.BucketBuilder.Persistence.Mongo.Repositories;
@@ -15,9 +16,9 @@ internal sealed class PathEdgeBucketRepository : IPathEdgeBucketRepository
         _collection = context.PathEdgeBuckets;
     }
 
-    public async Task UpsertBatchAsync(IReadOnlyCollection<PathEdgeBucket> buckets, CancellationToken ct = default)
+    public async Task<Result> UpsertBatchAsync(IReadOnlyCollection<PathEdgeBucket> buckets, CancellationToken ct = default)
     {
-        if (buckets.Count == 0) return;
+        if (buckets.Count == 0) return Result.Ok();
 
         var models = new List<WriteModel<PathEdgeBucketDocument>>(buckets.Count);
 
@@ -50,5 +51,6 @@ internal sealed class PathEdgeBucketRepository : IPathEdgeBucketRepository
         }
 
         await _collection.BulkWriteAsync(models, cancellationToken: ct);
+        return Result.Ok();
     }
 }

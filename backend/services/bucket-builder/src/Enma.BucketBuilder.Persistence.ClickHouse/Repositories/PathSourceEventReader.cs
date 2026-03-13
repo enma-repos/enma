@@ -3,6 +3,7 @@ using Enma.BucketBuilder.Application.Contracts.Persistence;
 using Enma.BucketBuilder.Application.Models;
 using Enma.BucketBuilder.Application.ValueObjects;
 using Enma.BucketBuilder.Persistence.ClickHouse.Connection;
+using FluentResults;
 
 namespace Enma.BucketBuilder.Persistence.ClickHouse.Repositories;
 
@@ -16,7 +17,7 @@ internal sealed class PathSourceEventReader : IPathSourceEventReader
         _connectionFactory = connectionFactory;
     }
 
-    public async Task<IReadOnlyCollection<PathSourceEvent>> GetWindowAsync(
+    public async Task<Result<IReadOnlyCollection<PathSourceEvent>>> GetWindowAsync(
         BucketWindow window,
         CancellationToken ct = default)
     {
@@ -70,7 +71,7 @@ internal sealed class PathSourceEventReader : IPathSourceEventReader
             results.Add(sourceEvent);
         }
 
-        return results;
+        return Result.Ok<IReadOnlyCollection<PathSourceEvent>>(results);
     }
 
     private static void AddParameter(DbCommand command, string name, object value)

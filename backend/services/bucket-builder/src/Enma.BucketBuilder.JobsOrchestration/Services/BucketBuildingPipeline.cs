@@ -44,7 +44,15 @@ internal sealed class BucketBuildingPipeline : IBucketBuildingPipeline
         var ownerId = LeaseOwnerId.Rehydrate($"{Environment.MachineName}:{Environment.ProcessId}");
         var leaseTimeout = TimeSpan.FromSeconds(_options.LeaseTimeoutSeconds);
 
-        var lease = await _checkpointRepository.TryAcquireLeaseAsync(pipeline, shard, ownerId, leaseTimeout, ct);
+        var leaseResult = await _checkpointRepository.TryAcquireLeaseAsync(pipeline, shard, ownerId, leaseTimeout, ct);
+        if (leaseResult.IsFailed)
+        {
+            _logger.LogError("Failed to acquire lease for shard {ShardIndex}/{ShardCount}: {Errors}",
+                shard.Index, shard.Count, string.Join("; ", leaseResult.Errors.Select(e => e.Message)));
+            return null;
+        }
+
+        var lease = leaseResult.Value;
         if (lease is null)
         {
             _logger.LogDebug("Shard {ShardIndex}/{ShardCount} is leased by another worker, skipping.", shard.Index, shard.Count);
@@ -53,7 +61,15 @@ internal sealed class BucketBuildingPipeline : IBucketBuildingPipeline
 
         try
         {
-            var checkpoint = await _checkpointRepository.LoadAsync(pipeline, shard, ct);
+            var checkpointResult = await _checkpointRepository.LoadAsync(pipeline, shard, ct);
+            if (checkpointResult.IsFailed)
+            {
+                _logger.LogError("Failed to load checkpoint for shard {ShardIndex}/{ShardCount}: {Errors}",
+                    shard.Index, shard.Count, string.Join("; ", checkpointResult.Errors.Select(e => e.Message)));
+                return null;
+            }
+
+            var checkpoint = checkpointResult.Value;
             var now = DateTime.UtcNow;
             var safetyLag = TimeSpan.FromSeconds(_options.SafetyLagSeconds);
             var ceiling = Floor5Min(now - safetyLag);
@@ -98,7 +114,14 @@ internal sealed class BucketBuildingPipeline : IBucketBuildingPipeline
                     lease.ExpiresAtUtc,
                     DateTime.UtcNow);
 
-                await _checkpointRepository.SaveAndRenewLeaseAsync(updatedCheckpoint, ownerId, leaseTimeout, ct);
+                var saveResult = await _checkpointRepository.SaveAndRenewLeaseAsync(updatedCheckpoint, ownerId, leaseTimeout, ct);
+                if (saveResult.IsFailed)
+                {
+                    _logger.LogError(
+                        "Failed to save checkpoint for window {WindowStart}: {Errors}",
+                        window.StartUtc, string.Join("; ", saveResult.Errors.Select(e => e.Message)));
+                    break;
+                }
             }
 
             sw.Stop();

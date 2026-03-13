@@ -3,6 +3,7 @@ using Enma.BucketBuilder.JobsOrchestration.Models;
 using Enma.BucketBuilder.JobsOrchestration.ValueObjects;
 using Enma.BucketBuilder.Persistence.Mongo.Connection;
 using Enma.BucketBuilder.Persistence.Mongo.Documents;
+using FluentResults;
 using MongoDB.Driver;
 
 namespace Enma.BucketBuilder.Persistence.Mongo.Repositories;
@@ -16,7 +17,7 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
         _collection = context.ShardCheckpoints;
     }
 
-    public async Task<ShardCheckpoint?> LoadAsync(
+    public async Task<Result<ShardCheckpoint?>> LoadAsync(
         PipelineName pipeline,
         ShardDescriptor shard,
         CancellationToken ct = default)
@@ -24,9 +25,9 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
         var filter = BuildShardFilter(pipeline, shard);
         var doc = await _collection.Find(filter).FirstOrDefaultAsync(ct);
 
-        if (doc is null) return null;
+        if (doc is null) return Result.Ok<ShardCheckpoint?>(null);
 
-        return ShardCheckpoint.Rehydrate(
+        return Result.Ok<ShardCheckpoint?>(ShardCheckpoint.Rehydrate(
             doc.Pipeline,
             ShardDescriptor.Rehydrate(doc.ShardIndex, doc.ShardCount),
             doc.LastCompletedBucketEndUtc.HasValue
@@ -36,10 +37,10 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
             doc.LeaseUntilUtc.HasValue
                 ? DateTime.SpecifyKind(doc.LeaseUntilUtc.Value, DateTimeKind.Utc)
                 : null,
-            DateTime.SpecifyKind(doc.UpdatedAtUtc, DateTimeKind.Utc));
+            DateTime.SpecifyKind(doc.UpdatedAtUtc, DateTimeKind.Utc)));
     }
 
-    public async Task SaveAsync(ShardCheckpoint checkpoint, CancellationToken ct = default)
+    public async Task<Result> SaveAsync(ShardCheckpoint checkpoint, CancellationToken ct = default)
     {
         var filter = BuildShardFilter(checkpoint.Pipeline, checkpoint.Shard);
 
@@ -55,9 +56,10 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
         };
 
         await _collection.ReplaceOneAsync(filter, doc, new ReplaceOptions { IsUpsert = true }, ct);
+        return Result.Ok();
     }
 
-    public async Task SaveAndRenewLeaseAsync(
+    public async Task<Result> SaveAndRenewLeaseAsync(
         ShardCheckpoint checkpoint,
         LeaseOwnerId ownerId,
         TimeSpan leaseTimeout,
@@ -75,9 +77,10 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
             .Set(d => d.UpdatedAtUtc, now);
 
         await _collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        return Result.Ok();
     }
 
-    public async Task<LeaseToken?> TryAcquireLeaseAsync(
+    public async Task<Result<LeaseToken?>> TryAcquireLeaseAsync(
         PipelineName pipeline,
         ShardDescriptor shard,
         LeaseOwnerId ownerId,
@@ -112,17 +115,17 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
 
         var doc = await _collection.FindOneAndUpdateAsync(filter, update, options, ct);
 
-        if (doc is null) return null;
+        if (doc is null) return Result.Ok<LeaseToken?>(null);
 
-        return LeaseToken.Rehydrate(
+        return Result.Ok<LeaseToken?>(LeaseToken.Rehydrate(
             pipeline.Value,
             shard,
             ownerId.Value,
             now,
-            expiresAt);
+            expiresAt));
     }
 
-    public async Task ReleaseLeaseAsync(
+    public async Task<Result> ReleaseLeaseAsync(
         PipelineName pipeline,
         ShardDescriptor shard,
         LeaseOwnerId ownerId,
@@ -138,9 +141,10 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
             .Set(d => d.UpdatedAtUtc, DateTime.UtcNow);
 
         await _collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        return Result.Ok();
     }
 
-    public async Task RenewLeaseAsync(
+    public async Task<Result> RenewLeaseAsync(
         PipelineName pipeline,
         ShardDescriptor shard,
         LeaseOwnerId ownerId,
@@ -158,6 +162,7 @@ internal sealed class ShardCheckpointRepository : IShardCheckpointRepository
             .Set(d => d.UpdatedAtUtc, now);
 
         await _collection.UpdateOneAsync(filter, update, cancellationToken: ct);
+        return Result.Ok();
     }
 
     private static FilterDefinition<ShardCheckpointDocument> BuildShardFilter(
