@@ -21,6 +21,11 @@ import {
   Check,
   Info,
   Image,
+  Copy,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  KeyRound,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
@@ -53,6 +58,11 @@ export const IconX = wrap(X);
 export const IconCheck = wrap(Check);
 export const IconInfo = wrap(Info);
 export const IconImage = wrap(Image);
+export const IconCopy = wrap(Copy);
+export const IconEye = wrap(Eye);
+export const IconEyeOff = wrap(EyeOff);
+export const IconArrowLeft = wrap(ArrowLeft);
+export const IconKey = wrap(KeyRound);
 
 export function IconGoogle({ size = 18, ...props }: IconProps) {
   return (

@@ -2,6 +2,7 @@ export * from "@/components/shared/avatar";
 export * from "@/components/shared/badge";
 export * from "@/components/shared/button";
 export * from "@/components/shared/card";
+export * from "@/components/shared/data-table";
 export * from "@/components/shared/cn";
 export * from "@/components/shared/confirm-dialog";
 export * from "@/components/shared/enma-logo";
