@@ -255,6 +255,20 @@ export function IconPlus(props: IconProps) {
   );
 }
 
+export function IconTrash(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7h10Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function IconX(props: IconProps) {
   return (
     <Svg {...props}>

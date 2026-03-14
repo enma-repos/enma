@@ -31,7 +31,7 @@ export function ProjectCard({ organizationSlug, project }: ProjectCardProps) {
         aria-label={`Open project ${project.name}`}
       >
         <div className="flex items-start justify-between gap-4">
-          <div className="grid h-12 w-12 place-items-center rounded-xl bg-zinc-50 text-zinc-700">
+          <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-blue-600">
             <IconGrid className="h-6 w-6" aria-hidden="true" />
           </div>
           <div className="flex items-center gap-2">

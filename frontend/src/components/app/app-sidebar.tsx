@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -21,27 +22,39 @@ type NavItem = {
   icon: ReactNode;
 };
 
-const primary: NavItem[] = [
-  { href: "/app/organizations/some_org/projects/some_proj", label: "Главная", icon: <IconHome className="h-5 w-5" /> },
-];
+function parseProjectBase(pathname: string): string | null {
+  const match = pathname.match(
+    /^\/app\/organizations\/([^/]+)\/projects\/([^/]+)/,
+  );
+  if (!match) return null;
+  return `/app/organizations/${match[1]}/projects/${match[2]}`;
+}
 
-const analytics: NavItem[] = [
-  { href: "/app/organizations/some_org/projects/some_proj/analytics/summary", label: "Сводка", icon: <IconList className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/analytics/paths", label: "Пути", icon: <IconList className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/analytics/users", label: "Пользователи", icon: <IconUsers className="h-5 w-5" /> },
-];
+function buildNavItems(base: string) {
+  const primary: NavItem[] = [
+    { href: base, label: "Главная", icon: <IconHome className="h-5 w-5" /> },
+  ];
 
-const product: NavItem[] = [
-  { href: "/app/organizations/some_org/projects/some_proj/events", label: "События", icon: <IconBolt className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/apps", label: "Приложения", icon: <IconBox className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/processes", label: "Процессы", icon: <IconGear className="h-5 w-5" /> },
-];
+  const analytics: NavItem[] = [
+    { href: `${base}/analytics/summary`, label: "Сводка", icon: <IconList className="h-5 w-5" /> },
+    { href: `${base}/analytics/paths`, label: "Пути", icon: <IconList className="h-5 w-5" /> },
+    { href: `${base}/analytics/users`, label: "Пользователи", icon: <IconUsers className="h-5 w-5" /> },
+  ];
 
-const footer: NavItem[] = [
-  { href: "/docs", label: "Documentation", icon: <IconList className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/access", label: "Manage access", icon: <IconUsers className="h-5 w-5" /> },
-  { href: "/app/organizations/some_org/projects/some_proj/logs", label: "Logs", icon: <IconList className="h-5 w-5" /> },
-];
+  const product: NavItem[] = [
+    { href: `${base}/events`, label: "События", icon: <IconBolt className="h-5 w-5" /> },
+    { href: `${base}/apps`, label: "Приложения", icon: <IconBox className="h-5 w-5" /> },
+    { href: `${base}/processes`, label: "Процессы", icon: <IconGear className="h-5 w-5" /> },
+  ];
+
+  const footer: NavItem[] = [
+    { href: "/docs", label: "Documentation", icon: <IconList className="h-5 w-5" /> },
+    { href: `${base}/access`, label: "Manage access", icon: <IconUsers className="h-5 w-5" /> },
+    { href: `${base}/logs`, label: "Logs", icon: <IconList className="h-5 w-5" /> },
+  ];
+
+  return { primary, analytics, product, footer };
+}
 
 export type AppSidebarProps = {
   activeHref?: string;
@@ -49,8 +62,11 @@ export type AppSidebarProps = {
 
 export function AppSidebar({ activeHref }: AppSidebarProps) {
   const pathname = usePathname();
-  const currentHref = activeHref ?? pathname ?? "/app/organizations/some_org/projects/some_proj/analytics/summary";
-  const isAnalyticsActive = currentHref.startsWith("/app/organizations/some_org/projects/some_proj/analytics");
+  const base = useMemo(() => parseProjectBase(pathname ?? ""), [pathname]);
+  const nav = useMemo(() => buildNavItems(base ?? ""), [base]);
+
+  const currentHref = activeHref ?? pathname ?? "";
+  const isAnalyticsActive = base ? currentHref.startsWith(`${base}/analytics`) : false;
 
   return (
     <aside className="hidden w-72 shrink-0 border-r border-zinc-200 bg-white lg:block">
@@ -61,7 +77,7 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
 
       <nav className="px-3 pb-6">
         <div className="mt-2 space-y-1">
-          {primary.map((item) => (
+          {nav.primary.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -80,7 +96,7 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
 
         <div className="mt-4">
           <Link
-            href="/app/organizations/some_org/projects/some_proj/analytics/summary"
+            href={base ? `${base}/analytics/summary` : ""}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
               isAnalyticsActive
@@ -95,7 +111,7 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
           </Link>
 
           <div className="mt-2 space-y-1 pl-2">
-            {analytics.map((item) => (
+            {nav.analytics.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -114,7 +130,7 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
         </div>
 
         <div className="mt-4 space-y-1 border-t border-zinc-100 pt-4">
-          {product.map((item) => (
+          {nav.product.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -132,7 +148,7 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
         </div>
 
         <div className="mt-6 space-y-1 border-t border-zinc-100 pt-4">
-          {footer.map((item) => (
+          {nav.footer.map((item) => (
             <Link
               key={item.href}
               href={item.href}
