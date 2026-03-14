@@ -12,7 +12,14 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddCachingService(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<RedisOptions>(configuration.GetSection("Redis"));
+        services
+            .AddOptions<RedisOptions>()
+            .Bind(configuration.GetSection("Redis"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                "Redis:ConnectionString is required.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.KeyPrefix),
+                "Redis:KeyPrefix is required.")
+            .ValidateOnStart();
 
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {

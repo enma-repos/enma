@@ -10,7 +10,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services
+            .AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection("Jwt"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.SecretKey),
+                "Jwt:SecretKey is required.")
+            .Validate(o => o.ExpiresMinutes > 0,
+                "Jwt:ExpiresMinutes must be greater than 0.")
+            .ValidateOnStart();
         services.AddSingleton<IAccessTokenProvider, JwtProvider>();
         services.AddSingleton<ICryptographyService, CryptographyService>();
 

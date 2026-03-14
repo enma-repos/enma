@@ -13,7 +13,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
+        services
+            .AddOptions<PostgresOptions>()
+            .Bind(configuration.GetSection("Postgres"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                "Postgres:ConnectionString is required.")
+            .ValidateOnStart();
 
         services.AddDbContext<PostgresDbContext>((sp, options) =>
         {

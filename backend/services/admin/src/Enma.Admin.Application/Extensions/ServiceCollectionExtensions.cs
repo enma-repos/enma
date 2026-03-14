@@ -11,7 +11,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<SecurityOptions>(configuration.GetSection("Security"));
+        services
+            .AddOptions<SecurityOptions>()
+            .Bind(configuration.GetSection("Security"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKeyPepper),
+                "Security:ApiKeyPepper is required.")
+            .ValidateOnStart();
         
         services.AddScoped<IApiKeysService, ApiKeysService>();
         services.AddScoped<IAuditLogsService, AuditLogsService>();

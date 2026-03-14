@@ -12,7 +12,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAdminGrpcClient(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<AdminGrpcOptions>(configuration.GetSection("AdminGrpc"));
+        services
+            .AddOptions<AdminGrpcOptions>()
+            .Bind(configuration.GetSection("AdminGrpc"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Address),
+                "AdminGrpc:Address is required.")
+            .Validate(o => o.DeadlineMs > 0,
+                "AdminGrpc:DeadlineMs must be greater than 0.")
+            .ValidateOnStart();
 
         AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 

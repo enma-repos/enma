@@ -14,7 +14,14 @@ services:
     networks:
       - enma
     restart: unless-stopped
-    
+    depends_on:
+      auth:
+        condition: service_started
+      admin:
+        condition: service_started
+      analytics:
+        condition: service_started
+
   sdk-api-gateway:
     build:
       context: ../..
@@ -27,6 +34,9 @@ services:
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      ingest:
+        condition: service_started
 
   analytics:
     build:
@@ -35,11 +45,16 @@ services:
     container_name: enma-analytics
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDb__ConnectionString=${MONGO_CONNECTION_STRING}
+      - MongoDb__DatabaseName=${MONGO_DB}
     ports:
       - "8081:8080"
     networks:
       - enma
     restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
 
   auth:
     build:
@@ -52,18 +67,26 @@ services:
       - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_auth;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
 
       - Jwt__SecretKey=${AUTH_JWT_SECRET}
-      - Jwt__ExpiresMinutes=10
+      - Jwt__ExpiresMinutes=${JWT_EXPIRES_MINUTES}
 
-      - GoogleProvider__BaseAddress=https://oauth2.googleapis.com/
-      - GoogleProvider__TimeoutSeconds=10
+      - Auth__RefreshTokenLifetimeDays=${AUTH_REFRESH_TOKEN_LIFETIME_DAYS}
+      - Auth__StateCacheTtlMinutes=${AUTH_STATE_CACHE_TTL_MINUTES}
+      - Auth__RedirectBaseAddress=${AUTH_REDIRECT_BASE_ADDRESS}
+
+      - Redis__ConnectionString=${REDIS_CONNECTION_STRING}
+      - Redis__KeyPrefix=${REDIS_KEY_PREFIX}
+      - Redis__Database=${REDIS_DATABASE}
+
+      - GoogleProvider__BaseAddress=${GOOGLE_BASE_ADDRESS}
+      - GoogleProvider__TimeoutSeconds=${GOOGLE_TIMEOUT_SECONDS}
       - GoogleProvider__ClientId=${GOOGLE_CLIENT_ID}
       - GoogleProvider__ClientSecret=${GOOGLE_CLIENT_SECRET}
       - GoogleProvider__RedirectUrl=${AUTH_GOOGLE_REDIRECT_URL}
-      - GoogleProvider__RequireEmailVerified=true
-      - GoogleProvider__ClockSkewSeconds=60
+      - GoogleProvider__RequireEmailVerified=${GOOGLE_REQUIRE_EMAIL_VERIFIED}
+      - GoogleProvider__ClockSkewSeconds=${GOOGLE_CLOCK_SKEW_SECONDS}
 
-      - AdminGrpc__Address=http://admin:8081
-      - AdminGrpc__DeadlineMs=3000
+      - AdminGrpc__Address=${ADMIN_GRPC_ADDRESS}
+      - AdminGrpc__DeadlineMs=${ADMIN_GRPC_DEADLINE_MS}
     ports:
       - "8082:8080"
     networks:
@@ -103,6 +126,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
 
       - Jwt__SecretKey=${AUTH_JWT_SECRET}
+      - Jwt__ExpiresMinutes=${JWT_EXPIRES_MINUTES}
 
       - Security__ApiKeyPepper=${API_KEY_PEPPER}
       - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_admin;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
@@ -123,8 +147,17 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ClickHouse__ConnectionString=Host=${CLICKHOUSE_HOST};Protocol=http;Port=${CLICKHOUSE_HTTP_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD}
+      - ClickHouse__CommandTimeoutSeconds=${CLICKHOUSE_COMMAND_TIMEOUT}
       - MongoDb__ConnectionString=${MONGO_CONNECTION_STRING}
       - MongoDb__DatabaseName=${MONGO_DB}
+      - BucketBuilder__PollIntervalSeconds=${BB_POLL_INTERVAL_SECONDS}
+      - BucketBuilder__SafetyLagSeconds=${BB_SAFETY_LAG_SECONDS}
+      - BucketBuilder__MaxWindowsPerTick=${BB_MAX_WINDOWS_PER_TICK}
+      - BucketBuilder__LeaseTimeoutSeconds=${BB_LEASE_TIMEOUT_SECONDS}
+      - BucketBuilder__Pipeline=${BB_PIPELINE}
+      - BucketBuilder__ShardIndex=${BB_SHARD_INDEX}
+      - BucketBuilder__ShardCount=${BB_SHARD_COUNT}
+      - BucketBuilder__InitialLookbackHours=${BB_INITIAL_LOOKBACK_HOURS}
     networks:
       - enma
     restart: unless-stopped
@@ -143,6 +176,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMq__ConnectionString=${RABBITMQ_URI}
       - ClickHouse__ConnectionString=Host=${CLICKHOUSE_HOST};Protocol=http;Port=${CLICKHOUSE_HTTP_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD};JsonWriteMode=Binary
+      - ClickHouse__ApplyMigrationsOnStartup=${CLICKHOUSE_APPLY_MIGRATIONS}
+      - ClickHouse__CommandTimeoutSeconds=${CLICKHOUSE_COMMAND_TIMEOUT}
+      - EventProcessor__RabbitMq__EndpointName=${EP_RABBITMQ_ENDPOINT_NAME}
+      - EventProcessor__RabbitMq__PrefetchCount=${EP_RABBITMQ_PREFETCH_COUNT}
+      - EventProcessor__RabbitMq__BatchMessageLimit=${EP_RABBITMQ_BATCH_MESSAGE_LIMIT}
+      - EventProcessor__RabbitMq__BatchTimeLimitSeconds=${EP_RABBITMQ_BATCH_TIME_LIMIT_SECONDS}
+      - EventProcessor__RabbitMq__BatchConcurrencyLimit=${EP_RABBITMQ_BATCH_CONCURRENCY_LIMIT}
+      - EventProcessor__RabbitMq__RetryCount=${EP_RABBITMQ_RETRY_COUNT}
+      - EventProcessor__RabbitMq__RetryIntervalSeconds=${EP_RABBITMQ_RETRY_INTERVAL_SECONDS}
     networks:
       - enma
     restart: unless-stopped

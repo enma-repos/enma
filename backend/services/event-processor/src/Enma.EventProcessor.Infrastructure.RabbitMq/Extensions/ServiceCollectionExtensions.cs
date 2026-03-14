@@ -11,8 +11,23 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRabbitMqMessaging(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<RabbitMqOptions>(configuration.GetSection("RabbitMq"));
-        services.Configure<EventProcessorRabbitMqOptions>(configuration.GetSection("EventProcessor:RabbitMq"));
+        services
+            .AddOptions<RabbitMqOptions>()
+            .Bind(configuration.GetSection("RabbitMq"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                "RabbitMq:ConnectionString is required.")
+            .ValidateOnStart();
+
+        services
+            .AddOptions<EventProcessorRabbitMqOptions>()
+            .Bind(configuration.GetSection("EventProcessor:RabbitMq"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.EndpointName),
+                "EventProcessor:RabbitMq:EndpointName is required.")
+            .Validate(o => o.BatchMessageLimit > 0,
+                "EventProcessor:RabbitMq:BatchMessageLimit must be greater than 0.")
+            .Validate(o => o.BatchTimeLimitSeconds > 0,
+                "EventProcessor:RabbitMq:BatchTimeLimitSeconds must be greater than 0.")
+            .ValidateOnStart();
 
         var rabbitMqOptions = configuration.GetSection("RabbitMq").Get<RabbitMqOptions>()
                               ?? throw new InvalidOperationException(

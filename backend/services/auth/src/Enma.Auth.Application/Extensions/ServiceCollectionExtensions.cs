@@ -10,7 +10,16 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<AuthOptions>(configuration.GetSection("Auth"));
+        services
+            .AddOptions<AuthOptions>()
+            .Bind(configuration.GetSection("Auth"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.RedirectBaseAddress),
+                "Auth:RedirectBaseAddress is required.")
+            .Validate(o => o.RefreshTokenLifetimeDays > 0,
+                "Auth:RefreshTokenLifetimeDays must be greater than 0.")
+            .Validate(o => o.StateCacheTtlMinutes > 0,
+                "Auth:StateCacheTtlMinutes must be greater than 0.")
+            .ValidateOnStart();
         
         services.AddScoped<IAccountsService, AccountsService>();
         services.AddScoped<IAuthService, AuthService>();

@@ -11,8 +11,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRabbitMqMessaging(this IServiceCollection services, IConfiguration configuration)
     {
-        var section = configuration.GetSection("RabbitMq");
-        var uri = section["ConnectionString"]
+        services
+            .AddOptions<RabbitMqOptions>()
+            .Bind(configuration.GetSection("RabbitMq"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString),
+                "RabbitMq:ConnectionString is required.")
+            .ValidateOnStart();
+
+        var uri = configuration.GetSection("RabbitMq")["ConnectionString"]
                   ?? throw new InvalidOperationException(
                       "RabbitMq connection string is missing. Set 'RabbitMq:ConnectionString'");
 

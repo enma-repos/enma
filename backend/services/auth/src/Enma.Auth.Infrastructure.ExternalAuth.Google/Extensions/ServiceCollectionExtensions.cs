@@ -13,7 +13,18 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGoogleAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<GoogleProviderOptions>(configuration.GetSection("GoogleProvider"));
+        services
+            .AddOptions<GoogleProviderOptions>()
+            .Bind(configuration.GetSection("GoogleProvider"))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.BaseAddress),
+                "GoogleProvider:BaseAddress is required.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ClientId),
+                "GoogleProvider:ClientId is required.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ClientSecret),
+                "GoogleProvider:ClientSecret is required.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.RedirectUrl),
+                "GoogleProvider:RedirectUrl is required.")
+            .ValidateOnStart();
         services.AddSingleton<IExternalIdentityProvider, GoogleExternalIdentityProvider>();
         services.AddSingleton<IGoogleIdTokenValidator, GoogleIdTokenValidator>();
 
