@@ -1,31 +1,37 @@
-var builder = WebApplication.CreateBuilder(args);
+using Enma.Analytics.Application.Extensions;
+using Enma.Analytics.Persistence.Mongo.Extensions;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("OpenApiCors", p =>
-        p.WithOrigins("http://localhost:8080") // где крутится Scalar (gateway)
+        p.WithOrigins("http://localhost:8080")
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
 });
 
+builder.Services.AddApplication();
+builder.Services.AddMongoPersistence(builder.Configuration);
+
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1");
+
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.ListenAnyIP(8080, lo => lo.Protocols = HttpProtocols.Http1AndHttp2);
+});
 
 var app = builder.Build();
 
 app.UseCors();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi().RequireCors("OpenApiCors");;
+    app.MapOpenApi().RequireCors("OpenApiCors");
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
