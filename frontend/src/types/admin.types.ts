@@ -248,3 +248,41 @@ export interface CreateAuditLogDto {
   ip?: string | null;
   payload?: JsonObject | null;
 }
+
+export enum ProcessType {
+  Session = 0,
+  Order = 1,
+  Checkout = 2,
+  Ticket = 3,
+  Custom = 4,
+}
+
+export interface ProcessDefinitionDto {
+  id: Guid;
+  projectId: Guid;
+  name: string;
+  key: string;
+  type: ProcessType;
+  description: string | null;
+  createdByUserId: Guid;
+  createdAt: IsoDateString;
+  updatedAt: IsoDateString;
+  deletedAt: IsoDateString | null;
+}
+
+export interface CreateProcessDefinitionDto {
+  projectId: Guid;
+  name?: string | null;
+  key?: string | null;
+  type: ProcessType;
+  description?: string | null;
+  createdByUserId: Guid;
+}
+
+export interface SetProcessDefinitionNameDto {
+  name: string;
+}
+
+export interface SetProcessDefinitionDescriptionDto {
+  description: string | null;
+}
