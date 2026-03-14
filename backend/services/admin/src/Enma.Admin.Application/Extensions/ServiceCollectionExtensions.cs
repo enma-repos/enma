@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationMembersService, OrganizationMembersService>();
         services.AddScoped<IOrganizationsService, OrganizationsService>();
         services.AddScoped<IProjectMembersService, ProjectMembersService>();
+        services.AddScoped<IEventDefinitionsService, EventDefinitionsService>();
         services.AddScoped<IProcessDefinitionsService, ProcessDefinitionsService>();
         services.AddScoped<IProjectsService, ProjectsService>();
         services.AddScoped<ISdkClientsService, SdkClientsService>();

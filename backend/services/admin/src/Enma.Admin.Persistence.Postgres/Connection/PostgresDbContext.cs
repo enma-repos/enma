@@ -15,6 +15,7 @@ internal sealed class PostgresDbContext : DbContext
     public DbSet<ApiKeyEntity> ApiKeys { get; set; }
     public DbSet<AuditLogEntity> AuditLogs { get; set; }
     public DbSet<ProcessDefinitionEntity> ProcessDefinitions { get; set; }
+    public DbSet<EventDefinitionEntity> EventDefinitions { get; set; }
 
     public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options)
     {

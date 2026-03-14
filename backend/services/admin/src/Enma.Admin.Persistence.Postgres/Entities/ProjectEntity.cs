@@ -27,4 +27,5 @@ internal sealed class ProjectEntity
     public ICollection<ProjectMemberEntity> Members { get; set; } = new List<ProjectMemberEntity>();
     public ICollection<SdkClientEntity> SdkClients { get; set; } = new List<SdkClientEntity>();
     public ICollection<ProcessDefinitionEntity> ProcessDefinitions { get; set; } = new List<ProcessDefinitionEntity>();
+    public ICollection<EventDefinitionEntity> EventDefinitions { get; set; } = new List<EventDefinitionEntity>();
 }
