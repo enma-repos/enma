@@ -1,8 +1,16 @@
 using Enma.Analytics.Application.Extensions;
 using Enma.Analytics.Persistence.Mongo.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("service", "enma-analytics")
+    .CreateLogger();
+
+builder.Host.UseSerilog(Log.Logger, dispose: true);
 
 builder.Services.AddCors(o =>
 {

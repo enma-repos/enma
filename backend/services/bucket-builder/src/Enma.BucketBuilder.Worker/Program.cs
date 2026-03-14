@@ -4,8 +4,16 @@ using Enma.BucketBuilder.Persistence.ClickHouse.Extensions;
 using Enma.BucketBuilder.Persistence.Mongo.Extensions;
 using Enma.BucketBuilder.Worker.Jobs;
 using Quartz;
+using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("service", "enma-bucket-builder")
+    .CreateLogger();
+
+builder.Services.AddSerilog(Log.Logger, dispose: true);
 
 builder.Services
     .AddApplication()
