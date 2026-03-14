@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 const steps = ["Профиль", "Организация"];
 
 export type OnboardingStepperProps = {
@@ -32,19 +34,7 @@ export function OnboardingStepper({ currentStep }: OnboardingStepperProps) {
                 }`}
               >
                 {isCompleted ? (
-                  <svg
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
                 ) : (
                   index + 1
                 )}
