@@ -6,6 +6,7 @@ namespace Enma.BucketBuilder.Persistence.Mongo.Documents;
 internal sealed class ChainCursorDocument
 {
     [BsonId]
+    [BsonIgnoreIfDefault]
     public ObjectId Id { get; set; }
 
     [BsonElement("org_id")]

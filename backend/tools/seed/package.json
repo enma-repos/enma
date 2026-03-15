@@ -1,0 +1,9 @@
+{
+  "name": "enma-seed",
+  "version": "1.0.0",
+  "description": "Seed script for Enma ingest pipeline",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.mjs"
+  }
+}
