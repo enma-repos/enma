@@ -11,6 +11,7 @@
 //   --org-id          Organization ID (GUID)     (required)
 //   --project-id      Project ID (GUID)          (required)
 //   --sdk-client-id   SDK client ID (GUID)       (default: random)
+//   --process-def-id  Process definition ID       (default: random)
 //   --scenario        Scenario name              (default: ecommerce)
 //   --instances       Number of process instances (default: 50)
 //   --batch-size      Events per HTTP request     (default: 200)
@@ -30,6 +31,7 @@ function parseArgs() {
     orgId: "",
     projectId: "",
     sdkClientId: randomUUID(),
+    processDefId: "",
     scenario: "ecommerce",
     instances: 50,
     batchSize: 200,
@@ -50,6 +52,9 @@ function parseArgs() {
         break;
       case "--sdk-client-id":
         opts.sdkClientId = args[++i];
+        break;
+      case "--process-def-id":
+        opts.processDefId = args[++i];
         break;
       case "--scenario":
         opts.scenario = args[++i];
@@ -76,6 +81,7 @@ function parseArgs() {
             "  --org-id          Organization ID (GUID)      (required)",
             "  --project-id      Project ID (GUID)           (required)",
             "  --sdk-client-id   SDK client ID (GUID)        (default: random)",
+            "  --process-def-id  Process definition ID       (default: random)",
             "  --scenario        ecommerce | support | auth  (default: ecommerce)",
             "  --instances       Process instances count      (default: 50)",
             "  --batch-size      Events per HTTP batch        (default: 200)",
@@ -338,8 +344,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Use a deterministic processDefinitionId per scenario (or you can pass your own)
-  const processDefId = randomUUID();
+  const processDefId = opts.processDefId || randomUUID();
 
   console.log("Enma Ingest Seed");
   console.log("────────────────────────────────────");

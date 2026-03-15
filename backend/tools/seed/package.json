@@ -4,6 +4,7 @@
   "description": "Seed script for Enma ingest pipeline",
   "type": "module",
   "scripts": {
-    "seed": "node seed.mjs"
+    "seed": "node seed.mjs",
+    "live": "node live.mjs"
   }
 }
