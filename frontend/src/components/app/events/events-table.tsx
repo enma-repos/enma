@@ -46,15 +46,14 @@ export function EventsTable({ events, onSelect, onDelete }: EventsTableProps) {
       getRowKey={(e) => e.id}
       onRowClick={onSelect}
       renderActions={(event) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-zinc-400 hover:text-red-600"
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg p-0 cursor-pointer text-rose-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
           onClick={() => onDelete(event)}
           aria-label={`Удалить ${event.name}`}
         >
-          <IconTrash className="h-4 w-4" />
-        </Button>
+          <IconTrash size={20} />
+        </button>
       )}
     />
   );

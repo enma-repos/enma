@@ -60,15 +60,14 @@ export function ProcessesTable({ processes, onSelect, onDelete }: ProcessesTable
       getRowKey={(p) => p.id}
       onRowClick={onSelect}
       renderActions={(process) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-zinc-400 hover:text-red-600"
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg p-0 cursor-pointer text-rose-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
           onClick={() => onDelete(process)}
           aria-label={`Удалить ${process.name}`}
         >
-          <IconTrash className="h-4 w-4" />
-        </Button>
+          <IconTrash size={20} />
+        </button>
       )}
     />
   );
