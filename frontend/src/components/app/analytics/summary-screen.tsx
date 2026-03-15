@@ -5,6 +5,7 @@ import { FlowGraph } from "@/components/app/analytics/flow/flow-graph";
 import { MetricsRow } from "@/components/app/analytics/metrics-row";
 import { PopularEvents } from "@/components/app/analytics/popular-events";
 import { DateRangePicker, DEFAULT_DATE_RANGE, type DateRange } from "@/components/app/analytics/date-range-picker";
+import { useProcessDefinitions } from "@/hooks/useProcessDefinitions";
 import type { AnalyticsMetric, PopularEvent } from "@/types/analytics.types";
 
 const metrics: AnalyticsMetric[] = [
@@ -30,6 +31,15 @@ interface Props {
 
 export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
     const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
+
+    const {
+        organization,
+        project,
+        processDefinitions,
+        isLoading,
+    } = useProcessDefinitions(organizationId, projectId);
+
+    const firstProcessId = processDefinitions[0]?.id ?? null;
 
     return (
         <div className="mx-auto w-full max-w-[90rem]">
@@ -59,11 +69,22 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
 
                 <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <FlowGraph
-                            organizationId={organizationId}
-                            projectId={projectId}
-                            readonly
-                        />
+                        {!isLoading && organization && project && firstProcessId ? (
+                            <FlowGraph
+                                organizationId={organization.id}
+                                projectId={project.id}
+                                processDefinitionId={firstProcessId}
+                                from={dateRange.from}
+                                to={dateRange.to}
+                                readonly
+                            />
+                        ) : (
+                            <div className="grid h-[680px] place-items-center rounded-2xl border border-zinc-200 bg-zinc-50">
+                                <span className="text-sm text-zinc-400">
+                                    {isLoading ? "Загрузка..." : "Нет процессов для отображения"}
+                                </span>
+                            </div>
+                        )}
                     </div>
                     <PopularEvents events={popularEvents}/>
                 </div>

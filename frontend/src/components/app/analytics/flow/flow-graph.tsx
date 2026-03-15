@@ -13,23 +13,20 @@ import { FlowEmptyState } from "./flow-empty-state";
 interface Props {
   organizationId: string;
   projectId: string;
-  /** If null, uses a hardcoded mock processDefinitionId */
-  processDefinitionId?: string | null;
+  processDefinitionId: string | null;
+  from: string;
+  to: string;
   readonly?: boolean;
 }
-
-const MOCK_PROCESS_ID = "mock-process-def-id";
-const MOCK_FROM = "2026-03-08T00:00:00Z";
-const MOCK_TO = "2026-03-15T23:59:59Z";
 
 export function FlowGraph({
   organizationId,
   projectId,
   processDefinitionId,
+  from,
+  to,
   readonly = false,
 }: Props) {
-  const resolvedProcessId = processDefinitionId ?? MOCK_PROCESS_ID;
-
   const [minTransitions, setMinTransitions] = useState(0);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(
     null,
@@ -42,24 +39,24 @@ export function FlowGraph({
   } = useFlowGraph(
     organizationId,
     projectId,
-    resolvedProcessId,
-    MOCK_FROM,
-    MOCK_TO,
+    processDefinitionId,
+    from,
+    to,
   );
 
   const { data: eventDetail, isLoading: detailLoading } = useEventDetail(
     organizationId,
     projectId,
-    resolvedProcessId,
+    processDefinitionId,
     selectedEventName,
-    MOCK_FROM,
-    MOCK_TO,
+    from,
+    to,
   );
 
   // --- loading skeleton ---
   if (flowLoading) {
     return (
-      <div className="grid h-[900px] place-items-center rounded-2xl border border-zinc-200 bg-zinc-50">
+      <div className="grid h-[850px] place-items-center rounded-2xl border border-zinc-200 bg-zinc-50">
         <div className="flex flex-col items-center gap-2">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
           <span className="text-sm text-zinc-400">Загрузка графа...</span>
@@ -92,7 +89,7 @@ export function FlowGraph({
           onMinTransitionsChange={setMinTransitions}
         />
 
-        <div className="flex gap-4" style={{ height: 1000 }}>
+        <div className="flex gap-4" style={{ height: 850 }}>
           <div className="flex-1">
             <FlowCanvas
               data={flowData}

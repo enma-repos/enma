@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/shared";
-
 interface Props {
   minTransitions: number;
   onMinTransitionsChange: (value: number) => void;
@@ -10,27 +8,6 @@ interface Props {
 export function FlowToolbar({ minTransitions, onMinTransitionsChange }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm">
-      {/* process selector placeholder */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-zinc-500">Процесс:</span>
-        <Button size="sm" className="rounded-lg text-xs">
-          Session (mock)
-        </Button>
-      </div>
-
-      <div className="h-5 w-px bg-zinc-200" />
-
-      {/* date range placeholder */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-zinc-500">Период:</span>
-        <Button size="sm" className="rounded-lg text-xs">
-          Последние 7 дней
-        </Button>
-      </div>
-
-      <div className="h-5 w-px bg-zinc-200" />
-
-      {/* min transitions filter */}
       <div className="flex items-center gap-2">
         <label
           htmlFor="min-transitions"
