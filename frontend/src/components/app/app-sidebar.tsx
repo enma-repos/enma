@@ -69,10 +69,11 @@ export function AppSidebar({ activeHref }: AppSidebarProps) {
   const isAnalyticsActive = base ? currentHref.startsWith(`${base}/analytics`) : false;
 
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-zinc-200 bg-white lg:block">
-      <div className="flex h-16 items-center gap-3 px-5">
-        <EnmaLogo className="h-8 w-10 text-zinc-900" aria-hidden="true" />
-        <span className="text-lg font-semibold tracking-tight">enma</span>
+    <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white lg:block">
+      <div className="flex justify-center h-20 items-end pr-2  pb-8">
+        <Link href="/">
+          <EnmaLogo className="h-7 text-zinc-900" aria-hidden="true" />
+        </Link>
       </div>
 
       <nav className="px-3 pb-6">
