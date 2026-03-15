@@ -1,9 +1,11 @@
  "use client";
 
-import { Avatar, Button, IconBell, IconChevronDown, IconGrid, IconMoon, IconSearch, Input } from "@/components/shared";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Avatar, Button, IconBell, IconChevronDown, IconGrid, IconSearch, Input } from "@/components/shared";
 
 export type AppTopbarProps = {
   displayName: string | null;
+  onLogout: () => void;
 };
 
 function getInitials(displayName: string | null) {
@@ -15,8 +17,23 @@ function getInitials(displayName: string | null) {
   return initials || "U";
 }
 
-export function AppTopbar({ displayName }: AppTopbarProps) {
+export function AppTopbar({ displayName, onLogout }: AppTopbarProps) {
   const initials = getInitials(displayName);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggleMenu = useCallback(() => setMenuOpen((prev) => !prev), []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/80 backdrop-blur">
@@ -36,30 +53,45 @@ export function AppTopbar({ displayName }: AppTopbarProps) {
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="rounded-xl">
-            <span className="text-sm font-semibold tabular-nums">3482$</span>
-            <IconChevronDown className="h-4 w-4 text-zinc-500" />
-          </Button>
-
           {displayName ? (
-              <Button variant="ghost" size="sm" className="max-w-[220px] rounded-xl">
-              <span className="truncate text-sm font-medium text-zinc-700">
-                {displayName}
-              </span>
+            <div className="relative" ref={menuRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="max-w-[220px] cursor-pointer rounded-xl"
+                onClick={toggleMenu}
+              >
+                <span className="truncate text-sm font-medium text-zinc-700">
+                  {displayName}
+                </span>
                 <IconChevronDown className="h-4 w-4 text-zinc-500" aria-hidden="true" />
               </Button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1 min-w-[160px] rounded-xl border border-zinc-200 bg-white py-1 shadow-lg">
+                  <button
+                    type="button"
+                    className="w-full cursor-pointer px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onLogout();
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : null}
 
           <Button
-              variant="ghost"
-              size="sm"
-              className="h-10 w-10 rounded-xl p-0"
-              aria-label="Notifications"
+            variant="ghost"
+            size="sm"
+            className="h-10 w-10 rounded-xl p-0"
+            aria-label="Notifications"
           >
             <IconBell className="h-5 w-5" />
           </Button>
-
-
 
           <Avatar initials={initials} aria-label="User menu" />
         </div>
