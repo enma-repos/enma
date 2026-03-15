@@ -286,3 +286,25 @@ export interface SetProcessDefinitionNameDto {
 export interface SetProcessDefinitionDescriptionDto {
   description: string | null;
 }
+
+export interface EventDefinitionDto {
+  id: Guid;
+  projectId: Guid;
+  name: string;
+  description: string | null;
+  createdByUserId: Guid;
+  createdAt: IsoDateString;
+  updatedAt: IsoDateString;
+  deletedAt: IsoDateString | null;
+}
+
+export interface CreateEventDefinitionDto {
+  projectId: Guid;
+  name?: string | null;
+  description?: string | null;
+  createdByUserId: Guid;
+}
+
+export interface SetEventDefinitionDescriptionDto {
+  description: string | null;
+}
