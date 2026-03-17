@@ -26,6 +26,11 @@ import {
   EyeOff,
   ArrowLeft,
   KeyRound,
+  Pencil,
+  MousePointerClick,
+  ShoppingCart,
+  CreditCard,
+  LogIn,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
@@ -63,6 +68,11 @@ export const IconEye = wrap(Eye);
 export const IconEyeOff = wrap(EyeOff);
 export const IconArrowLeft = wrap(ArrowLeft);
 export const IconKey = wrap(KeyRound);
+export const IconPencil = wrap(Pencil);
+export const IconClick = wrap(MousePointerClick);
+export const IconCart = wrap(ShoppingCart);
+export const IconCard = wrap(CreditCard);
+export const IconLogin = wrap(LogIn);
 
 export function IconGoogle({ size = 18, ...props }: IconProps) {
   return (

@@ -76,6 +76,26 @@ export function useProjects(organizationSlug: string) {
     },
   });
 
+  const setProjectNameMutation = useMutation({
+    mutationFn: async ({ projectId, name }: { projectId: string; name: string }) => {
+      if (!organizationId) throw new Error("Missing organizationId");
+      await projectsService.setName(organizationId, projectId, { name });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: projectsQueryKey });
+    },
+  });
+
+  const softDeleteProjectMutation = useMutation({
+    mutationFn: async (projectId: string) => {
+      if (!organizationId) throw new Error("Missing organizationId");
+      await projectsService.softDelete(organizationId, projectId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: projectsQueryKey });
+    },
+  });
+
   const filteredProjects = useMemo(() => {
     return filterProjects(projectsQuery.data ?? [], query);
   }, [projectsQuery.data, query]);
@@ -93,5 +113,8 @@ export function useProjects(organizationSlug: string) {
     createProject: createProjectMutation.mutateAsync,
     isCreating: createProjectMutation.isPending,
     createError: createProjectMutation.error,
+
+    setProjectName: setProjectNameMutation.mutateAsync,
+    softDeleteProject: softDeleteProjectMutation.mutateAsync,
   };
 }
