@@ -5,39 +5,50 @@
 // sending events with realistic timing. Runs until Ctrl+C.
 //
 // Usage:
-//   node live.mjs [options]
+//   node live.mjs                        (interactive mode)
+//   node live.mjs --org-id X --project-id Y  (direct mode)
+//
+// In interactive mode the script fetches organizations, projects,
+// SDK clients and process definitions from the Admin API and lets
+// you pick them from a numbered list.
 //
 // Options:
+//   --admin-url       Admin API URL              (default: http://localhost:5053)
 //   --base-url        Ingest gateway URL         (default: http://localhost:8090)
-//   --org-id          Organization ID (GUID)     (required)
-//   --project-id      Project ID (GUID)          (required)
-//   --sdk-client-id   SDK client ID (GUID)       (default: random)
+//   --org-id          Organization ID (GUID)     (skip org selection)
+//   --project-id      Project ID (GUID)          (skip project selection)
+//   --sdk-client-id   SDK client ID (GUID)       (default: from selection or random)
 //   --scenario        Scenario name              (default: ecommerce)
 //   --users           Concurrent simulated users  (default: 10)
 //   --rate            New process instances / min  (default: 5)
-//   --process-def-id  Process definition ID       (default: random)
+//   --process-def-id  Process definition ID       (default: from selection or random)
 //   --help            Show this help
 // ─────────────────────────────────────────────────────────────────────
 
 import { randomUUID } from "node:crypto";
+import { createInterface } from "node:readline";
 
 // ─── CLI ─────────────────────────────────────────────────────────────
 
 function parseArgs() {
   const args = process.argv.slice(2);
   const opts = {
+    adminUrl: "http://localhost:5053",
     baseUrl: "http://localhost:8090",
     orgId: "",
     projectId: "",
-    sdkClientId: randomUUID(),
-    scenario: "ecommerce",
-    users: 10,
-    rate: 5,
+    sdkClientId: "",
+    scenario: "",
+    users: 0,
+    rate: 0,
     processDefId: "",
   };
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
+      case "--admin-url":
+        opts.adminUrl = args[++i];
+        break;
       case "--base-url":
         opts.baseUrl = args[++i];
         break;
@@ -68,29 +79,181 @@ function parseArgs() {
             "Enma Live Traffic Simulator",
             "",
             "Options:",
+            "  --admin-url       Admin API URL               (default: http://localhost:5053)",
             "  --base-url        Ingest gateway URL          (default: http://localhost:8090)",
-            "  --org-id          Organization ID (GUID)      (required)",
-            "  --project-id      Project ID (GUID)           (required)",
-            "  --sdk-client-id   SDK client ID (GUID)        (default: random)",
+            "  --org-id          Organization ID (GUID)      (skip org selection)",
+            "  --project-id      Project ID (GUID)           (skip project selection)",
+            "  --sdk-client-id   SDK client ID (GUID)        (default: from selection or random)",
             "  --scenario        ecommerce | support | auth  (default: ecommerce)",
             "  --users           Concurrent simulated users   (default: 10)",
             "  --rate            New instances per minute      (default: 5)",
-            "  --process-def-id  Process definition ID        (default: random)",
+            "  --process-def-id  Process definition ID        (default: from selection or random)",
             "  --help            Show this help",
+            "",
+            "Run without --org-id / --project-id to enter interactive mode.",
           ].join("\n")
         );
         process.exit(0);
     }
   }
 
-  if (!opts.orgId || !opts.projectId) {
-    console.error("Error: --org-id and --project-id are required.\n");
-    console.error("Run with --help for usage info.");
+  return opts;
+}
+
+// ─── Interactive prompt helpers ─────────────────────────────────────
+
+const rl = createInterface({ input: process.stdin, output: process.stdout });
+
+function ask(question) {
+  return new Promise((resolve) => rl.question(question, resolve));
+}
+
+async function chooseFromList(label, items, formatItem) {
+  if (items.length === 0) {
+    console.error(`\n  No ${label} found.`);
     process.exit(1);
   }
 
-  if (!opts.processDefId) opts.processDefId = randomUUID();
+  console.log(`\n  ${label}:`);
+  items.forEach((item, i) => {
+    console.log(`    ${i + 1}. ${formatItem(item)}`);
+  });
 
+  while (true) {
+    const answer = await ask(`\n  Select ${label} [1-${items.length}]: `);
+    const idx = parseInt(answer.trim(), 10) - 1;
+    if (idx >= 0 && idx < items.length) return items[idx];
+    console.log(`  Invalid choice. Enter a number between 1 and ${items.length}.`);
+  }
+}
+
+async function askNumber(label, defaultValue) {
+  const answer = await ask(`  ${label} (default: ${defaultValue}): `);
+  const trimmed = answer.trim();
+  if (!trimmed) return defaultValue;
+  const num = Number(trimmed);
+  if (isNaN(num) || num <= 0) {
+    console.log(`  Invalid number, using default: ${defaultValue}`);
+    return defaultValue;
+  }
+  return num;
+}
+
+// ─── Admin API fetchers ─────────────────────────────────────────────
+
+async function fetchJson(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`GET ${url} → HTTP ${resp.status}: ${text}`);
+  }
+  return resp.json();
+}
+
+async function fetchOrganizations(adminUrl) {
+  return fetchJson(`${adminUrl}/api/admin/v1/organizations?limit=100`);
+}
+
+async function fetchProjects(adminUrl, orgId) {
+  return fetchJson(
+    `${adminUrl}/api/admin/v1/organizations/${orgId}/projects?limit=100`
+  );
+}
+
+async function fetchSdkClients(adminUrl, orgId, projectId) {
+  return fetchJson(
+    `${adminUrl}/api/admin/v1/organizations/${orgId}/projects/${projectId}/sdk-clients?limit=100`
+  );
+}
+
+async function fetchProcessDefinitions(adminUrl, orgId, projectId) {
+  return fetchJson(
+    `${adminUrl}/api/admin/v1/organizations/${orgId}/projects/${projectId}/process-definitions?limit=100`
+  );
+}
+
+// ─── Interactive setup ──────────────────────────────────────────────
+
+async function interactiveSetup(opts) {
+  console.log("\nEnma Live Traffic Simulator — Interactive Setup");
+  console.log("────────────────────────────────────────────────\n");
+  console.log(`  Admin API: ${opts.adminUrl}`);
+  console.log(`  Ingest:    ${opts.baseUrl}\n`);
+
+  // 1. Organization
+  if (!opts.orgId) {
+    console.log("  Fetching organizations...");
+    const orgs = await fetchOrganizations(opts.adminUrl);
+    const org = await chooseFromList("Organizations", orgs, (o) =>
+      `${o.name}  (${o.id})`
+    );
+    opts.orgId = org.id;
+  }
+
+  // 2. Project
+  if (!opts.projectId) {
+    console.log("\n  Fetching projects...");
+    const projects = await fetchProjects(opts.adminUrl, opts.orgId);
+    const proj = await chooseFromList("Projects", projects, (p) =>
+      `${p.name}  [${p.key}]  (${p.id})`
+    );
+    opts.projectId = proj.id;
+  }
+
+  // 3. SDK Client
+  if (!opts.sdkClientId) {
+    console.log("\n  Fetching SDK clients...");
+    const clients = await fetchSdkClients(opts.adminUrl, opts.orgId, opts.projectId);
+    if (clients.length > 0) {
+      const useExisting = await ask("\n  Use an existing SDK client? [Y/n]: ");
+      if (useExisting.trim().toLowerCase() !== "n") {
+        const client = await chooseFromList("SDK Clients", clients, (c) =>
+          `${c.name}  (${c.id})`
+        );
+        opts.sdkClientId = client.id;
+      }
+    }
+    if (!opts.sdkClientId) {
+      opts.sdkClientId = randomUUID();
+      console.log(`  Using random SDK client ID: ${opts.sdkClientId}`);
+    }
+  }
+
+  // 4. Process Definition
+  if (!opts.processDefId) {
+    console.log("\n  Fetching process definitions...");
+    const defs = await fetchProcessDefinitions(
+      opts.adminUrl,
+      opts.orgId,
+      opts.projectId
+    );
+    if (defs.length > 0) {
+      const useExisting = await ask("\n  Use an existing process definition? [Y/n]: ");
+      if (useExisting.trim().toLowerCase() !== "n") {
+        const def = await chooseFromList("Process Definitions", defs, (d) =>
+          `${d.name}  [${d.key}]  (${d.id})`
+        );
+        opts.processDefId = def.id;
+      }
+    }
+    if (!opts.processDefId) {
+      opts.processDefId = randomUUID();
+      console.log(`  Using random process definition ID: ${opts.processDefId}`);
+    }
+  }
+
+  // 5. Scenario
+  if (!opts.scenario) {
+    const scenarios = Object.keys(SCENARIO_STEPS);
+    const chosen = await chooseFromList("Scenario", scenarios, (s) => s);
+    opts.scenario = chosen;
+  }
+
+  // 6. Users & Rate
+  if (!opts.users) opts.users = await askNumber("Concurrent users", 10);
+  if (!opts.rate) opts.rate = await askNumber("Instances per minute", 5);
+
+  rl.close();
   return opts;
 }
 
@@ -320,7 +483,27 @@ async function simulateUser(opts, steps) {
 // ─── Main loop ───────────────────────────────────────────────────────
 
 async function main() {
-  const opts = parseArgs();
+  let opts = parseArgs();
+
+  const isInteractive = !opts.orgId || !opts.projectId;
+
+  if (isInteractive) {
+    try {
+      opts = await interactiveSetup(opts);
+    } catch (err) {
+      console.error(`\n  Failed to connect to Admin API: ${err.message}`);
+      console.error("  Make sure the Admin service is running or use --org-id / --project-id flags.\n");
+      process.exit(1);
+    }
+  } else {
+    // Direct mode — fill defaults for missing optional values
+    if (!opts.sdkClientId) opts.sdkClientId = randomUUID();
+    if (!opts.processDefId) opts.processDefId = randomUUID();
+    if (!opts.scenario) opts.scenario = "ecommerce";
+    if (!opts.users) opts.users = 10;
+    if (!opts.rate) opts.rate = 5;
+  }
+
   const steps = SCENARIO_STEPS[opts.scenario];
 
   if (!steps) {
@@ -330,7 +513,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("Enma Live Traffic Simulator");
+  console.log("\nEnma Live Traffic Simulator");
   console.log("────────────────────────────────────");
   console.log(`  Scenario:       ${opts.scenario}`);
   console.log(`  Users (max):    ${opts.users}`);
