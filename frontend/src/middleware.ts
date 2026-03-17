@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
 
     if (me.account.status !== PENDING_PROFILE_STATUS && isOnboarding) {
       return NextResponse.redirect(
-        new URL("/app/organizations", request.url),
+        new URL("/app", request.url),
       );
     }
   } catch {

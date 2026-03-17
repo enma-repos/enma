@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import AuthService from "@/services/auth/authService";
 import OrganizationsService from "@/services/admin/organizationsService";
+import ProjectsService from "@/services/admin/projectsService";
 
 export interface OnboardingParams {
   displayName: string;
@@ -22,6 +23,7 @@ export function useOnboarding() {
     mutationFn: async (params: OnboardingParams) => {
       const authService = new AuthService();
       const orgsService = new OrganizationsService();
+      const projectsService = new ProjectsService();
 
       const { user } = await authService.completeOnboarding({
         displayName: params.displayName,
@@ -36,11 +38,26 @@ export function useOnboarding() {
         createdByUserId: user.accountId,
       });
 
-      return org;
+      // Backend auto-creates a "default" project; fetch it for navigation
+      let firstProjectId: string | null = null;
+      try {
+        const projects = await projectsService.listByOrg(org.id);
+        firstProjectId = projects[0]?.id ?? null;
+      } catch {
+        // fallback handled below
+      }
+
+      return { org, firstProjectId };
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      router.push("/app/organizations");
+      if (data.firstProjectId) {
+        router.push(
+          `/app/organizations/${data.org.id}/projects/${data.firstProjectId}/analytics/summary`,
+        );
+      } else {
+        router.push(`/app/organizations/${data.org.id}/projects`);
+      }
     },
   });
 

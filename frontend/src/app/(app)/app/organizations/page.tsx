@@ -1,5 +1,5 @@
-import { OrganizationsScreen } from "@/components/app/organizations/organizations-screen";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <OrganizationsScreen />;
+  redirect("/app");
 }
