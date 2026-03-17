@@ -238,8 +238,34 @@ internal sealed class ProjectsRepository : IProjectsRepository
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("Project", $"id={projectId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("Project", $"id={projectId}"))
             : Result.Ok();
+    }
+
+    public async Task<Result> SoftDeleteAsync(Guid projectId, CancellationToken ct = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var affected = await _context.Projects
+            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .ExecuteUpdateAsync(
+                s => s
+                    .SetProperty(x => x.DeletedAt, now)
+                    .SetProperty(x => x.UpdatedAt, now),
+                ct);
+
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("Project", $"id={projectId}"))
+            : Result.Ok();
+    }
+
+    public async Task<Result<int>> CountByOrgAsync(Guid orgId, CancellationToken ct = default)
+    {
+        var count = await _context.Projects
+            .Where(x => x.OrganizationId == orgId && x.DeletedAt == null)
+            .CountAsync(ct);
+
+        return Result.Ok(count);
     }
 }

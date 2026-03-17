@@ -114,4 +114,14 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         var res = await projectsService.ClearArchivedAsync(projectId, ct);
         return res.ToActionResult();
     }
+
+    [HttpDelete("{projectId:guid}")]
+    public async Task<IActionResult> SoftDeleteAsync(
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
+        CancellationToken ct)
+    {
+        var res = await projectsService.SoftDeleteAsync(organizationId, projectId, ct);
+        return res.ToActionResult();
+    }
 }

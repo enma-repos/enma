@@ -67,4 +67,8 @@ export default class ProjectsService {
   public async unarchive(organizationId: Guid, projectId: Guid): Promise<void> {
     await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${projectId}/unarchive`);
   }
+
+  public async softDelete(organizationId: Guid, projectId: Guid): Promise<void> {
+    await apiClient.delete(`${this.orgBaseUrl(organizationId)}/${projectId}`);
+  }
 }

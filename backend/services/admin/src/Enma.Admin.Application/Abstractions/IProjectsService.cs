@@ -26,4 +26,5 @@ public interface IProjectsService
     Task<Result> SetSettingsAsync(Guid projectId, SetProjectSettingsDto dto, CancellationToken ct = default);
     Task<Result> SetArchivedAsync(Guid projectId, CancellationToken ct = default);
     Task<Result> ClearArchivedAsync(Guid projectId, CancellationToken ct = default);
+    Task<Result> SoftDeleteAsync(Guid orgId, Guid projectId, CancellationToken ct = default);
 }

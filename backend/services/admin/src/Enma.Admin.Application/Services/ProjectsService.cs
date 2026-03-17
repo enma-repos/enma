@@ -132,10 +132,27 @@ internal sealed class ProjectsService : IProjectsService
     }
 
     public async Task<Result> ClearArchivedAsync(
-        Guid projectId, 
+        Guid projectId,
         CancellationToken ct = default)
     {
         var res = await _projectsRepository.ClearArchivedAsync(projectId, ct);
+        return res.IsSuccess
+            ? Result.Ok()
+            : Result.Fail(res.Errors);
+    }
+
+    public async Task<Result> SoftDeleteAsync(
+        Guid orgId,
+        Guid projectId,
+        CancellationToken ct = default)
+    {
+        var countRes = await _projectsRepository.CountByOrgAsync(orgId, ct);
+        if (countRes.IsSuccess && countRes.Value <= 1)
+        {
+            return Result.Fail("Cannot delete the last project in the organization.");
+        }
+
+        var res = await _projectsRepository.SoftDeleteAsync(projectId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
