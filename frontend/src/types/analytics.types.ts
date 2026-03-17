@@ -17,14 +17,8 @@ export type PopularEvent = {
   subtitle: string;
   value: string;
   deltaPercent: number;
-  color:
-    | "purple"
-    | "teal"
-    | "red"
-    | "blue"
-    | "pink"
-    | "orange"
-    | "zinc";
+  icon: "eye" | "click" | "login" | "cart" | "card" | "search";
+  color: "blue" | "amber" | "emerald" | "violet" | "rose" | "cyan";
 };
 
 // --- Flow Graph ---

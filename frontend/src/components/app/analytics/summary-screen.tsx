@@ -15,14 +15,14 @@ const metrics: AnalyticsMetric[] = [
     {id: "other", label: "Прочие пути", value: "14,210", trend: {percent: 10, absolute: 142}, tone: "zinc"},
 ];
 
-const popularEvents: PopularEvent[] = Array.from({length: 6}).map((_, index) => ({
-    id: `event-${index}`,
-    title: "Title Here",
-    subtitle: "Subtext",
-    value: "24.500",
-    deltaPercent: 12,
-    color: (["purple", "teal", "red", "blue", "pink", "orange"] as const)[index % 6],
-}));
+const popularEvents: PopularEvent[] = [
+    {id: "ev-1", title: "Просмотр каталога", subtitle: "catalog_view", value: "24,500", deltaPercent: 12, icon: "eye", color: "blue"},
+    {id: "ev-2", title: "Клик по товару", subtitle: "product_click", value: "18,320", deltaPercent: 8, icon: "click", color: "amber"},
+    {id: "ev-3", title: "Регистрация", subtitle: "sign_up", value: "12,150", deltaPercent: 15, icon: "login", color: "emerald"},
+    {id: "ev-4", title: "Добавление в корзину", subtitle: "add_to_cart", value: "9,870", deltaPercent: 6, icon: "cart", color: "violet"},
+    {id: "ev-5", title: "Оплата", subtitle: "payment_complete", value: "5,430", deltaPercent: 3, icon: "card", color: "rose"},
+    {id: "ev-6", title: "Поиск", subtitle: "search_query", value: "21,600", deltaPercent: 10, icon: "search", color: "cyan"},
+];
 
 interface Props {
     organizationId: string;
