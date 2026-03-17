@@ -17,5 +17,5 @@ public interface IOrganizationsService
 
     Task<Result> SetNameAsync(Guid orgId, SetOrganizationNameDto dto, CancellationToken ct = default);
     Task<Result> SetOwnerAsync(Guid orgId, SetOrganizationOwnerDto dto, CancellationToken ct = default);
-    Task<Result> SoftDeleteAsync(Guid orgId, CancellationToken ct = default);
+    Task<Result> SoftDeleteAsync(Guid orgId, Guid userId, CancellationToken ct = default);
 }

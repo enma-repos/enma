@@ -9,14 +9,18 @@ namespace Enma.Admin.Application.Services;
 internal sealed class OrganizationsService : IOrganizationsService
 {
     private readonly IOrganizationsRepository _organizationsRepository;
+    private readonly IProjectsRepository _projectsRepository;
 
-    public OrganizationsService(IOrganizationsRepository organizationsRepository)
+    public OrganizationsService(
+        IOrganizationsRepository organizationsRepository,
+        IProjectsRepository projectsRepository)
     {
         _organizationsRepository = organizationsRepository;
+        _projectsRepository = projectsRepository;
     }
 
     public async Task<Result<OrganizationDto>> CreateAsync(
-        CreateOrganizationDto dto, 
+        CreateOrganizationDto dto,
         CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
@@ -36,9 +40,28 @@ internal sealed class OrganizationsService : IOrganizationsService
         }
 
         var res = await _organizationsRepository.CreateAsync(modelRes.Value, ct);
-        return res.IsSuccess
-            ? Result.Ok(res.Value.ToDto())
-            : Result.Fail<OrganizationDto>(res.Errors);
+        if (res.IsFailed)
+        {
+            return Result.Fail<OrganizationDto>(res.Errors);
+        }
+
+        var defaultProjectRes = Project.Create(
+            id: Guid.NewGuid(),
+            orgId: res.Value.Id,
+            name: "default",
+            key: "default",
+            description: null,
+            isStared: false,
+            createdByUserId: dto.CreatedByUserId,
+            settings: null,
+            createdAt: now);
+
+        if (defaultProjectRes.IsSuccess)
+        {
+            await _projectsRepository.CreateAsync(defaultProjectRes.Value, ct);
+        }
+
+        return Result.Ok(res.Value.ToDto());
     }
 
     public async Task<Result<OrganizationDto>> GetByIdAsync(
@@ -95,6 +118,14 @@ internal sealed class OrganizationsService : IOrganizationsService
             : Result.Fail(res.Errors);
     }
 
-    public Task<Result> SoftDeleteAsync(Guid orgId, CancellationToken ct = default)
-        => _organizationsRepository.SoftDeleteAsync(orgId, ct);
+    public async Task<Result> SoftDeleteAsync(Guid orgId, Guid userId, CancellationToken ct = default)
+    {
+        var orgsRes = await _organizationsRepository.ListByUserAsync(userId, 0, 2, ct);
+        if (orgsRes.IsSuccess && orgsRes.Value.Count <= 1)
+        {
+            return Result.Fail("Cannot delete the last organization.");
+        }
+
+        return await _organizationsRepository.SoftDeleteAsync(orgId, ct);
+    }
 }

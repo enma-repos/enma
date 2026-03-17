@@ -48,4 +48,10 @@ public interface IProjectsRepository
 
     /// <summary>Unarchives a project (clears ArchivedAt).</summary>
     Task<Result> ClearArchivedAsync(Guid projectId, CancellationToken ct = default);
+
+    /// <summary>Soft-deletes a project (sets DeletedAt).</summary>
+    Task<Result> SoftDeleteAsync(Guid projectId, CancellationToken ct = default);
+
+    /// <summary>Counts non-deleted projects in an organization.</summary>
+    Task<Result<int>> CountByOrgAsync(Guid orgId, CancellationToken ct = default);
 }

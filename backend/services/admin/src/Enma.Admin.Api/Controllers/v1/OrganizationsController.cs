@@ -75,11 +75,18 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpDelete("{organizationId:guid}")]
+    [Authorize]
     public async Task<IActionResult> SoftDeleteAsync(
         [FromRoute] Guid organizationId,
         CancellationToken ct)
     {
-        var res = await organizationsService.SoftDeleteAsync(organizationId, ct);
+        var accountIdClaim = User.FindFirst("accountId")?.Value;
+        if (!Guid.TryParse(accountIdClaim, out var accountId))
+        {
+            return Unauthorized();
+        }
+
+        var res = await organizationsService.SoftDeleteAsync(organizationId, accountId, ct);
         return res.ToActionResult();
     }
 }
