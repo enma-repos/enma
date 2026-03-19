@@ -320,10 +320,13 @@ export default function Page() {
 
           {/* Feature badges */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {features.map((f) => (
+            {features.map((f, i) => (
               <span
                 key={f}
-                className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+                className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 opacity-0"
+                style={{
+                  animation: `staggerIn 0.4s ease-out ${0.3 + i * 0.1}s both`,
+                }}
               >
                 {f}
               </span>
@@ -352,7 +355,7 @@ export default function Page() {
       </section>
 
       {/* How it works */}
-      <section className="relative -mt-16 mx-auto w-full max-w-7xl px-6 pt-16 pb-8">
+      <section className="relative -mt-16 mx-auto w-full max-w-7xl px-6 pt-16 pb-2">
         <div className="grid items-center gap-10 sm:grid-cols-[1fr_600px]">
           {/* Left — title + horizontal steps */}
           <div>
