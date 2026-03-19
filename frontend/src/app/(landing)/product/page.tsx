@@ -1,12 +1,9 @@
 import {
   HeroSection,
-  ShowcaseSection,
+  ProductPreviewSection,
   FeaturesSection,
   HowItWorksSection,
-  UseCasesSection,
-  ComparisonSection,
   FaqSection,
-  CtaSection,
 } from "@/components/landing";
 
 export default function Page() {
@@ -14,13 +11,10 @@ export default function Page() {
     <div className="min-h-screen bg-white">
       <main>
         <HeroSection />
-        <ShowcaseSection />
+        <ProductPreviewSection />
         <FeaturesSection />
         <HowItWorksSection />
-        <UseCasesSection />
-        <ComparisonSection />
         <FaqSection />
-        <CtaSection />
       </main>
     </div>
   );

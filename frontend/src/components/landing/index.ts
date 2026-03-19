@@ -1,6 +1,7 @@
 export { LandingHeader } from "@/components/landing/header";
 export { HeroSection } from "@/components/landing/hero-section";
 export { ShowcaseSection } from "@/components/landing/showcase-section";
+export { ProductPreviewSection } from "@/components/landing/product-preview-section";
 export { FeaturesSection } from "@/components/landing/features-section";
 export { HowItWorksSection } from "@/components/landing/how-it-works-section";
 export { UseCasesSection } from "@/components/landing/use-cases-section";
