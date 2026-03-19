@@ -11,9 +11,7 @@ import {
 } from "lucide-react";
 
 const features = [
-  "Async-first",
   ".NET 6+",
-  "Strongly typed",
   "Auto-batching",
   "Zero dependencies",
 ];
