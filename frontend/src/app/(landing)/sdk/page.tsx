@@ -27,6 +27,7 @@ const steps = [
     iconColor: "text-blue-500",
     bgColor: "bg-blue-50",
     borderColor: "border-blue-100",
+    gradient: "from-blue-50/30 to-white",
     tabs: [
       { label: ".NET CLI", code: "dotnet add package Enma.Sdk" },
       { label: "Git", code: "git clone https://github.com/enma-repos/enma-sdk.git" },
@@ -40,6 +41,7 @@ const steps = [
     iconColor: "text-amber-500",
     bgColor: "bg-amber-50",
     borderColor: "border-amber-100",
+    gradient: "from-amber-50/30 to-white",
     code: `var client = new EnmaClient(options => {
     options.ApiKey = "<your-api-key>";
     options.ProjectId = "my-project";
@@ -55,6 +57,7 @@ const steps = [
     iconColor: "text-emerald-500",
     bgColor: "bg-emerald-50",
     borderColor: "border-emerald-100",
+    gradient: "from-emerald-50/30 to-white",
     code: 'await client.TrackAsync("order_placed", payload);',
   },
 ];
@@ -287,7 +290,7 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-zinc-50">
       {/* Hero */}
-      <section className="relative isolate overflow-hidden border-b border-zinc-200 bg-white">
+      <section className="relative isolate overflow-hidden bg-white">
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.25]"
@@ -305,9 +308,9 @@ export default function Page() {
               "radial-gradient(600px circle at 50% 50%, rgba(161,161,170,0.25), transparent 70%)",
           }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.7)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.1)_0%,rgba(249,250,251,1)_100%)]" />
 
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 py-24 text-center">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-52 pt-40 text-center">
           <h1 className="text-6xl font-semibold tracking-tight text-zinc-950 sm:text-7xl">
             enma SDK
           </h1>
@@ -348,135 +351,111 @@ export default function Page() {
         </div>
       </section>
 
-      {/* How it works — stepper + split */}
-      <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <h2 className="text-3xl font-semibold tracking-tight text-zinc-950">
-          How it works
-        </h2>
-        <p className="mt-2 text-base text-zinc-500">
-          Three steps to start tracking process events.
-        </p>
+      {/* How it works */}
+      <section className="relative -mt-16 mx-auto w-full max-w-7xl px-6 pt-16 pb-8">
+        <div className="grid items-center gap-10 sm:grid-cols-[1fr_600px]">
+          {/* Left — title + horizontal steps */}
+          <div>
+            <h2 className="text-3xl font-semibold leading-tight tracking-tight text-zinc-950 sm:text-4xl">
+              Start tracking events
+              <br />
+              in <span className="text-blue-600">three steps</span>
+            </h2>
 
-        <div className="mt-10 grid items-start gap-10 sm:grid-cols-[280px_1fr]">
-          {/* Left — stepper */}
-          <div className="relative flex flex-col">
-            {steps.map((step, i) => {
-              const isActive = activeStep === i;
-              return (
-                <button
-                  key={step.number}
-                  onClick={() => setActiveStep(i)}
-                  className="group relative flex cursor-pointer items-start gap-4 py-4 text-left"
-                >
-                  {/* Vertical line + dot */}
-                  <div className="relative flex flex-col items-center">
-                    <div
-                      className={`z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                        isActive
-                          ? `${step.borderColor} ${step.bgColor} scale-110`
-                          : "border-zinc-200 bg-white group-hover:border-zinc-300 group-hover:scale-105"
-                      }`}
-                    >
-                      <step.icon
-                        className={`h-5 w-5 transition-colors duration-300 ${
+            <div className="mt-14 grid grid-cols-3 gap-3">
+              {steps.map((step, i) => {
+                const isActive = activeStep === i;
+                return (
+                  <button
+                    key={step.number}
+                    onClick={() => setActiveStep(i)}
+                    className={`group cursor-pointer rounded-xl border p-4 text-left transition-all duration-300 bg-gradient-to-b ${
+                      isActive
+                        ? `${step.gradient} border-zinc-200 shadow-sm`
+                        : "from-transparent to-white border-zinc-100 hover:border-zinc-200 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all duration-300 ${
                           isActive
-                            ? step.iconColor
-                            : "text-zinc-400 group-hover:text-zinc-500"
+                            ? `${step.bgColor}`
+                            : "bg-zinc-100 group-hover:bg-zinc-200"
                         }`}
-                      />
+                      >
+                        <step.icon
+                          className={`h-5 w-5 transition-colors duration-300 ${
+                            isActive
+                              ? step.iconColor
+                              : "text-zinc-400 group-hover:text-zinc-500"
+                          }`}
+                        />
+                      </div>
+                      <h3
+                        className={`text-lg font-semibold transition-colors duration-300 ${
+                          isActive ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-700"
+                        }`}
+                      >
+                        {step.title}
+                      </h3>
                     </div>
-                    {i < steps.length - 1 && (
-                      <div className="absolute top-10 h-full w-px bg-zinc-200" />
-                    )}
-                  </div>
-
-                  {/* Text */}
-                  <div className="pt-1">
-                    <span
-                      className={`text-xs font-semibold tracking-widest transition-colors duration-300 ${
-                        isActive ? step.iconColor : "text-zinc-400"
-                      }`}
-                    >
-                      STEP {step.number}
-                    </span>
-                    <h3
-                      className={`mt-0.5 text-lg font-semibold transition-colors duration-300 ${
-                        isActive ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-700"
-                      }`}
-                    >
-                      {step.title}
-                    </h3>
                     <p
-                      className={`mt-1 text-sm leading-relaxed transition-colors duration-300 ${
+                      className={`mt-1 text-xs leading-relaxed transition-colors duration-300 ${
                         isActive ? "text-zinc-500" : "text-zinc-400"
                       }`}
                     >
                       {step.description}
                     </p>
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Right — code preview with animation */}
-          <div className="sm:pt-4">
-            <div
-              key={activeStep}
-              className="animate-[fadeIn_0.3s_ease-out]"
-            >
-              {activeStep === 0 && steps[0].tabs ? (
-                <div>
-                  <div className="inline-flex gap-1 rounded-lg bg-zinc-100 p-1">
-                    {steps[0].tabs.map((tab, i) => (
-                      <button
-                        key={tab.label}
-                        onClick={() => setInstallTab(i)}
-                        className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                          installTab === i
-                            ? "bg-white text-zinc-900 shadow-sm"
-                            : "text-zinc-500 hover:text-zinc-700"
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <TerminalBlock title="Terminal">
-                      {steps[0].tabs[installTab].code}
-                    </TerminalBlock>
-                  </div>
-                </div>
-              ) : activeStep === 1 ? (
-                <TerminalBlock title="Program.cs">
-                  <ConfigureCode />
-                </TerminalBlock>
-              ) : (
-                <TerminalBlock title="Program.cs">
-                  <TrackCode />
-                </TerminalBlock>
-              )}
+          {/* Right — tabs + centered terminal */}
+          <div className="flex flex-col self-stretch">
+            {/* Tabs — always at top */}
+            <div className={`${activeStep === 0 ? "opacity-100" : "pointer-events-none opacity-0"} self-start inline-flex gap-1 rounded-lg bg-zinc-100 p-1 transition-opacity duration-300`}>
+              {steps[0].tabs?.map((tab, i) => (
+                <button
+                  key={tab.label}
+                  onClick={() => setInstallTab(i)}
+                  className={`cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                    installTab === i
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "text-zinc-500 hover:text-zinc-700"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Terminal — centered */}
+            <div className="flex flex-1 items-center">
+              <div
+                key={activeStep}
+                className="w-full animate-fade-in"
+              >
+                {activeStep === 0 && steps[0].tabs ? (
+                  <TerminalBlock title="Terminal">
+                    {steps[0].tabs[installTab].code}
+                  </TerminalBlock>
+                ) : activeStep === 1 ? (
+                  <TerminalBlock title="Program.cs">
+                    <ConfigureCode />
+                  </TerminalBlock>
+                ) : (
+                  <TerminalBlock title="Program.cs">
+                    <TrackCode />
+                  </TerminalBlock>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Quick example */}
-      <section className="border-t border-zinc-200 bg-white">
-        <div className="mx-auto w-full max-w-7xl px-6 py-16">
-          <h2 className="text-3xl font-semibold tracking-tight text-zinc-950">
-            Quick example
-          </h2>
-          <p className="mt-2 text-base text-zinc-500">
-            Full integration in one file.
-          </p>
-
-          <div className="mt-8 max-w-2xl">
-            <CSharpExample />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
