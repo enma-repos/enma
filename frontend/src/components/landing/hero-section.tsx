@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden border-b border-zinc-200">
+    <section className="relative isolate overflow-hidden ">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-65 grayscale"
         style={{
@@ -11,13 +11,14 @@ export function HeroSection() {
         }}
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.45),rgba(255,255,255,0.72))]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white" />
 
-      <div className="relative mx-auto flex min-h-[420px] max-w-7xl flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-center px-6 pb-52 pt-40 text-center">
         <h1 className="text-6xl font-semibold tracking-tight text-zinc-950 sm:text-7xl">
           enma
         </h1>
         <p className="mt-4 max-w-3xl text-2xl leading-tight text-zinc-800 sm:text-[2rem]">
-          The best process-mining solution for your company
+          Discover bottlenecks, map real processes, and optimize operations
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
