@@ -10,3 +10,6 @@ export * from "@/components/shared/icons";
 export * from "@/components/shared/input";
 export * from "@/components/shared/modal";
 export * from "@/components/shared/react-query-provider";
+export * from "@/components/shared/animated-counter";
+export * from "@/components/shared/accordion";
+export * from "@/components/shared/section-header";
