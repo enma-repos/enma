@@ -1,65 +1,48 @@
 import Link from "next/link";
-import { footerColumns } from "@/components/landing/content";
 import { EnmaLogo } from "@/components/shared/enma-logo";
-import { Instagram, Linkedin, Youtube } from "lucide-react";
+import { SocialLink } from "@/components/shared/social-link";
+import { Github } from "lucide-react";
 
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
-      <path
-        d="M4 4L20 20M20 4L4 20"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-const socialLinks = [
-  { href: "#", label: "X", icon: XIcon },
-  { href: "#", label: "Instagram", icon: Instagram },
-  { href: "#", label: "YouTube", icon: Youtube },
-  { href: "#", label: "LinkedIn", icon: Linkedin },
+const footerLinks = [
+  { href: "/product", label: "Product" },
+  { href: "/sdk", label: "SDK" },
+  { href: "/docs", label: "Documentation" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function LandingFooter() {
   return (
     <footer className="border-t border-zinc-200 bg-zinc-100">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-10 sm:px-8 md:grid-cols-2 lg:grid-cols-4">
-        <div className="space-y-5">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-10 sm:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <Link href="/" aria-label="Go to enma homepage">
-            <EnmaLogo className="h-8 w-10 text-zinc-900" />
+            <EnmaLogo className="h-7 text-zinc-900" />
           </Link>
 
-          <div className="flex items-center gap-3 text-zinc-800">
-            {socialLinks.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={label}
-                href={href}
-                aria-label={label}
-                className="rounded-md p-1 transition-colors hover:bg-zinc-200"
-              >
-                <Icon className="h-5 w-5" />
-              </Link>
-            ))}
+          <div className="flex items-center gap-1">
+            <nav className="flex flex-wrap items-center gap-1 text-sm font-medium">
+              {footerLinks.map(({ href, label }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="rounded-lg px-3 py-2 text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-900"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+
+            <SocialLink
+              href="https://github.com/enma-repos"
+              icon={Github}
+              label="GitHub"
+            />
           </div>
         </div>
 
-        {footerColumns.map((column) => (
-          <div key={column.title}>
-            <h3 className="text-lg font-semibold text-zinc-900">{column.title}</h3>
-            <ul className="mt-4 space-y-2 text-zinc-700">
-              {column.links.map((label) => (
-                <li key={label}>
-                  <Link href="#" className="transition-colors hover:text-zinc-950">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <p className="text-sm text-zinc-500">
+          &copy; {new Date().getFullYear()} enma. All rights reserved.
+        </p>
       </div>
     </footer>
   );

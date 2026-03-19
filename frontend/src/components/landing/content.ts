@@ -9,11 +9,6 @@ export type FeatureItem = {
   description: string;
 };
 
-export type FooterColumn = {
-  title: string;
-  links: string[];
-};
-
 export const navigationLinks: NavigationLink[] = [
   { href: "/product", label: "Product",},
   { href: "/sdk", label: "SDK" },
@@ -269,44 +264,5 @@ export const faqItems: FaqItem[] = [
     question: "Can I try enma for free?",
     answer:
       "Absolutely — right now enma is completely free. We are in an active development phase, and the free plan is currently the only available tier, giving you full, unrestricted access to every feature with no limitations. No credit card, no trials, no hidden caps. Jump in, explore everything enma has to offer, and help us shape the product as we grow together.",
-  },
-];
-
-export const footerColumns: FooterColumn[] = [
-  {
-    title: "Use cases",
-    links: [
-      "UI design",
-      "UX design",
-      "Wireframing",
-      "Diagramming",
-      "Brainstorming",
-      "Online whiteboard",
-      "Team collaboration",
-    ],
-  },
-  {
-    title: "Explore",
-    links: [
-      "Design",
-      "Prototyping",
-      "Development features",
-      "Design systems",
-      "Collaboration features",
-      "Design process",
-      "FigJam",
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      "Blog",
-      "Best practices",
-      "Colors",
-      "Color wheel",
-      "Support",
-      "Developers",
-      "Resource library",
-    ],
   },
 ];
