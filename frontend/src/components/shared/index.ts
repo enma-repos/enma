@@ -15,3 +15,4 @@ export * from "@/components/shared/animated-counter";
 export * from "@/components/shared/accordion";
 export * from "@/components/shared/section-header";
 export * from "@/components/shared/social-link";
+export * from "@/components/shared/terminal-block";
