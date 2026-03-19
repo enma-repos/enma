@@ -33,7 +33,7 @@ import { createInterface } from "node:readline";
 function parseArgs() {
   const args = process.argv.slice(2);
   const opts = {
-    adminUrl: "http://localhost:5053",
+    adminUrl: "http://localhost:8080",
     baseUrl: "http://localhost:8090",
     orgId: "",
     projectId: "",
