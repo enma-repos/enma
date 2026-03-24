@@ -22,9 +22,29 @@ export default class AnalyticsService {
     processDefinitionId: Guid,
     from: string,
     to: string,
+    entryEvent?: string,
   ): Promise<FlowGraphDto> {
     const { data } = await apiClient.get<FlowGraphDto>(
       `${this.baseUrl(organizationId, projectId, processDefinitionId)}/flow`,
+      { params: { from, to, ...(entryEvent ? { entryEvent } : {}) } },
+    );
+    return data;
+  }
+
+  private projectBaseUrl(organizationId: Guid, projectId: Guid): string {
+    return `/api/analytics/v1/organizations/${organizationId}/projects/${projectId}`;
+  }
+
+  public async getMultiProcessFlowGraph(
+    organizationId: Guid,
+    projectId: Guid,
+    processDefinitionIds: Guid[],
+    from: string,
+    to: string,
+  ): Promise<FlowGraphDto> {
+    const { data } = await apiClient.post<FlowGraphDto>(
+      `${this.projectBaseUrl(organizationId, projectId)}/flow`,
+      { processDefinitionIds },
       { params: { from, to } },
     );
     return data;

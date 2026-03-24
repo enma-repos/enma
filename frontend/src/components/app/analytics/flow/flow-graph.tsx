@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 
-import { useFlowGraph } from "@/hooks/useFlowGraph";
+import { useFlowGraph, useMultiProcessFlowGraph } from "@/hooks/useFlowGraph";
 import { useEventDetail } from "@/hooks/useEventDetail";
 import { FlowCanvas } from "./flow-canvas";
 import { FlowToolbar } from "./flow-toolbar";
@@ -13,7 +13,7 @@ import { FlowEmptyState } from "./flow-empty-state";
 interface Props {
   organizationId: string;
   projectId: string;
-  processDefinitionId: string | null;
+  processDefinitionIds: string[];
   from: string;
   to: string;
   readonly?: boolean;
@@ -22,7 +22,7 @@ interface Props {
 export function FlowGraph({
   organizationId,
   projectId,
-  processDefinitionId,
+  processDefinitionIds,
   from,
   to,
   readonly = false,
@@ -31,23 +31,38 @@ export function FlowGraph({
   const [selectedEventName, setSelectedEventName] = useState<string | null>(
     null,
   );
+  const [entryEventFilter, setEntryEventFilter] = useState<string | null>(null);
+
+  const isSingleProcess = processDefinitionIds.length === 1;
+  const singleProcessId = isSingleProcess ? processDefinitionIds[0] : null;
+
+  const singleQuery = useFlowGraph(
+    organizationId,
+    projectId,
+    singleProcessId,
+    from,
+    to,
+    entryEventFilter,
+  );
+
+  const multiQuery = useMultiProcessFlowGraph(
+    organizationId,
+    projectId,
+    isSingleProcess ? [] : processDefinitionIds,
+    from,
+    to,
+  );
 
   const {
     data: flowData,
     isLoading: flowLoading,
     isError: flowError,
-  } = useFlowGraph(
-    organizationId,
-    projectId,
-    processDefinitionId,
-    from,
-    to,
-  );
+  } = isSingleProcess ? singleQuery : multiQuery;
 
   const { data: eventDetail, isLoading: detailLoading } = useEventDetail(
     organizationId,
     projectId,
-    processDefinitionId,
+    singleProcessId,
     selectedEventName,
     from,
     to,
@@ -87,6 +102,8 @@ export function FlowGraph({
         <FlowToolbar
           minTransitions={minTransitions}
           onMinTransitionsChange={setMinTransitions}
+          entryEventFilter={entryEventFilter}
+          onClearEntryEventFilter={() => setEntryEventFilter(null)}
         />
 
         <div className="flex gap-4" style={{ height: 850 }}>
@@ -103,6 +120,11 @@ export function FlowGraph({
               detail={eventDetail}
               isLoading={detailLoading}
               onClose={() => setSelectedEventName(null)}
+              onShowPathsFrom={(eventName) => {
+                setEntryEventFilter(eventName);
+                setSelectedEventName(null);
+              }}
+              entryEventFilter={entryEventFilter}
             />
           )}
         </div>

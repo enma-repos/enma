@@ -8,9 +8,17 @@ interface Props {
   detail: EventDetailDto | undefined;
   isLoading: boolean;
   onClose: () => void;
+  onShowPathsFrom?: (eventName: string) => void;
+  entryEventFilter?: string | null;
 }
 
-export function NodeDetailPanel({ detail, isLoading, onClose }: Props) {
+export function NodeDetailPanel({
+  detail,
+  isLoading,
+  onClose,
+  onShowPathsFrom,
+  entryEventFilter,
+}: Props) {
   return (
     <div className="flex h-full w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
       {/* header */}
@@ -54,6 +62,19 @@ export function NodeDetailPanel({ detail, isLoading, onClose }: Props) {
                 color={COLORS.exit}
               />
             </div>
+
+            {/* show paths from this node */}
+            {onShowPathsFrom &&
+              detail.totalEntries > 0 &&
+              entryEventFilter !== detail.eventName && (
+                <button
+                  type="button"
+                  onClick={() => onShowPathsFrom(detail.eventName)}
+                  className="w-full rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
+                >
+                  Показать пути от этой ноды
+                </button>
+              )}
 
             {/* incoming */}
             {detail.incomingEdges.length > 0 && (

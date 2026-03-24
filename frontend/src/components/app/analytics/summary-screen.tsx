@@ -73,7 +73,7 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
                             <FlowGraph
                                 organizationId={organization.id}
                                 projectId={project.id}
-                                processDefinitionId={firstProcessId}
+                                processDefinitionIds={[firstProcessId]}
                                 from={dateRange.from}
                                 to={dateRange.to}
                                 readonly

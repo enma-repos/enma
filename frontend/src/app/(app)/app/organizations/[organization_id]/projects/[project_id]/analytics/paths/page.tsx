@@ -25,7 +25,7 @@ export default function PathsPage() {
     isLoading,
   } = useProcessDefinitions(params.organization_id, params.project_id);
 
-  const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
+  const [selectedProcessIds, setSelectedProcessIds] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
   const [processPickerOpen, setProcessPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -40,12 +40,28 @@ export default function PathsPage() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const resolvedProcessId =
-    selectedProcessId ?? processDefinitions[0]?.id ?? null;
+  // Default to the first process if none selected
+  const resolvedProcessIds =
+    selectedProcessIds.length > 0
+      ? selectedProcessIds
+      : processDefinitions[0]?.id
+        ? [processDefinitions[0].id]
+        : [];
 
-  const selectedProcess = processDefinitions.find(
-    (p) => p.id === resolvedProcessId,
-  );
+  const toggleProcess = (id: string) => {
+    setSelectedProcessIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const pickerLabel =
+    resolvedProcessIds.length === 0
+      ? "Выберите процесс"
+      : resolvedProcessIds.length === 1
+        ? processDefinitions.find((p) => p.id === resolvedProcessIds[0])?.name ||
+          processDefinitions.find((p) => p.id === resolvedProcessIds[0])?.key ||
+          "1 процесс"
+        : `${resolvedProcessIds.length} процесс(ов)`;
 
   return (
     <div className="mx-auto w-full max-w-[90rem]">
@@ -68,11 +84,7 @@ export default function PathsPage() {
                   onClick={() => setProcessPickerOpen(!processPickerOpen)}
                 >
                   <Layers size={14} className="text-zinc-500" />
-                  <span className="text-zinc-600">
-                    {selectedProcess
-                      ? selectedProcess.name || selectedProcess.key
-                      : "Выберите процесс"}
-                  </span>
+                  <span className="text-zinc-600">{pickerLabel}</span>
                   <IconChevronDown className="h-4 w-4 text-zinc-500" />
                 </Button>
 
@@ -82,22 +94,27 @@ export default function PathsPage() {
                       <button
                         key={p.id}
                         type="button"
-                        className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 ${
-                          p.id === resolvedProcessId
+                        className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 ${
+                          resolvedProcessIds.includes(p.id)
                             ? "bg-zinc-100 font-medium text-zinc-900"
                             : "text-zinc-600"
                         }`}
-                        onClick={() => {
-                          setSelectedProcessId(p.id);
-                          setProcessPickerOpen(false);
-                        }}
+                        onClick={() => toggleProcess(p.id)}
                       >
-                        <span>{p.name || p.key}</span>
-                        {p.description && (
-                          <span className="mt-0.5 block text-xs text-zinc-400 truncate">
-                            {p.description}
-                          </span>
-                        )}
+                        <input
+                          type="checkbox"
+                          checked={resolvedProcessIds.includes(p.id)}
+                          readOnly
+                          className="h-3.5 w-3.5 rounded border-zinc-300 text-indigo-500 accent-indigo-500"
+                        />
+                        <div>
+                          <span>{p.name || p.key}</span>
+                          {p.description && (
+                            <span className="mt-0.5 block text-xs text-zinc-400 truncate">
+                              {p.description}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -130,7 +147,7 @@ export default function PathsPage() {
             <FlowGraph
               organizationId={organization.id}
               projectId={project.id}
-              processDefinitionId={resolvedProcessId}
+              processDefinitionIds={resolvedProcessIds}
               from={dateRange.from}
               to={dateRange.to}
             />
