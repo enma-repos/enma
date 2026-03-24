@@ -13,8 +13,9 @@ internal static class PathNodeBucketsCollectionSetup
                 .Ascending(d => d.ProjectId)
                 .Ascending(d => d.ProcessDefinitionId)
                 .Ascending(d => d.EventName)
+                .Ascending(d => d.EntryEventName)
                 .Ascending(d => d.BucketStartUtc),
-            new CreateIndexOptions { Unique = true, Name = "uq_node_bucket_key" });
+            new CreateIndexOptions { Unique = true, Name = "uq_node_bucket_key_v2" });
 
         collection.Indexes.CreateOne(index);
     }

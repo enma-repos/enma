@@ -67,6 +67,13 @@ internal sealed class ChainStitchingService : IChainStitchingService
             return Result.Fail<ChainAggregationSlice>(errors);
         }
 
+        // Determine the entry event name for this chain.
+        // If no existing cursor, this is a new chain — the first event is the entry.
+        // If a cursor exists, carry forward its FirstEventName.
+        var entryEventName = existingCursor is null
+            ? orderedEvents[0].EventName
+            : existingCursor.FirstEventName;
+
         var nodeVisits = new List<NodeVisit>(orderedEvents.Count);
         var edgeTransitions = new List<EdgeTransition>(Math.Max(orderedEvents.Count, 1));
 
@@ -91,12 +98,13 @@ internal sealed class ChainStitchingService : IChainStitchingService
                     chainKey,
                     nodeKeyResult.Value,
                     IsEntry: i == 0 && existingCursor is null,
-                    IsExit: i == orderedEvents.Count - 1));
+                    IsExit: i == orderedEvents.Count - 1,
+                    EntryEventName: entryEventName));
             }
 
             if (i == 0 && existingCursor is not null)
             {
-                var boundaryEdgeResult = CreateEdgeTransition(window, chainKey, existingCursor.LastEventName, current);
+                var boundaryEdgeResult = CreateEdgeTransition(window, chainKey, existingCursor.LastEventName, current, entryEventName);
                 if (boundaryEdgeResult.IsFailed)
                 {
                     errors.AddRange(boundaryEdgeResult.Errors);
@@ -109,7 +117,7 @@ internal sealed class ChainStitchingService : IChainStitchingService
 
             if (i > 0)
             {
-                var edgeResult = CreateEdgeTransition(window, chainKey, orderedEvents[i - 1].EventName, current);
+                var edgeResult = CreateEdgeTransition(window, chainKey, orderedEvents[i - 1].EventName, current, entryEventName);
                 if (edgeResult.IsFailed)
                 {
                     errors.AddRange(edgeResult.Errors);
@@ -130,7 +138,8 @@ internal sealed class ChainStitchingService : IChainStitchingService
             lastEvent.OccurredAtUtc,
             lastEvent.ActorUserId?.Value,
             lastEvent.ActorAnonymousId?.Value,
-            window!.EndUtc.Value);
+            window!.EndUtc.Value,
+            entryEventName.Value);
 
         if (cursorResult.IsFailed)
         {
@@ -149,7 +158,8 @@ internal sealed class ChainStitchingService : IChainStitchingService
         BucketWindow window,
         ChainKey chainKey,
         EventName fromEvent,
-        PathSourceEvent toEvent)
+        PathSourceEvent toEvent,
+        EventName entryEventName)
     {
         var edgeKeyResult = EdgeKey.Create(
             window.StartUtc.Value,
@@ -168,6 +178,7 @@ internal sealed class ChainStitchingService : IChainStitchingService
             chainKey,
             edgeKeyResult.Value,
             toEvent.ActorUserId,
-            toEvent.ActorAnonymousId));
+            toEvent.ActorAnonymousId,
+            entryEventName));
     }
 }

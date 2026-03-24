@@ -17,6 +17,7 @@ public sealed class PathNodeBucket
     public long EntriesCount { get; }
     public long ExitsCount { get; }
     public long UniqueChains { get; }
+    public EventName EntryEventName { get; }
 
     private PathNodeBucket(
         NodeKey key,
@@ -24,7 +25,8 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains)
+        long uniqueChains,
+        EventName entryEventName)
     {
         Key = key;
         BucketEndUtc = bucketEndUtc;
@@ -32,6 +34,7 @@ public sealed class PathNodeBucket
         EntriesCount = entriesCount;
         ExitsCount = exitsCount;
         UniqueChains = uniqueChains;
+        EntryEventName = entryEventName;
     }
 
     public static Result<PathNodeBucket> Create(
@@ -40,7 +43,8 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains)
+        long uniqueChains,
+        EventName? entryEventName)
     {
         var errors = new List<IError>();
 
@@ -96,6 +100,11 @@ public sealed class PathNodeBucket
             errors.Add(ApplicationErrors.Validation("uniqueChains cannot be greater than visitsCount."));
         }
 
+        if (entryEventName is null)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(entryEventName)));
+        }
+
         return errors.Count > 0
             ? Result.Fail<PathNodeBucket>(errors)
             : Result.Ok(new PathNodeBucket(
@@ -104,7 +113,8 @@ public sealed class PathNodeBucket
                 visitsCount,
                 entriesCount,
                 exitsCount,
-                uniqueChains));
+                uniqueChains,
+                entryEventName!));
     }
 
     public static PathNodeBucket Rehydrate(
@@ -113,12 +123,14 @@ public sealed class PathNodeBucket
         long visitsCount,
         long entriesCount,
         long exitsCount,
-        long uniqueChains)
+        long uniqueChains,
+        string entryEventName)
         => new(
             key,
             BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             visitsCount,
             entriesCount,
             exitsCount,
-            uniqueChains);
+            uniqueChains,
+            EventName.Rehydrate(entryEventName));
 }

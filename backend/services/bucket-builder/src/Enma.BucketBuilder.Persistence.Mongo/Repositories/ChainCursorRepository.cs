@@ -65,7 +65,8 @@ internal sealed class ChainCursorRepository : IChainCursorRepository
                 DateTime.SpecifyKind(doc.LastOccurredAtUtc, DateTimeKind.Utc),
                 doc.LastActorUserId,
                 doc.LastActorAnonymousId,
-                DateTime.SpecifyKind(doc.UpdatedAtUtc, DateTimeKind.Utc));
+                DateTime.SpecifyKind(doc.UpdatedAtUtc, DateTimeKind.Utc),
+                doc.FirstEventName);
 
             result[chainKey] = cursor;
         }
@@ -98,7 +99,8 @@ internal sealed class ChainCursorRepository : IChainCursorRepository
                 LastOccurredAtUtc = cursor.LastOccurredAtUtc,
                 LastActorUserId = cursor.LastActorUserId?.Value,
                 LastActorAnonymousId = cursor.LastActorAnonymousId?.Value,
-                UpdatedAtUtc = cursor.UpdatedAtUtc
+                UpdatedAtUtc = cursor.UpdatedAtUtc,
+                FirstEventName = cursor.FirstEventName.Value
             };
 
             models.Add(new ReplaceOneModel<ChainCursorDocument>(filter, doc) { IsUpsert = true });

@@ -16,6 +16,7 @@ public sealed class ChainCursor
     public ActorIdentifier? LastActorUserId { get; }
     public ActorIdentifier? LastActorAnonymousId { get; }
     public DateTime UpdatedAtUtc { get; }
+    public EventName FirstEventName { get; }
 
     private ChainCursor(
         ChainKey chainKey,
@@ -24,7 +25,8 @@ public sealed class ChainCursor
         DateTime lastOccurredAtUtc,
         ActorIdentifier? lastActorUserId,
         ActorIdentifier? lastActorAnonymousId,
-        DateTime updatedAtUtc)
+        DateTime updatedAtUtc,
+        EventName firstEventName)
     {
         ChainKey = chainKey;
         LastEventId = lastEventId;
@@ -33,6 +35,7 @@ public sealed class ChainCursor
         LastActorUserId = lastActorUserId;
         LastActorAnonymousId = lastActorAnonymousId;
         UpdatedAtUtc = updatedAtUtc;
+        FirstEventName = firstEventName;
     }
 
     public static Result<ChainCursor> Create(
@@ -42,7 +45,8 @@ public sealed class ChainCursor
         DateTime lastOccurredAtUtc,
         string? lastActorUserId,
         string? lastActorAnonymousId,
-        DateTime updatedAtUtc)
+        DateTime updatedAtUtc,
+        string? firstEventName)
     {
         var errors = new List<IError>();
 
@@ -60,6 +64,12 @@ public sealed class ChainCursor
         if (lastEventNameVoResult.IsFailed)
         {
             errors.AddRange(lastEventNameVoResult.Errors);
+        }
+
+        var firstEventNameVoResult = EventName.Create(firstEventName);
+        if (firstEventNameVoResult.IsFailed)
+        {
+            errors.AddRange(firstEventNameVoResult.Errors);
         }
 
         if (lastOccurredAtUtc.Kind != DateTimeKind.Utc)
@@ -98,7 +108,8 @@ public sealed class ChainCursor
                 lastOccurredAtUtc,
                 lastActorUserIdVoResult.Value,
                 lastActorAnonymousIdVoResult.Value,
-                updatedAtUtc));
+                updatedAtUtc,
+                firstEventNameVoResult.Value));
     }
 
     public static ChainCursor Rehydrate(
@@ -108,7 +119,8 @@ public sealed class ChainCursor
         DateTime lastOccurredAtUtc,
         string? lastActorUserId,
         string? lastActorAnonymousId,
-        DateTime updatedAtUtc)
+        DateTime updatedAtUtc,
+        string firstEventName)
         => new(
             chainKey,
             lastEventId,
@@ -116,5 +128,6 @@ public sealed class ChainCursor
             lastOccurredAtUtc,
             string.IsNullOrWhiteSpace(lastActorUserId) ? null : ActorIdentifier.Rehydrate(lastActorUserId),
             string.IsNullOrWhiteSpace(lastActorAnonymousId) ? null : ActorIdentifier.Rehydrate(lastActorAnonymousId),
-            updatedAtUtc);
+            updatedAtUtc,
+            EventName.Rehydrate(firstEventName));
 }

@@ -29,6 +29,7 @@ internal sealed class PathNodeBucketRepository : IPathNodeBucketRepository
                 Builders<PathNodeBucketDocument>.Filter.Eq(d => d.ProjectId, bucket.Key.ProjectId),
                 Builders<PathNodeBucketDocument>.Filter.Eq(d => d.ProcessDefinitionId, bucket.Key.ProcessDefinitionId),
                 Builders<PathNodeBucketDocument>.Filter.Eq(d => d.EventName, bucket.Key.EventName.Value),
+                Builders<PathNodeBucketDocument>.Filter.Eq(d => d.EntryEventName, bucket.EntryEventName.Value),
                 Builders<PathNodeBucketDocument>.Filter.Eq(d => d.BucketStartUtc, bucket.Key.BucketStartUtc.Value));
 
             var doc = new PathNodeBucketDocument
@@ -37,6 +38,7 @@ internal sealed class PathNodeBucketRepository : IPathNodeBucketRepository
                 ProjectId = bucket.Key.ProjectId,
                 ProcessDefinitionId = bucket.Key.ProcessDefinitionId,
                 EventName = bucket.Key.EventName.Value,
+                EntryEventName = bucket.EntryEventName.Value,
                 BucketStartUtc = bucket.Key.BucketStartUtc.Value,
                 BucketEndUtc = bucket.BucketEndUtc.Value,
                 VisitsCount = bucket.VisitsCount,

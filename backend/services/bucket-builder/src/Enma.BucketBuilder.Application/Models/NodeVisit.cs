@@ -6,4 +6,5 @@ internal sealed record NodeVisit(
     ChainKey ChainKey,
     NodeKey Key,
     bool IsEntry,
-    bool IsExit);
+    bool IsExit,
+    EventName EntryEventName);

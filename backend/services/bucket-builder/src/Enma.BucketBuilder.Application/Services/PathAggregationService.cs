@@ -120,7 +120,7 @@ internal sealed class PathAggregationService : IPathAggregationService
         var errors = new List<IError>();
         var buckets = new List<PathNodeBucket>();
 
-        foreach (var group in slices.SelectMany(x => x.NodeVisits).GroupBy(x => x.Key))
+        foreach (var group in slices.SelectMany(x => x.NodeVisits).GroupBy(x => (x.Key, x.EntryEventName)))
         {
             long totalVisits = 0;
             long entries = 0;
@@ -136,12 +136,13 @@ internal sealed class PathAggregationService : IPathAggregationService
             }
 
             var bucketResult = PathNodeBucket.Create(
-                group.Key,
+                group.Key.Key,
                 window.EndUtc.Value,
                 totalVisits,
                 entries,
                 exits,
-                uniqueChains.Count);
+                uniqueChains.Count,
+                group.Key.EntryEventName);
 
             if (bucketResult.IsFailed)
             {
@@ -164,7 +165,7 @@ internal sealed class PathAggregationService : IPathAggregationService
         var errors = new List<IError>();
         var buckets = new List<PathEdgeBucket>();
 
-        foreach (var group in slices.SelectMany(x => x.EdgeTransitions).GroupBy(x => x.Key))
+        foreach (var group in slices.SelectMany(x => x.EdgeTransitions).GroupBy(x => (x.Key, x.EntryEventName)))
         {
             long totalTransitions = 0;
             var uniqueChains = new HashSet<ChainKey>();
@@ -180,12 +181,13 @@ internal sealed class PathAggregationService : IPathAggregationService
             }
 
             var bucketResult = PathEdgeBucket.Create(
-                group.Key,
+                group.Key.Key,
                 window.EndUtc.Value,
                 totalTransitions,
                 uniqueChains.Count,
                 uniqueUsers.Count,
-                uniqueAnonymous.Count);
+                uniqueAnonymous.Count,
+                group.Key.EntryEventName);
 
             if (bucketResult.IsFailed)
             {

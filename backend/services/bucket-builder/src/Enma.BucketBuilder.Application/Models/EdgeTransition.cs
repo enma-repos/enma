@@ -6,4 +6,5 @@ internal sealed record EdgeTransition(
     ChainKey ChainKey,
     EdgeKey Key,
     ActorIdentifier? ActorUserId,
-    ActorIdentifier? ActorAnonymousId);
+    ActorIdentifier? ActorAnonymousId,
+    EventName EntryEventName);

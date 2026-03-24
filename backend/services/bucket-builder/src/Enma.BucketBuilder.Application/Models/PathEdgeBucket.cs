@@ -17,6 +17,7 @@ public sealed class PathEdgeBucket
     public long UniqueChains { get; }
     public long UniqueUsers { get; }
     public long UniqueAnonymous { get; }
+    public EventName EntryEventName { get; }
 
     private PathEdgeBucket(
         EdgeKey key,
@@ -24,7 +25,8 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous)
+        long uniqueAnonymous,
+        EventName entryEventName)
     {
         Key = key;
         BucketEndUtc = bucketEndUtc;
@@ -32,6 +34,7 @@ public sealed class PathEdgeBucket
         UniqueChains = uniqueChains;
         UniqueUsers = uniqueUsers;
         UniqueAnonymous = uniqueAnonymous;
+        EntryEventName = entryEventName;
     }
 
     public static Result<PathEdgeBucket> Create(
@@ -40,7 +43,8 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous)
+        long uniqueAnonymous,
+        EventName? entryEventName)
     {
         var errors = new List<IError>();
 
@@ -104,6 +108,11 @@ public sealed class PathEdgeBucket
             }
         }
 
+        if (entryEventName is null)
+        {
+            errors.Add(ApplicationErrors.Required(nameof(entryEventName)));
+        }
+
         return errors.Count > 0
             ? Result.Fail<PathEdgeBucket>(errors)
             : Result.Ok(new PathEdgeBucket(
@@ -112,7 +121,8 @@ public sealed class PathEdgeBucket
                 transitionsCount,
                 uniqueChains,
                 uniqueUsers,
-                uniqueAnonymous));
+                uniqueAnonymous,
+                entryEventName!));
     }
 
     public static PathEdgeBucket Rehydrate(
@@ -121,12 +131,14 @@ public sealed class PathEdgeBucket
         long transitionsCount,
         long uniqueChains,
         long uniqueUsers,
-        long uniqueAnonymous)
+        long uniqueAnonymous,
+        string entryEventName)
         => new(
             key,
             BucketBoundaryUtc.Rehydrate(bucketEndUtc),
             transitionsCount,
             uniqueChains,
             uniqueUsers,
-            uniqueAnonymous);
+            uniqueAnonymous,
+            EventName.Rehydrate(entryEventName));
 }

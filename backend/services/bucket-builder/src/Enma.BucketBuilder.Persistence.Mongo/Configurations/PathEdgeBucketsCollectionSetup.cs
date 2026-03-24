@@ -14,8 +14,9 @@ internal static class PathEdgeBucketsCollectionSetup
                 .Ascending(d => d.ProcessDefinitionId)
                 .Ascending(d => d.FromEvent)
                 .Ascending(d => d.ToEvent)
+                .Ascending(d => d.EntryEventName)
                 .Ascending(d => d.BucketStartUtc),
-            new CreateIndexOptions { Unique = true, Name = "uq_edge_bucket_key" });
+            new CreateIndexOptions { Unique = true, Name = "uq_edge_bucket_key_v2" });
 
         collection.Indexes.CreateOne(index);
     }

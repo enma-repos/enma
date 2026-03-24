@@ -40,4 +40,7 @@ internal sealed class ChainCursorDocument
 
     [BsonElement("updated_at_utc")]
     public DateTime UpdatedAtUtc { get; set; }
+
+    [BsonElement("first_event_name")]
+    public string FirstEventName { get; set; } = string.Empty;
 }
