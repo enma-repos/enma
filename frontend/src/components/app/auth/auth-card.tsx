@@ -12,12 +12,11 @@ export type AuthCardProps = {
 export function AuthCard({ title, description, children }: AuthCardProps) {
   return (
     <Card className="w-full max-w-md p-7">
-      <div className="flex items-center justify-center gap-2">
-        <EnmaLogo className="h-8 w-10 text-zinc-900" aria-hidden="true" />
-        <div className="text-lg font-semibold tracking-tight">enma</div>
+      <div className="flex items-center justify-center">
+        <EnmaLogo className="h-16 w-32 text-zinc-900" aria-hidden="true" />
       </div>
 
-      <div className="mt-6 text-center">
+      <div className="mt-4 text-center">
         <h1 className="text-xl font-semibold text-zinc-900">{title}</h1>
         {description ? (
           <p className="mt-2 text-sm text-zinc-500">{description}</p>
