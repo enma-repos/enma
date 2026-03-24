@@ -16,3 +16,5 @@ public sealed record FlowEdgeDto(
     string ToEvent,
     long Transitions,
     long UniqueChains);
+
+public sealed record MultiProcessFlowRequest(IReadOnlyList<Guid> ProcessDefinitionIds);

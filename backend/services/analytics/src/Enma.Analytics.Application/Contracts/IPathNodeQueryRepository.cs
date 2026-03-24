@@ -18,4 +18,10 @@ public interface IPathNodeQueryRepository
 
     Task<Result<IReadOnlyList<AggregatedNode>>> GetNodesForEventsAsync(
         ProcessFilter filter, IReadOnlyList<string> eventNames, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesByEntryEventAsync(
+        ProcessFilter filter, string entryEventName, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesAsync(
+        MultiProcessFilter filter, CancellationToken ct = default);
 }

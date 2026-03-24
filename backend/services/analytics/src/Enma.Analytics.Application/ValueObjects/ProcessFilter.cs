@@ -5,3 +5,9 @@ public sealed record ProcessFilter(
     Guid ProjectId,
     Guid ProcessDefinitionId,
     DateRange DateRange);
+
+public sealed record MultiProcessFilter(
+    Guid OrganizationId,
+    Guid ProjectId,
+    IReadOnlyList<Guid> ProcessDefinitionIds,
+    DateRange DateRange);

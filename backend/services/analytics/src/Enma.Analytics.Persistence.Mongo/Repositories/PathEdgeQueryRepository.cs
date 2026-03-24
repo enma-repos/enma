@@ -80,6 +80,61 @@ internal sealed class PathEdgeQueryRepository(IMongoDbContext db) : IPathEdgeQue
         return Result.Ok<IReadOnlyList<AggregatedEdge>>(results);
     }
 
+    public async Task<Result<IReadOnlyList<AggregatedEdge>>> GetAggregatedEdgesByEntryEventAsync(
+        ProcessFilter filter, string entryEventName, CancellationToken ct = default)
+    {
+        var baseFilter = BuildDateRangeFilter(filter);
+        var entryFilter = Builders<PathEdgeBucketDocument>.Filter.Eq(d => d.EntryEventName, entryEventName);
+
+        var results = await db.PathEdgeBuckets
+            .Aggregate()
+            .Match(baseFilter & entryFilter)
+            .Group(
+                d => new { d.FromEvent, d.ToEvent },
+                g => new AggregatedEdge(
+                    g.Key.FromEvent,
+                    g.Key.ToEvent,
+                    g.Sum(x => x.TransitionsCount),
+                    g.Sum(x => x.UniqueChains),
+                    g.Sum(x => x.UniqueUsers),
+                    g.Sum(x => x.UniqueAnonymous)))
+            .SortByDescending(e => e.TotalTransitions)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AggregatedEdge>>(results);
+    }
+
+    public async Task<Result<IReadOnlyList<AggregatedEdge>>> GetAggregatedEdgesAsync(
+        MultiProcessFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathEdgeBuckets
+            .Aggregate()
+            .Match(BuildMultiProcessFilter(filter))
+            .Group(
+                d => new { d.FromEvent, d.ToEvent },
+                g => new AggregatedEdge(
+                    g.Key.FromEvent,
+                    g.Key.ToEvent,
+                    g.Sum(x => x.TransitionsCount),
+                    g.Sum(x => x.UniqueChains),
+                    g.Sum(x => x.UniqueUsers),
+                    g.Sum(x => x.UniqueAnonymous)))
+            .SortByDescending(e => e.TotalTransitions)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AggregatedEdge>>(results);
+    }
+
+    private static FilterDefinition<PathEdgeBucketDocument> BuildMultiProcessFilter(MultiProcessFilter filter)
+    {
+        var f = Builders<PathEdgeBucketDocument>.Filter;
+        return f.Eq(d => d.OrganizationId, filter.OrganizationId)
+             & f.Eq(d => d.ProjectId, filter.ProjectId)
+             & f.In(d => d.ProcessDefinitionId, filter.ProcessDefinitionIds)
+             & f.Gte(d => d.BucketStartUtc, filter.DateRange.FromUtc)
+             & f.Lt(d => d.BucketStartUtc, filter.DateRange.ToUtc);
+    }
+
     private static FilterDefinition<PathEdgeBucketDocument> BuildDateRangeFilter(ProcessFilter filter)
     {
         var f = Builders<PathEdgeBucketDocument>.Filter;

@@ -23,6 +23,9 @@ internal sealed class PathEdgeBucketDocument
     [BsonElement("to_event")]
     public string ToEvent { get; set; } = string.Empty;
 
+    [BsonElement("entry_event_name")]
+    public string EntryEventName { get; set; } = string.Empty;
+
     [BsonElement("bucket_start_utc")]
     public DateTime BucketStartUtc { get; set; }
 

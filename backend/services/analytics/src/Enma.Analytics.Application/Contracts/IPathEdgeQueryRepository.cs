@@ -15,4 +15,10 @@ public interface IPathEdgeQueryRepository
 
     Task<Result<IReadOnlyList<AggregatedEdge>>> GetEdgesForEventAsync(
         ProcessFilter filter, string eventName, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<AggregatedEdge>>> GetAggregatedEdgesByEntryEventAsync(
+        ProcessFilter filter, string entryEventName, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<AggregatedEdge>>> GetAggregatedEdgesAsync(
+        MultiProcessFilter filter, CancellationToken ct = default);
 }

@@ -20,6 +20,9 @@ internal sealed class PathNodeBucketDocument
     [BsonElement("event_name")]
     public string EventName { get; set; } = string.Empty;
 
+    [BsonElement("entry_event_name")]
+    public string EntryEventName { get; set; } = string.Empty;
+
     [BsonElement("bucket_start_utc")]
     public DateTime BucketStartUtc { get; set; }
 

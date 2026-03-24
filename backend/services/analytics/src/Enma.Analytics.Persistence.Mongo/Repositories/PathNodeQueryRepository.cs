@@ -99,6 +99,59 @@ internal sealed class PathNodeQueryRepository(IMongoDbContext db) : IPathNodeQue
         return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
     }
 
+    public async Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesByEntryEventAsync(
+        ProcessFilter filter, string entryEventName, CancellationToken ct = default)
+    {
+        var baseFilter = BuildDateRangeFilter(filter);
+        var entryFilter = Builders<PathNodeBucketDocument>.Filter.Eq(d => d.EntryEventName, entryEventName);
+
+        var results = await db.PathNodeBuckets
+            .Aggregate()
+            .Match(baseFilter & entryFilter)
+            .Group(
+                d => d.EventName,
+                g => new AggregatedNode(
+                    g.Key,
+                    g.Sum(x => x.VisitsCount),
+                    g.Sum(x => x.EntriesCount),
+                    g.Sum(x => x.ExitsCount),
+                    g.Sum(x => x.UniqueChains)))
+            .SortByDescending(n => n.TotalVisits)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
+    }
+
+    public async Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesAsync(
+        MultiProcessFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathNodeBuckets
+            .Aggregate()
+            .Match(BuildMultiProcessFilter(filter))
+            .Group(
+                d => d.EventName,
+                g => new AggregatedNode(
+                    g.Key,
+                    g.Sum(x => x.VisitsCount),
+                    g.Sum(x => x.EntriesCount),
+                    g.Sum(x => x.ExitsCount),
+                    g.Sum(x => x.UniqueChains)))
+            .SortByDescending(n => n.TotalVisits)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
+    }
+
+    private static FilterDefinition<PathNodeBucketDocument> BuildMultiProcessFilter(MultiProcessFilter filter)
+    {
+        var f = Builders<PathNodeBucketDocument>.Filter;
+        return f.Eq(d => d.OrganizationId, filter.OrganizationId)
+             & f.Eq(d => d.ProjectId, filter.ProjectId)
+             & f.In(d => d.ProcessDefinitionId, filter.ProcessDefinitionIds)
+             & f.Gte(d => d.BucketStartUtc, filter.DateRange.FromUtc)
+             & f.Lt(d => d.BucketStartUtc, filter.DateRange.ToUtc);
+    }
+
     private static FilterDefinition<PathNodeBucketDocument> BuildDateRangeFilter(ProcessFilter filter)
     {
         var f = Builders<PathNodeBucketDocument>.Filter;
