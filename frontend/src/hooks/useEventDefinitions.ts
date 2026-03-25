@@ -16,7 +16,6 @@ export function useEventDefinitions(organizationSlug: string, projectKey: string
   const queryClient = useQueryClient();
 
   const meQuery = useMe();
-  const accountId = meQuery.data?.account.id;
 
   const organizationsService = useMemo(() => new OrganizationsService(), []);
   const projectsService = useMemo(() => new ProjectsService(), []);
@@ -65,13 +64,9 @@ export function useEventDefinitions(organizationSlug: string, projectKey: string
   });
 
   const createMutation = useMutation({
-    mutationFn: async (dto: Omit<CreateEventDefinitionDto, "projectId" | "createdByUserId">) => {
+    mutationFn: async (dto: Omit<CreateEventDefinitionDto, "projectId">) => {
       if (!organizationId || !projectId) throw new Error("Missing ids");
-      if (!accountId) throw new Error("Missing accountId");
-      return eventDefinitionsService.create(organizationId, projectId, {
-        ...dto,
-        createdByUserId: accountId,
-      });
+      return eventDefinitionsService.create(organizationId, projectId, dto);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: eventsQueryKey });

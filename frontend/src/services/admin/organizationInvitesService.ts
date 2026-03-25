@@ -3,8 +3,6 @@ import type {
   CreateOrganizationInviteDto,
   Guid,
   OrganizationInviteDto,
-  SetInviteAcceptedDto,
-  SetInviteDeclinedDto,
 } from "@/types/admin.types";
 
 export default class OrganizationInvitesService {
@@ -42,12 +40,12 @@ export default class OrganizationInvitesService {
     return data;
   }
 
-  public async accept(organizationId: Guid, inviteId: Guid, dto: SetInviteAcceptedDto): Promise<void> {
-    await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/accept`, dto);
+  public async accept(organizationId: Guid, inviteId: Guid): Promise<void> {
+    await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/accept`);
   }
 
-  public async decline(organizationId: Guid, inviteId: Guid, dto: SetInviteDeclinedDto): Promise<void> {
-    await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/decline`, dto);
+  public async decline(organizationId: Guid, inviteId: Guid): Promise<void> {
+    await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/decline`);
   }
 
   public async listPending(offset = 0, limit = 20): Promise<OrganizationInviteDto[]> {

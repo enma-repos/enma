@@ -29,7 +29,6 @@ export function useProjects(organizationSlug: string) {
   const [query, setQuery] = useState("");
 
   const meQuery = useMe();
-  const accountId = meQuery.data?.account.id;
 
   const organizationsService = useMemo(() => new OrganizationsService(), []);
   const projectsService = useMemo(() => new ProjectsService(), []);
@@ -66,10 +65,9 @@ export function useProjects(organizationSlug: string) {
   });
 
   const createProjectMutation = useMutation({
-    mutationFn: async (dto: Omit<CreateProjectDto, "organizationId" | "createdByUserId">) => {
+    mutationFn: async (dto: Omit<CreateProjectDto, "organizationId">) => {
       if (!organizationId) throw new Error("Missing organizationId");
-      if (!accountId) throw new Error("Missing accountId");
-      return projectsService.create(organizationId, { ...dto, createdByUserId: accountId });
+      return projectsService.create(organizationId, dto);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: projectsQueryKey });

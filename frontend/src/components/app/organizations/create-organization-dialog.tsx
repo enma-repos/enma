@@ -20,7 +20,7 @@ function getErrorMessage(error: unknown) {
 export type CreateOrganizationDialogProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (dto: Omit<CreateOrganizationDto, "createdByUserId">) => Promise<unknown>;
+  onCreate: (dto: CreateOrganizationDto) => Promise<unknown>;
   isCreating: boolean;
   error: unknown;
 };

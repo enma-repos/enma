@@ -34,16 +34,12 @@ export function useOrganizations() {
   const organizationsQuery = useQuery({
     queryKey: organizationsQueryKey,
     enabled: Boolean(accountId),
-    queryFn: () => {
-      if (!accountId) throw new Error("Missing accountId");
-      return service.listByUser(accountId);
-    },
+    queryFn: () => service.listByUser(),
   });
 
   const createOrganizationMutation = useMutation({
-    mutationFn: async (dto: Omit<CreateOrganizationDto, "createdByUserId">) => {
-      if (!accountId) throw new Error("Missing accountId");
-      return service.create({ ...dto, createdByUserId: accountId });
+    mutationFn: async (dto: CreateOrganizationDto) => {
+      return service.create(dto);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: organizationsQueryKey });

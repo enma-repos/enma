@@ -75,11 +75,10 @@ export function useTeamMutations(orgId: Guid | null) {
   };
 
   const sendInvite = useMutation({
-    mutationFn: (args: { email: string; role: OrganizationRole; createdByUserId: Guid }) =>
+    mutationFn: (args: { email: string; role: OrganizationRole }) =>
       invitesService.create(orgId!, {
         targetEmail: args.email,
         role: args.role,
-        createdByUserId: args.createdByUserId,
       }),
     onSuccess: invalidateAll,
   });

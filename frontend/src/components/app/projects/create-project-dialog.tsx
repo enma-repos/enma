@@ -21,7 +21,7 @@ export type CreateProjectDialogProps = {
   open: boolean;
   onClose: () => void;
   organizationSlug: string;
-  onCreate: (dto: Omit<CreateProjectDto, "organizationId" | "createdByUserId">) => Promise<unknown>;
+  onCreate: (dto: Omit<CreateProjectDto, "organizationId">) => Promise<unknown>;
   isCreating: boolean;
   error: unknown;
 };

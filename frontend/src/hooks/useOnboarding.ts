@@ -35,7 +35,6 @@ export function useOnboarding() {
       const org = await orgsService.create({
         name: params.organizationName,
         slug: params.organizationSlug,
-        createdByUserId: user.accountId,
       });
 
       // Backend auto-creates a "default" project; fetch it for navigation

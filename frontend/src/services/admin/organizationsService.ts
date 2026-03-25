@@ -25,7 +25,7 @@ export default class OrganizationsService {
     return data;
   }
 
-  public async listByUser(userId: Guid, offset = 0, limit = 50): Promise<OrganizationDto[]> {
+  public async listByUser(offset = 0, limit = 50): Promise<OrganizationDto[]> {
     const { data } = await apiClient.get<OrganizationDto[]>(this.baseUrl, {
       params: { offset, limit },
     });

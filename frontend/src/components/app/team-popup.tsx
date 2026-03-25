@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useOrgMembers, useMemberProjects, useTeamMutations } from "@/hooks/useTeam";
 import { useProjects } from "@/hooks/useProjects";
-import { useMe } from "@/hooks/useMe";
 import { TeamInvitePanel } from "./team-invite-panel";
 import { TeamMembersPanel } from "./team-members-panel";
 import { TeamMemberDetail } from "./team-member-detail";
@@ -13,9 +12,6 @@ type Screen = "invite" | "members" | { view: "detail"; userId: string };
 
 export function TeamPopup({ orgId }: { orgId: Guid }) {
   const [screen, setScreen] = useState<Screen>("invite");
-
-  const meQuery = useMe();
-  const currentUserId = meQuery.data?.account.id;
 
   const membersQuery = useOrgMembers(orgId);
   const members = membersQuery.data ?? [];
@@ -66,11 +62,9 @@ export function TeamPopup({ orgId }: { orgId: Guid }) {
           projects={projects}
           isSending={mutations.sendInvite.isPending}
           onSendInvite={(email, role, projectIds) => {
-            if (!currentUserId) return;
             mutations.sendInvite.mutate({
               email,
               role,
-              createdByUserId: currentUserId,
             });
           }}
         />

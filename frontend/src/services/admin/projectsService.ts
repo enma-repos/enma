@@ -40,9 +40,8 @@ export default class ProjectsService {
     return data;
   }
 
-  public async listByUser(organizationId: Guid, userId: Guid, offset = 0, limit = 50): Promise<ProjectDto[]> {
-    void organizationId;
-    const { data } = await apiClient.get<ProjectDto[]>(`/api/v1/users/${userId}/projects`, {
+  public async listByUser(offset = 0, limit = 50): Promise<ProjectDto[]> {
+    const { data } = await apiClient.get<ProjectDto[]>("/api/admin/v1/me/projects", {
       params: { offset, limit },
     });
     return data;

@@ -29,7 +29,7 @@ const processTypeOptions: { value: ProcessType; label: string }[] = [
 export type CreateProcessDialogProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (dto: Omit<CreateProcessDefinitionDto, "projectId" | "createdByUserId">) => Promise<unknown>;
+  onCreate: (dto: Omit<CreateProcessDefinitionDto, "projectId">) => Promise<unknown>;
   isCreating: boolean;
   error: unknown;
 };

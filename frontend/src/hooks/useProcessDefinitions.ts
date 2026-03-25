@@ -16,7 +16,6 @@ export function useProcessDefinitions(organizationSlug: string, projectKey: stri
   const queryClient = useQueryClient();
 
   const meQuery = useMe();
-  const accountId = meQuery.data?.account.id;
 
   const organizationsService = useMemo(() => new OrganizationsService(), []);
   const projectsService = useMemo(() => new ProjectsService(), []);
@@ -65,13 +64,9 @@ export function useProcessDefinitions(organizationSlug: string, projectKey: stri
   });
 
   const createMutation = useMutation({
-    mutationFn: async (dto: Omit<CreateProcessDefinitionDto, "projectId" | "createdByUserId">) => {
+    mutationFn: async (dto: Omit<CreateProcessDefinitionDto, "projectId">) => {
       if (!organizationId || !projectId) throw new Error("Missing ids");
-      if (!accountId) throw new Error("Missing accountId");
-      return processDefinitionsService.create(organizationId, projectId, {
-        ...dto,
-        createdByUserId: accountId,
-      });
+      return processDefinitionsService.create(organizationId, projectId, dto);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: processesQueryKey });

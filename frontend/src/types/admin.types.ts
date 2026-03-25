@@ -74,7 +74,6 @@ export interface CreateOrganizationDto {
   name?: string | null;
   description?: string | null;
   slug: string;
-  createdByUserId: Guid;
 }
 
 export interface SetOrganizationNameDto {
@@ -106,7 +105,6 @@ export interface CreateProjectDto {
   key?: string | null;
   description?: string | null;
   isStared?: boolean;
-  createdByUserId: Guid;
   settings?: JsonObject | null;
 }
 
@@ -161,16 +159,11 @@ export interface CreateOrganizationInviteDto {
   organizationId: Guid;
   targetEmail: string;
   role: OrganizationRole;
-  createdByUserId: Guid;
 }
 
-export interface SetInviteAcceptedDto {
-  acceptedUserId: Guid;
-}
+export type SetInviteAcceptedDto = Record<string, never>;
 
-export interface SetInviteDeclinedDto {
-  declinedUserId: Guid;
-}
+export type SetInviteDeclinedDto = Record<string, never>;
 
 export interface ProjectMemberDto {
   projectId: Guid;
@@ -255,7 +248,6 @@ export interface AuditLogDto {
 export interface CreateAuditLogDto {
   organizationId: Guid;
   projectId?: Guid | null;
-  actorUserId?: Guid | null;
   action?: string | null;
   resourceType?: string | null;
   resourceId?: string | null;
@@ -290,7 +282,6 @@ export interface CreateProcessDefinitionDto {
   key?: string | null;
   type: ProcessType;
   description?: string | null;
-  createdByUserId: Guid;
 }
 
 export interface SetProcessDefinitionNameDto {
@@ -316,7 +307,6 @@ export interface CreateEventDefinitionDto {
   projectId: Guid;
   name?: string | null;
   description?: string | null;
-  createdByUserId: Guid;
 }
 
 export interface SetEventDefinitionDescriptionDto {

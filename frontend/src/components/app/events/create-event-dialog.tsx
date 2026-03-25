@@ -18,7 +18,7 @@ function isLatinName(value: string): boolean {
 export type CreateEventDialogProps = {
   open: boolean;
   onClose: () => void;
-  onCreate: (dto: Omit<CreateEventDefinitionDto, "projectId" | "createdByUserId">) => Promise<unknown>;
+  onCreate: (dto: Omit<CreateEventDefinitionDto, "projectId">) => Promise<unknown>;
   isCreating: boolean;
   error: unknown;
 };

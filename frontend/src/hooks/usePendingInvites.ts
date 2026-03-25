@@ -19,7 +19,7 @@ export function usePendingInvites() {
 
   const acceptInvite = useMutation({
     mutationFn: (args: { organizationId: string; inviteId: string }) =>
-      service.accept(args.organizationId, args.inviteId, { acceptedUserId: accountId! }),
+      service.accept(args.organizationId, args.inviteId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invites", "pending"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -29,7 +29,7 @@ export function usePendingInvites() {
 
   const declineInvite = useMutation({
     mutationFn: (args: { organizationId: string; inviteId: string }) =>
-      service.decline(args.organizationId, args.inviteId, { declinedUserId: accountId! }),
+      service.decline(args.organizationId, args.inviteId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invites", "pending"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
