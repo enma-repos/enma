@@ -50,7 +50,7 @@ export function EventsScreen({ organizationSlug, projectKey }: EventsScreenProps
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl mt-6">
+    <div className="mx-auto w-full max-w-[90rem] mt-6">
       <EventsToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">

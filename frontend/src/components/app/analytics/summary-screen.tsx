@@ -42,7 +42,7 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
     const firstProcessId = processDefinitions[0]?.id ?? null;
 
     return (
-        <div className="mx-auto w-full max-w-[90rem]">
+        <div className="mx-auto w-full max-w-[90rem] mt-6">
 
             <section className="mt-2">
                 <div className="flex flex-wrap items-start justify-between gap-4">

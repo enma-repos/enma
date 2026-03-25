@@ -38,7 +38,7 @@ export function AppsScreen({ organizationSlug, projectKey }: AppsScreenProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl mt-6">
+    <div className="mx-auto w-full max-w-[90rem] mt-6">
       <AppsToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">

@@ -79,7 +79,7 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-6xl mt-6">
+      <div className="mx-auto w-full max-w-[90rem] mt-6">
         <Card>
           <div className="animate-pulse p-6 space-y-4">
             <div className="h-5 w-1/3 rounded bg-zinc-100" />
@@ -93,7 +93,7 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
 
   if (error || !app) {
     return (
-      <div className="mx-auto w-full max-w-6xl mt-6">
+      <div className="mx-auto w-full max-w-[90rem] mt-6">
         <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 transition-colors mb-4">
           <IconArrowLeft className="h-4 w-4" />
           Назад к приложениям
@@ -146,7 +146,7 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl mt-6 space-y-6">
+    <div className="mx-auto w-full max-w-[90rem] mt-6 space-y-6">
       <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
         <IconArrowLeft className="h-4 w-4" />
         Назад к приложениям

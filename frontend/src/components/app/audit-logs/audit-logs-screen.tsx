@@ -63,7 +63,7 @@ export function AuditLogsScreen({ organizationSlug, projectKey }: AuditLogsScree
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl mt-6">
+    <div className="mx-auto w-full max-w-[90rem] mt-6">
       <AuditLogsToolbar
         dateRange={dateRange}
         onDateRangeChange={handleDateRangeChange}

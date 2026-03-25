@@ -52,7 +52,7 @@ export function ProcessesScreen({ organizationSlug, projectKey }: ProcessesScree
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl mt-6">
+    <div className="mx-auto w-full max-w-[90rem] mt-6">
       <ProcessesToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">

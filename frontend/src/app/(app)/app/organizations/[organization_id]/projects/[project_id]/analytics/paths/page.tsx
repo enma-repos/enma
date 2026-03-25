@@ -64,7 +64,7 @@ export default function PathsPage() {
         : `${resolvedProcessIds.length} процесс(ов)`;
 
   return (
-    <div className="mx-auto w-full max-w-[90rem]">
+    <div className="mx-auto w-full max-w-[90rem] mt-6">
       <section>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
