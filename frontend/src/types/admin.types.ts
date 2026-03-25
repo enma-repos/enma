@@ -32,6 +32,7 @@ export enum SdkClientType {
 
 export interface UserDto {
   id: Guid;
+  email: string;
   displayName: string;
   avatarUrl: string | null;
   locale: string | null;
@@ -126,6 +127,9 @@ export interface OrganizationMemberDto {
   userId: Guid;
   role: OrganizationRole;
   status: OrganizationMemberStatus;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
   joinedAt: IsoDateString;
   updatedAt: IsoDateString;
 }
@@ -141,6 +145,7 @@ export interface SetOrganizationMemberStatusDto {
 export interface OrganizationInviteDto {
   id: Guid;
   organizationId: Guid;
+  organizationName: string;
   targetEmail: string;
   role: OrganizationRole;
   expiresAt: IsoDateString;
@@ -148,6 +153,8 @@ export interface OrganizationInviteDto {
   acceptedUserId: Guid | null;
   createdAt: IsoDateString;
   acceptedAt: IsoDateString | null;
+  declinedUserId: Guid | null;
+  declinedAt: IsoDateString | null;
 }
 
 export interface CreateOrganizationInviteDto {
@@ -161,10 +168,17 @@ export interface SetInviteAcceptedDto {
   acceptedUserId: Guid;
 }
 
+export interface SetInviteDeclinedDto {
+  declinedUserId: Guid;
+}
+
 export interface ProjectMemberDto {
   projectId: Guid;
   userId: Guid;
   role: ProjectRole;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
   joinedAt: IsoDateString;
   updatedAt: IsoDateString;
 }
@@ -307,4 +321,27 @@ export interface CreateEventDefinitionDto {
 
 export interface SetEventDefinitionDescriptionDto {
   description: string | null;
+}
+
+export enum NotificationType {
+  OrganizationInviteReceived = 0,
+  OrganizationInviteAccepted = 1,
+  OrganizationInviteDeclined = 2,
+  OrganizationRoleChanged = 3,
+  RemovedFromOrganization = 4,
+  AddedToProject = 5,
+  ProjectRoleChanged = 6,
+  RemovedFromProject = 7,
+}
+
+export interface NotificationDto {
+  id: Guid;
+  recipientUserId: Guid;
+  type: NotificationType;
+  title: string;
+  message: string;
+  resourceId: Guid | null;
+  isRead: boolean;
+  createdAt: IsoDateString;
+  readAt: IsoDateString | null;
 }

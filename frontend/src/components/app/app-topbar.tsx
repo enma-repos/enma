@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Avatar,
   Button,
-  IconBell,
   IconChevronDown,
   IconPencil,
   IconPlus,
@@ -12,6 +11,8 @@ import {
 } from "@/components/shared";
 import type { OrganizationDto, ProjectDto } from "@/types/admin.types";
 import { Building2, FolderKanban } from "lucide-react";
+import { NotificationBell } from "./notification-bell";
+import { TeamButton } from "./team-button";
 
 export type AppTopbarProps = {
   displayName: string | null;
@@ -321,7 +322,10 @@ export function AppTopbar({
         </div>
 
         {/* Right side: user menu, notifications, avatar */}
-        <div className="ml-auto flex items-center gap-1">
+
+        <div className="ml-auto flex items-center gap-0.5">
+          <TeamButton orgId={currentOrganization?.id ?? null} />
+          <NotificationBell />
           {displayName ? (
             <div className="relative" ref={userDropdown.ref}>
               <Button
@@ -330,13 +334,13 @@ export function AppTopbar({
                 className="max-w-[220px] cursor-pointer rounded-xl"
                 onClick={userDropdown.toggle}
               >
+                <IconChevronDown
+                    className="h-4 w-4 text-zinc-500"
+                    aria-hidden="true"
+                />
                 <span className="truncate text-sm font-medium text-zinc-700">
                   {displayName}
                 </span>
-                <IconChevronDown
-                  className="h-4 w-4 text-zinc-500"
-                  aria-hidden="true"
-                />
               </Button>
 
               {userDropdown.open && (
@@ -355,15 +359,6 @@ export function AppTopbar({
               )}
             </div>
           ) : null}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 rounded-xl p-0"
-            aria-label="Notifications"
-          >
-            <IconBell className="h-5 w-5" />
-          </Button>
 
           <Avatar initials={initials} aria-label="User menu" />
         </div>

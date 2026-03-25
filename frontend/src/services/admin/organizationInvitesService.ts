@@ -4,6 +4,7 @@ import type {
   Guid,
   OrganizationInviteDto,
   SetInviteAcceptedDto,
+  SetInviteDeclinedDto,
 } from "@/types/admin.types";
 
 export default class OrganizationInvitesService {
@@ -43,5 +44,16 @@ export default class OrganizationInvitesService {
 
   public async accept(organizationId: Guid, inviteId: Guid, dto: SetInviteAcceptedDto): Promise<void> {
     await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/accept`, dto);
+  }
+
+  public async decline(organizationId: Guid, inviteId: Guid, dto: SetInviteDeclinedDto): Promise<void> {
+    await apiClient.patch(`${this.orgBaseUrl(organizationId)}/${inviteId}/decline`, dto);
+  }
+
+  public async listPending(offset = 0, limit = 20): Promise<OrganizationInviteDto[]> {
+    const { data } = await apiClient.get<OrganizationInviteDto[]>("/api/admin/v1/invites/pending", {
+      params: { offset, limit },
+    });
+    return data;
   }
 }
