@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bucket Builder — Flow</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --border-active: #4a4a6a;
+    --text: #e0e0ee;
+    --text-dim: #8888aa;
+    --accent: #6c8cff;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --orange: #fb923c;
+    --red: #f87171;
+    --cyan: #22d3ee;
+    --yellow: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    line-height: 1.6;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 48px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* ── Flow diagram ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    min-height: 80px;
+  }
+
+  .flow-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+
+  .flow-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 2px var(--accent);
+    flex-shrink: 0;
+    margin-top: 18px;
+    z-index: 1;
+  }
+
+  .flow-dot.green { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+  .flow-dot.orange { background: var(--orange); box-shadow: 0 0 0 2px var(--orange); }
+  .flow-dot.cyan { background: var(--cyan); box-shadow: 0 0 0 2px var(--cyan); }
+  .flow-dot.red { background: var(--red); box-shadow: 0 0 0 2px var(--red); }
+  .flow-dot.purple { background: var(--accent2); box-shadow: 0 0 0 2px var(--accent2); }
+
+  .flow-line {
+    width: 2px;
+    flex-grow: 1;
+    background: var(--border);
+  }
+
+  .flow-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .flow-card:hover {
+    border-color: var(--border-active);
+  }
+
+  .flow-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .flow-card p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .flow-card code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* ── Architecture diagram ── */
+  .arch {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 24px 0;
+  }
+
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .arch-box.ch { border-color: var(--yellow); }
+  .arch-box.app { border-color: var(--accent); }
+  .arch-box.mongo { border-color: var(--green); }
+
+  .arch-box .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .arch-box .name {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .arch-box .detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  .arch-arrow {
+    font-size: 24px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .arch-arrow .arrow-label {
+    font-size: 10px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  .timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+  }
+
+  .timeline-row:last-child { margin-bottom: 0; }
+
+  .timeline-label {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    padding-right: 16px;
+  }
+
+  .timeline-track {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .bucket {
+    flex: 1;
+    min-width: 80px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+    cursor: default;
+  }
+
+  .bucket.processed {
+    background: rgba(108, 140, 255, 0.15);
+    border: 1px solid rgba(108, 140, 255, 0.3);
+    color: var(--accent);
+  }
+
+  .bucket.current {
+    background: rgba(251, 146, 60, 0.15);
+    border: 1px solid rgba(251, 146, 60, 0.5);
+    color: var(--orange);
+    animation: pulse 2s infinite;
+  }
+
+  .bucket.pending {
+    background: rgba(136, 136, 170, 0.08);
+    border: 1px dashed rgba(136, 136, 170, 0.2);
+    color: var(--text-dim);
+  }
+
+  .bucket.unsafe {
+    background: rgba(248, 113, 113, 0.08);
+    border: 1px dashed rgba(248, 113, 113, 0.2);
+    color: var(--red);
+    opacity: 0.5;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0); }
+  }
+
+  .event-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 1px;
+  }
+
+  .event-dot.e1 { background: var(--accent); }
+  .event-dot.e2 { background: var(--green); }
+  .event-dot.e3 { background: var(--orange); }
+  .event-dot.e4 { background: var(--cyan); }
+
+  /* ── Stitching visual ── */
+  .stitch-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 16px;
+  }
+
+  .stitch-buckets {
+    display: flex;
+    gap: 24px;
+    margin: 16px 0;
+  }
+
+  .stitch-bucket {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .stitch-bucket .bucket-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .event-chain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .event-node {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .event-node.page { background: rgba(108, 140, 255, 0.2); color: var(--accent); }
+  .event-node.product { background: rgba(52, 211, 153, 0.2); color: var(--green); }
+  .event-node.cart { background: rgba(251, 146, 60, 0.2); color: var(--orange); }
+  .event-node.checkout { background: rgba(34, 211, 238, 0.2); color: var(--cyan); }
+  .event-node.cursor-node {
+    background: rgba(167, 139, 250, 0.15);
+    color: var(--accent2);
+    border: 1px dashed var(--accent2);
+  }
+
+  .event-arrow {
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .stitch-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stitch-label b { color: var(--text); }
+
+  .cross-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent2);
+    font-size: 11px;
+    gap: 2px;
+    align-self: center;
+  }
+
+  .cross-arrow svg {
+    width: 48px;
+    height: 24px;
+  }
+
+  /* ── Merge visual ── */
+  .merge-demo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .mini-bucket {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    text-align: center;
+    min-width: 70px;
+  }
+
+  .mini-bucket .time {
+    color: var(--text-dim);
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .mini-bucket .val {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .merge-op {
+    color: var(--text-dim);
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  .merge-result {
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    text-align: center;
+    min-width: 90px;
+  }
+
+  .merge-result .time {
+    color: var(--green);
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .merge-result .val {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--green);
+  }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 12px 0;
+    color: var(--text-dim);
+  }
+
+  .code-block .kw { color: var(--accent2); }
+  .code-block .fn { color: var(--accent); }
+  .code-block .str { color: var(--green); }
+  .code-block .cmt { color: #555570; font-style: italic; }
+  .code-block .num { color: var(--orange); }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ── Info box ── */
+  .info-box {
+    background: rgba(108, 140, 255, 0.06);
+    border: 1px solid rgba(108, 140, 255, 0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .info-box b { color: var(--text); }
+
+  .warn-box {
+    background: rgba(251, 146, 60, 0.06);
+    border: 1px solid rgba(251, 146, 60, 0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .arch { grid-template-columns: 1fr; }
+    .arch-arrow { transform: rotate(90deg); }
+    .stitch-buckets { flex-direction: column; }
+    .cross-arrow svg { transform: rotate(90deg); }
+  }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Bucket Builder Flow</h1>
+  <p class="subtitle">Enma / backend / bucket-builder &mdash; полный цикл агрегации событий в бакеты</p>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 1: HIGH-LEVEL ARCHITECTURE            -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span> Архитектура: откуда читаем, куда пишем</div>
+
+    <div class="arch">
+      <div class="arch-box ch">
+        <div class="label">Source</div>
+        <div class="name">ClickHouse</div>
+        <div class="detail">таблица <code>events</code><br>сырые события</div>
+      </div>
+      <div class="arch-arrow">
+        &rarr;
+        <span class="arrow-label">SELECT window</span>
+      </div>
+      <div class="arch-box app">
+        <div class="label">Worker</div>
+        <div class="name">Bucket Builder</div>
+        <div class="detail">агрегация + stitching<br>in-memory</div>
+      </div>
+      <div class="arch-arrow">
+        &rarr;
+        <span class="arrow-label">UPSERT</span>
+      </div>
+      <div class="arch-box mongo">
+        <div class="label">Storage</div>
+        <div class="name">MongoDB</div>
+        <div class="detail">node_buckets<br>edge_buckets<br>chain_cursors</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      Worker <b>не слушает RabbitMQ</b> &mdash; он периодически опрашивает ClickHouse, читая готовые 5-минутные окна.
+      Это даёт батчинг, идемпотентность и простоту recovery при падениях.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 2: WORKER LOOP                        -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span> Worker Loop &mdash; главный цикл</div>
+
+    <div class="flow">
+      <!-- Step 1 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot orange"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Sleep / Poll Timer</h3>
+          <p>Воркер спит <code>PollIntervalSeconds</code> (30 сек по умолчанию), затем просыпается.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot purple"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Acquire Lease</h3>
+          <p>Атомарный <code>findAndModify</code> в MongoDB: если lease на шард свободен или истёк &mdash; захватываем.
+          Если занят другим воркером &mdash; пропускаем итерацию.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Load Checkpoint</h3>
+          <p>Читаем <code>ShardCheckpoint</code> из MongoDB &mdash; узнаём <code>last_completed_bucket_end_utc</code>.
+          Если чекпоинта нет (первый запуск) &mdash; начинаем с <code>now - InitialLookbackHours</code>.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot cyan"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Compute Pending Windows</h3>
+          <p>Рассчитываем окна от чекпоинта до <code>floor5min(now&nbsp;-&nbsp;SafetyLag)</code>.<br>
+          Ограничиваем <code>MaxWindowsPerTick</code> (12 = максимум 1 час за итерацию), чтобы не блокировать воркер надолго.</p>
+          <div class="code-block">
+<span class="cmt">// Пример: checkpoint = 14:30, now = 14:48, safetyLag = 30s</span>
+<span class="cmt">// cutoff = floor5min(14:47:30) = 14:45</span>
+<span class="cmt">// pending windows:</span>
+<span class="str">[14:30–14:35]</span> <span class="str">[14:35–14:40]</span> <span class="str">[14:40–14:45]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot green"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Process Each Window</h3>
+          <p>Для каждого окна вызываем <code>WindowBucketBuildService.BuildWindowAsync(window)</code><br>
+          (подробности &mdash; в секции 3). После каждого окна обновляем чекпоинт и продлеваем lease.</p>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot orange"></div>
+          <div class="flow-line" style="background: transparent;"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Release Lease &amp; Repeat</h3>
+          <p>Возвращаемся к Sleep. Если окна закончились &mdash; воркер idle до следующего poll.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 3: WINDOW BUILD                       -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span> Обработка одного окна (BuildWindowAsync)</div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot" style="background: var(--yellow); box-shadow: 0 0 0 2px var(--yellow);"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>1. Read Source Events</h3>
+          <p><code>IPathSourceEventReader.GetWindowAsync(window)</code><br>
+          SELECT из ClickHouse: все события с <code>occurred_at</code> в окне [start, end).<br>
+          Каждое событие с N process_keys &rarr; N строк <code>PathSourceEvent</code>.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot purple"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>2. Load Existing Cursors</h3>
+          <p><code>IChainCursorRepository.GetByChainKeysAsync(chainKeys)</code><br>
+          Для каждого уникального <code>ChainKey</code> из событий подгружаем курсор &mdash;
+          последнее событие этой цепочки из предыдущего бакета.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>3. Aggregate (in-memory)</h3>
+          <p><code>IPathAggregationService.Aggregate(window, events, cursors)</code><br>
+          Дедупликация &rarr; группировка по chain &rarr; chain stitching &rarr; сборка NodeBuckets + EdgeBuckets</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot green"></div>
+          <div class="flow-line" style="background: transparent;"></div>
+        </div>
+        <div class="flow-card">
+          <h3>4. Persist (upsert to MongoDB)</h3>
+          <p>
+            <code>PathNodeBucketRepository.UpsertBatchAsync()</code><br>
+            <code>PathEdgeBucketRepository.UpsertBatchAsync()</code><br>
+            <code>ChainCursorRepository.UpsertBatchAsync()</code><br>
+            Upsert = если бакет с таким ключом есть &mdash; заменяем. Повторная обработка безопасна.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 4: AGGREGATION DETAIL                 -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span> Агрегация: от событий к бакетам</div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showTab('tab-dedup', this)">Dedup</button>
+      <button class="tab-btn" onclick="showTab('tab-group', this)">Group by Chain</button>
+      <button class="tab-btn" onclick="showTab('tab-stitch', this)">Chain Stitching</button>
+      <button class="tab-btn" onclick="showTab('tab-build', this)">Build Buckets</button>
+    </div>
+
+    <div id="tab-dedup" class="tab-panel active">
+      <div class="code-block">
+<span class="cmt">// Одно raw event с 2 process_keys порождает 2 PathSourceEvent.</span>
+<span class="cmt">// Но event_id одинаковый &rarr; дедуплицируем по (event_id + chain_key).</span>
+
+events.<span class="fn">DistinctBy</span>(e => <span class="kw">new</span> SourceEventDedupKey(e.EventId, e.ChainKey))
+      </div>
+      <div class="info-box">
+        <b>Зачем?</b> Если event-processor записал одно событие дважды (at-least-once delivery),
+        или одно событие несёт несколько process_keys с одинаковым ChainKey &mdash;
+        мы не хотим считать его дважды в одном бакете.
+      </div>
+    </div>
+
+    <div id="tab-group" class="tab-panel">
+      <div class="code-block">
+<span class="cmt">// ChainKey = (org_id, project_id, process_def_id, process_id)</span>
+<span class="cmt">// Каждая группа &mdash; это одна пользовательская цепочка (сессия/заказ/etc).</span>
+
+events.<span class="fn">GroupBy</span>(e => e.ChainKey)
+      .<span class="fn">Select</span>(g => g.<span class="fn">OrderBy</span>(e => e.OccurredAtUtc)
+                       .<span class="fn">ThenBy</span>(e => e.EventId))
+      </div>
+      <div class="info-box">
+        Внутри группы события сортируются по времени. Если два события произошли в одну миллисекунду &mdash;
+        fallback на <b>EventId</b> для детерминированного порядка.
+      </div>
+    </div>
+
+    <div id="tab-stitch" class="tab-panel">
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">
+        Для каждой цепочки ChainStitchingService строит NodeVisits и EdgeTransitions:
+      </p>
+      <div class="code-block">
+<span class="cmt">// Для каждого события в цепочке:</span>
+<span class="kw">for</span> (i = <span class="num">0</span>; i < events.Count; i++) {
+  <span class="cmt">// 1. NodeVisit</span>
+  nodeVisits.<span class="fn">Add</span>(<span class="kw">new</span> NodeVisit(
+    chainKey,
+    nodeKey,
+    IsEntry: i == <span class="num">0</span> && cursor == <span class="kw">null</span>,  <span class="cmt">// первое событие без курсора = вход</span>
+    IsExit:  i == last                      <span class="cmt">// последнее в окне = выход (приблизительно)</span>
+  ));
+
+  <span class="cmt">// 2. Edge: cursor &rarr; first event (сшивка через границу!)</span>
+  <span class="kw">if</span> (i == <span class="num">0</span> && cursor != <span class="kw">null</span>)
+    edges.<span class="fn">Add</span>(cursor.LastEvent <span class="str">&rarr;</span> events[<span class="num">0</span>]);
+
+  <span class="cmt">// 3. Edge: event[i-1] &rarr; event[i] (внутри окна)</span>
+  <span class="kw">if</span> (i > <span class="num">0</span>)
+    edges.<span class="fn">Add</span>(events[i-<span class="num">1</span>] <span class="str">&rarr;</span> events[i]);
+}
+
+<span class="cmt">// 4. Обновить курсор последним событием окна</span>
+cursor = <span class="kw">new</span> ChainCursor(events[last]);
+      </div>
+    </div>
+
+    <div id="tab-build" class="tab-panel">
+      <div class="code-block">
+<span class="cmt">// Группируем NodeVisits по NodeKey, считаем метрики:</span>
+nodeVisits.<span class="fn">GroupBy</span>(v => v.Key)
+  .<span class="fn">Select</span>(g => <span class="kw">new</span> PathNodeBucket(
+    Key:          g.Key,
+    VisitsCount:  g.<span class="fn">Count</span>(),
+    EntriesCount: g.<span class="fn">Count</span>(v => v.IsEntry),
+    ExitsCount:   g.<span class="fn">Count</span>(v => v.IsExit),
+    UniqueChains: g.<span class="fn">Select</span>(v => v.ChainKey).<span class="fn">Distinct</span>().<span class="fn">Count</span>()
+  ));
+
+<span class="cmt">// Аналогично для EdgeTransitions &rarr; PathEdgeBucket</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 5: CHAIN STITCHING VISUAL             -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span> Chain Stitching &mdash; сшивка путей через границы бакетов</div>
+
+    <div class="stitch-demo">
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+        Пользователь выполняет 4 действия. Два попадают в бакет 14:30, два &mdash; в бакет 14:35.
+        Без stitching мы теряем переход <b>product_click &rarr; add_to_cart</b>.
+      </p>
+
+      <div class="stitch-buckets">
+        <!-- Bucket 1 -->
+        <div class="stitch-bucket">
+          <div class="bucket-title">
+            <span>Бакет 14:30 &ndash; 14:35</span>
+            <span style="color: var(--text-dim); font-weight: 400;">cursor = null</span>
+          </div>
+          <div class="event-chain">
+            <span class="event-node page">page_view</span>
+            <span class="event-arrow">&rarr;</span>
+            <span class="event-node product">product_click</span>
+          </div>
+          <div class="stitch-label">
+            <b>Nodes:</b> page_view (entry), product_click (exit*)<br>
+            <b>Edges:</b> page_view &rarr; product_click<br>
+            <b>Cursor &rarr;</b> <span class="event-node cursor-node" style="display: inline-block; margin: 4px 0;">product_click @ 14:34</span>
+          </div>
+        </div>
+
+        <!-- Arrow between buckets -->
+        <div class="cross-arrow">
+          <svg viewBox="0 0 48 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="0" y1="12" x2="40" y2="12" stroke-dasharray="4 3"/>
+            <polyline points="36,6 42,12 36,18"/>
+          </svg>
+          <span>cursor</span>
+        </div>
+
+        <!-- Bucket 2 -->
+        <div class="stitch-bucket">
+          <div class="bucket-title">
+            <span>Бакет 14:35 &ndash; 14:40</span>
+            <span style="color: var(--accent2); font-weight: 400;">cursor = product_click</span>
+          </div>
+          <div class="event-chain">
+            <span class="event-node cursor-node">product_click</span>
+            <span class="event-arrow" style="color: var(--accent2);">&rarr;</span>
+            <span class="event-node cart">add_to_cart</span>
+            <span class="event-arrow">&rarr;</span>
+            <span class="event-node checkout">checkout</span>
+          </div>
+          <div class="stitch-label">
+            <b>Nodes:</b> add_to_cart (not entry!), checkout (exit*)<br>
+            <b>Edges:</b> <span style="color: var(--accent2);">product_click &rarr; add_to_cart</span>, add_to_cart &rarr; checkout<br>
+            <b>Cursor &rarr;</b> <span class="event-node cursor-node" style="display: inline-block; margin: 4px 0;">checkout @ 14:38</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        Фиолетовый &mdash; данные из курсора (предыдущий бакет). Переход <b>product_click &rarr; add_to_cart</b>
+        восстановлен благодаря stitching, хотя события разнесены по разным бакетам.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 6: TIMELINE                           -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span> Timeline &mdash; что видит воркер в каждый момент</div>
+
+    <div class="timeline">
+      <div class="legend" style="margin-bottom: 16px;">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: rgba(108, 140, 255, 0.3);"></div>
+          Обработано
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: rgba(251, 146, 60, 0.3);"></div>
+          Обрабатывается сейчас
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: rgba(136, 136, 170, 0.1); border: 1px dashed rgba(136, 136, 170, 0.3);"></div>
+          Ожидает
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background: rgba(248, 113, 113, 0.1); border: 1px dashed rgba(248, 113, 113, 0.3);"></div>
+          Safety lag (не трогаем)
+        </div>
+      </div>
+
+      <div class="timeline-row">
+        <div class="timeline-label">Tick 1<br><span style="font-size: 10px;">now = 14:48</span></div>
+        <div class="timeline-track">
+          <div class="bucket processed">14:25</div>
+          <div class="bucket processed">14:30</div>
+          <div class="bucket current">14:35</div>
+          <div class="bucket pending">14:40</div>
+          <div class="bucket unsafe">14:45</div>
+        </div>
+      </div>
+
+      <div class="timeline-row">
+        <div class="timeline-label">Tick 1<br><span style="font-size: 10px;">(продолж.)</span></div>
+        <div class="timeline-track">
+          <div class="bucket processed">14:25</div>
+          <div class="bucket processed">14:30</div>
+          <div class="bucket processed">14:35</div>
+          <div class="bucket current">14:40</div>
+          <div class="bucket unsafe">14:45</div>
+        </div>
+      </div>
+
+      <div class="timeline-row">
+        <div class="timeline-label">Tick 2<br><span style="font-size: 10px;">now = 15:18</span></div>
+        <div class="timeline-track">
+          <div class="bucket processed">14:40</div>
+          <div class="bucket processed">14:45</div>
+          <div class="bucket processed">14:50</div>
+          <div class="bucket processed">14:55</div>
+          <div class="bucket processed">15:00</div>
+          <div class="bucket current">15:05</div>
+          <div class="bucket pending">15:10</div>
+          <div class="bucket unsafe">15:15</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 16px;">
+      <b>Safety Lag</b> (30 сек) &mdash; не обрабатываем "текущий" бакет, потому что в него ещё могут поступить события.
+      Ждём, пока окно полностью "закроется", прежде чем агрегировать.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 7: MERGE                              -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span> Merge бакетов (запрос из Analytics API)</div>
+
+    <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+      Запрос: &laquo;граф за 17:00&ndash;17:15&raquo;. Analytics читает 3 пятиминутных бакета и мёрджит:
+    </p>
+
+    <div style="margin-bottom: 24px;">
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;"><b>Node: checkout_started</b></p>
+      <div class="merge-demo">
+        <div class="mini-bucket">
+          <div class="time">17:00</div>
+          <div class="val">42</div>
+          <div style="font-size: 10px; color: var(--text-dim);">visits</div>
+        </div>
+        <div class="merge-op">+</div>
+        <div class="mini-bucket">
+          <div class="time">17:05</div>
+          <div class="val">38</div>
+          <div style="font-size: 10px; color: var(--text-dim);">visits</div>
+        </div>
+        <div class="merge-op">+</div>
+        <div class="mini-bucket">
+          <div class="time">17:10</div>
+          <div class="val">51</div>
+          <div style="font-size: 10px; color: var(--text-dim);">visits</div>
+        </div>
+        <div class="merge-op">=</div>
+        <div class="merge-result">
+          <div class="time">17:00&ndash;17:15</div>
+          <div class="val">131</div>
+          <div style="font-size: 10px; color: var(--green);">total visits</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;"><b>Edge: product_view &rarr; checkout_started</b></p>
+      <div class="merge-demo">
+        <div class="mini-bucket">
+          <div class="time">17:00</div>
+          <div class="val">28</div>
+          <div style="font-size: 10px; color: var(--text-dim);">transitions</div>
+        </div>
+        <div class="merge-op">+</div>
+        <div class="mini-bucket">
+          <div class="time">17:05</div>
+          <div class="val">31</div>
+          <div style="font-size: 10px; color: var(--text-dim);">transitions</div>
+        </div>
+        <div class="merge-op">+</div>
+        <div class="mini-bucket">
+          <div class="time">17:10</div>
+          <div class="val">24</div>
+          <div style="font-size: 10px; color: var(--text-dim);">transitions</div>
+        </div>
+        <div class="merge-op">=</div>
+        <div class="merge-result">
+          <div class="time">17:00&ndash;17:15</div>
+          <div class="val">83</div>
+          <div style="font-size: 10px; color: var(--green);">total transitions</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+<span class="cmt">// MongoDB Aggregation Pipeline (analytics service)</span>
+db.path_node_buckets.<span class="fn">aggregate</span>([
+  { <span class="str">$match</span>: {
+    <span class="str">"_id.project_id"</span>: projectId,
+    <span class="str">"_id.bucket_start"</span>: { <span class="str">$gte</span>: <span class="fn">ISODate</span>(<span class="str">"17:00"</span>), <span class="str">$lt</span>: <span class="fn">ISODate</span>(<span class="str">"17:15"</span>) }
+  }},
+  { <span class="str">$group</span>: {
+    <span class="str">_id</span>: <span class="str">"$_id.event_name"</span>,
+    <span class="str">total_visits</span>:  { <span class="str">$sum</span>: <span class="str">"$visits"</span> },     <span class="cmt">// аддитивная метрика &mdash; ОК</span>
+    <span class="str">total_entries</span>: { <span class="str">$sum</span>: <span class="str">"$entries"</span> },
+    <span class="str">total_exits</span>:   { <span class="str">$sum</span>: <span class="str">"$exits"</span> },
+    <span class="str">approx_chains</span>: { <span class="str">$sum</span>: <span class="str">"$unique_chains"</span> } <span class="cmt">// &asymp; upper bound</span>
+  }}
+])
+    </div>
+
+    <div class="warn-box">
+      <b>visits</b>, <b>entries</b>, <b>exits</b>, <b>transitions</b> &mdash; аддитивные, суммируются точно.<br>
+      <b>unique_chains</b>, <b>unique_users</b> &mdash; при суммировании дают верхнюю границу (один пользователь в нескольких бакетах считается дважды). Для точности нужен HyperLogLog.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 8: DATA FLOW END-TO-END               -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span> End-to-End: от клика пользователя до графа</div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot cyan"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>SDK (браузер)</h3>
+          <p>Пользователь кликает. SDK отправляет событие с <code>eventName</code>, <code>processKeys</code>, <code>actor</code>, <code>occurredAt</code>.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Ingest Service</h3>
+          <p>Валидирует, нормализует, публикует <code>EventMessageDto</code> в RabbitMQ.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot orange"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Event Processor</h3>
+          <p>Consume из RabbitMQ &rarr; bulk INSERT в ClickHouse (таблица <code>events</code>).</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot green"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Bucket Builder (этот сервис)</h3>
+          <p>Polling: читает окно из ClickHouse &rarr; агрегирует nodes/edges &rarr; upsert в MongoDB.<br>
+          Stitching через курсоры сохраняет непрерывность путей.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot purple"></div>
+          <div class="flow-line"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Analytics API</h3>
+          <p>Читает бакеты из MongoDB, мёрджит за запрашиваемый период &rarr; JSON-ответ.</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-rail">
+          <div class="flow-dot cyan"></div>
+          <div class="flow-line" style="background: transparent;"></div>
+        </div>
+        <div class="flow-card">
+          <h3>Frontend (React Flow)</h3>
+          <p>Рисует интерактивный граф: узлы = события, рёбра = переходы, метрики на каждом элементе.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
