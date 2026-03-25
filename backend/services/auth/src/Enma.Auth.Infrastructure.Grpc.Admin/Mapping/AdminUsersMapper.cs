@@ -13,6 +13,7 @@ internal static class AdminUsersMapper
         var req = new CreateUserRequest
         {
             AccountId = dto.AccountId.ToString(),
+            Email = dto.Email,
             DisplayName = dto.DisplayName
         };
 

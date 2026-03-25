@@ -11,6 +11,14 @@ internal sealed class UsersConfiguration : IEntityTypeConfiguration<UserEntity>
         builder.ToTable("users");
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Email)
+            .HasMaxLength(320)
+            .IsRequired();
+
+        builder.HasIndex(x => x.Email)
+            .IsUnique()
+            .HasFilter("\"DeletedAt\" IS NULL");
+
         builder.Property(x => x.DisplayName)
             .HasMaxLength(200)
             .IsRequired();

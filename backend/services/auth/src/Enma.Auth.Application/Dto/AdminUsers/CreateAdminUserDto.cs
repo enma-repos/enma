@@ -2,6 +2,7 @@ namespace Enma.Auth.Application.Dto.AdminUsers;
 
 public sealed record CreateAdminUserDto(
     Guid AccountId,
+    string Email,
     string DisplayName,
     string? AvatarUrl,
     string? Locale,

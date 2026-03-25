@@ -280,6 +280,7 @@ internal sealed class AuthService : IAuthService
         var createUserResult = await _adminUsersClient.CreateUserAsync(
             new CreateAdminUserDto(
                 AccountId: accountId,
+                Email: accountResult.Value.Email.Value,
                 DisplayName: dto.DisplayName,
                 AvatarUrl: dto.AvatarUrl,
                 Locale: dto.Locale,

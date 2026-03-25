@@ -25,6 +25,7 @@ public sealed class AdminUsersService : Enma.Grpc.Admin.Users.V1.AdminUsersServi
 
         var dto = new CreateUserDto(
             AccountId: accountId,
+            Email: request.Email,
             DisplayName: request.DisplayName,
             AvatarUrl: request.HasAvatarUrl ? request.AvatarUrl : null,
             Locale: request.HasLocale ? request.Locale : null,
@@ -85,6 +86,7 @@ public sealed class AdminUsersService : Enma.Grpc.Admin.Users.V1.AdminUsersServi
         var user = new User
         {
             AccountId = dto.Id.ToString(),
+            Email = dto.Email,
             DisplayName = dto.DisplayName,
             CreatedAt = ToTimestamp(dto.CreatedAt),
             UpdatedAt = ToTimestamp(dto.UpdatedAt)

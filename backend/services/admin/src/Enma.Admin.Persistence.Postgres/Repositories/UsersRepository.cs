@@ -44,6 +44,7 @@ internal sealed class UsersRepository : IUsersRepository
             .Select(x => new UserEntity
             {
                 Id = x.Id,
+                Email = x.Email,
                 DisplayName = x.DisplayName,
                 AvatarUrl = x.AvatarUrl,
                 Locale = x.Locale,
@@ -56,6 +57,30 @@ internal sealed class UsersRepository : IUsersRepository
 
         return entity is null
             ? Result.Fail<User>(ApplicationErrors.EntityNotFound("User", $"id={userId}"))
+            : Result.Ok(entity.ToModel());
+    }
+
+    public async Task<Result<User>> GetByEmailAsync(string email, CancellationToken ct = default)
+    {
+        var entity = await _context.Users
+            .AsNoTracking()
+            .Where(x => x.Email == email)
+            .Select(x => new UserEntity
+            {
+                Id = x.Id,
+                Email = x.Email,
+                DisplayName = x.DisplayName,
+                AvatarUrl = x.AvatarUrl,
+                Locale = x.Locale,
+                Timezone = x.Timezone,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                DeletedAt = x.DeletedAt
+            })
+            .FirstOrDefaultAsync(ct);
+
+        return entity is null
+            ? Result.Fail<User>(ApplicationErrors.EntityNotFound("User", $"email={email}"))
             : Result.Ok(entity.ToModel());
     }
 

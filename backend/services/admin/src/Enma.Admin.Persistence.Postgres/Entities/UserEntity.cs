@@ -6,7 +6,8 @@ internal sealed class UserEntity
     /// Equals auth AccountId (shared id across services).
     /// </summary>
     public Guid Id { get; set; }
-    
+
+    public required string Email { get; set; }
     public required string DisplayName { get; set; }
     
     public string? AvatarUrl { get; set; }

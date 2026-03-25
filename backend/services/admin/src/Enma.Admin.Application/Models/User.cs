@@ -7,21 +7,23 @@ public sealed class User
 {
     public Guid Id { get; private set; }
 
+    public string Email { get; private set; } = null!;
     public string DisplayName { get; private set; } = null!;
-    
+
     public string? AvatarUrl { get; private set; }
     public string? Locale { get; private set; }
     public string? Timezone { get; private set; }
-    
+
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public DateTime? DeletedAt { get; private set; }
 
     private User() { }
 
-    private User(Guid id, string displayName, string? avatarUrl, string? locale, string? timezone, DateTime createdAt)
+    private User(Guid id, string email, string displayName, string? avatarUrl, string? locale, string? timezone, DateTime createdAt)
     {
         Id = id;
+        Email = email;
         DisplayName = displayName;
         AvatarUrl = avatarUrl;
         Locale = locale;
@@ -29,8 +31,8 @@ public sealed class User
         CreatedAt = createdAt;
         UpdatedAt = createdAt;
     }
-    
-    public static Result<User> Create(Guid accountId, string? displayName, string? avatarUrl, string? locale, 
+
+    public static Result<User> Create(Guid accountId, string email, string? displayName, string? avatarUrl, string? locale,
         string? timezone, DateTime createdAt)
     {
         displayName = (displayName ?? String.Empty).Trim();
@@ -39,15 +41,16 @@ public sealed class User
             return Result.Fail<User>(ApplicationErrors.Length("DisplayName", 2, 200));
         }
 
-        return Result.Ok(new User(accountId, displayName, avatarUrl, locale, timezone, createdAt));
+        return Result.Ok(new User(accountId, email, displayName, avatarUrl, locale, timezone, createdAt));
     }
-    
-    public static User Rehydrate(Guid id, string displayName, string? avatarUrl, string? locale, string? timezone, 
+
+    public static User Rehydrate(Guid id, string email, string displayName, string? avatarUrl, string? locale, string? timezone,
         DateTime createdAt, DateTime updatedAt, DateTime? deletedAt)
     {
         return new User
         {
             Id = id,
+            Email = email,
             DisplayName = displayName,
             AvatarUrl = avatarUrl,
             Locale = locale,

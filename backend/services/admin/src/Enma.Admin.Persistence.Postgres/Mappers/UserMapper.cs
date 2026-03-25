@@ -8,6 +8,7 @@ internal static class UserMapper
     internal static User ToModel(this UserEntity entity)
         => User.Rehydrate(
             id: entity.Id,
+            email: entity.Email,
             displayName: entity.DisplayName,
             avatarUrl: entity.AvatarUrl,
             locale: entity.Locale,
@@ -20,6 +21,7 @@ internal static class UserMapper
         => new()
         {
             Id = model.Id,
+            Email = model.Email,
             DisplayName = model.DisplayName,
             AvatarUrl = model.AvatarUrl,
             Locale = model.Locale,
@@ -29,4 +31,3 @@ internal static class UserMapper
             DeletedAt = model.DeletedAt
         };
 }
-
