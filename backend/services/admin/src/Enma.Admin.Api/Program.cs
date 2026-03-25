@@ -69,6 +69,8 @@ builder.Services.AddOpenApi("v1");
 
 var app = builder.Build();
 
+app.Services.ApplyPendingMigrations();
+
 app.UseCors();
 
 if (app.Environment.IsDevelopment())
