@@ -48,7 +48,6 @@ function buildNavItems(base: string) {
   ];
 
   const footer: NavItem[] = [
-    { href: `${base}/access`, label: "Manage access", icon: <IconUsers className="h-5 w-5" /> },
     { href: `${base}/logs`, label: "Logs", icon: <ClipboardList className="h-5 w-5" /> },
     { href: "/docs", label: "Documentation", icon: <BookOpen className="h-5 w-5" /> }
   ];
