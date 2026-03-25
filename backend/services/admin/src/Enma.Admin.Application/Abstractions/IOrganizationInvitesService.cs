@@ -19,8 +19,19 @@ public interface IOrganizationInvitesService
         int limit,
         CancellationToken ct = default);
 
+    Task<Result<IReadOnlyList<OrganizationInviteDto>>> ListPendingByEmailAsync(
+        Guid currentUserId,
+        int offset,
+        int limit,
+        CancellationToken ct = default);
+
     Task<Result> SetAcceptedAsync(
         Guid inviteId,
         SetInviteAcceptedDto dto,
+        CancellationToken ct = default);
+
+    Task<Result> SetDeclinedAsync(
+        Guid inviteId,
+        SetInviteDeclinedDto dto,
         CancellationToken ct = default);
 }

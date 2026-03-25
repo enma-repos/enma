@@ -9,7 +9,9 @@ internal static class ProjectMemberDtoMapper
             ProjectId: model.ProjectId,
             UserId: model.UserId,
             Role: model.Role,
+            DisplayName: model.DisplayName,
+            Email: model.Email,
+            AvatarUrl: model.AvatarUrl,
             JoinedAt: model.JoinedAt,
             UpdatedAt: model.UpdatedAt);
 }
-

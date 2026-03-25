@@ -15,10 +15,6 @@ internal sealed class OrganizationInvitesConfiguration : IEntityTypeConfiguratio
             .HasMaxLength(320)
             .IsRequired();
 
-        builder.Property(x => x.TokenHash)
-            .HasMaxLength(256)
-            .IsRequired();
-
         builder.HasOne(x => x.Organization)
            .WithMany(o => o.Invites)
            .HasForeignKey(x => x.OrganizationId)
@@ -33,9 +29,14 @@ internal sealed class OrganizationInvitesConfiguration : IEntityTypeConfiguratio
            .WithMany()
            .HasForeignKey(x => x.AcceptedUserId)
            .OnDelete(DeleteBehavior.Restrict);
-        
+
+        builder.HasOne(x => x.DeclinedUser)
+           .WithMany()
+           .HasForeignKey(x => x.DeclinedUserId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => new { x.OrganizationId, x.TargetEmail })
             .IsUnique()
-            .HasFilter("\"AcceptedAt\" IS NULL");
+            .HasFilter("\"AcceptedAt\" IS NULL AND \"DeclinedAt\" IS NULL");
     }
 }

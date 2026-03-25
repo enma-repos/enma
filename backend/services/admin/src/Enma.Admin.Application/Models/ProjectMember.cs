@@ -10,6 +10,10 @@ public sealed class ProjectMember
 
     public ProjectRole Role { get; private set; }
 
+    public string DisplayName { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
+    public string? AvatarUrl { get; private set; }
+
     public DateTime JoinedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
@@ -30,14 +34,17 @@ public sealed class ProjectMember
     internal static ProjectMember Rehydrate(Guid projectId, Guid userId, ProjectRole role, DateTime joinedAt)
         => new(projectId, userId, role, joinedAt);
 
-    public static ProjectMember Rehydrate(Guid projectId, Guid userId, ProjectRole role, DateTime joinedAt,
-        DateTime updatedAt)
+    public static ProjectMember Rehydrate(Guid projectId, Guid userId, ProjectRole role,
+        string displayName, string email, string? avatarUrl, DateTime joinedAt, DateTime updatedAt)
     {
         return new ProjectMember
         {
             ProjectId = projectId,
             UserId = userId,
             Role = role,
+            DisplayName = displayName,
+            Email = email,
+            AvatarUrl = avatarUrl,
             JoinedAt = joinedAt,
             UpdatedAt = updatedAt
         };

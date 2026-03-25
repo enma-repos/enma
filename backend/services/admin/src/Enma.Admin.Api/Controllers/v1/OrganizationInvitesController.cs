@@ -1,19 +1,20 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.OrganizationInvites;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/invites")]
 [ApiController]
-public sealed class OrganizationInvitesController(IOrganizationInvitesService organizationInvitesService) 
+public sealed class OrganizationInvitesController(IOrganizationInvitesService organizationInvitesService)
     : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateAsync(
-        [FromRoute] Guid organizationId, 
-        [FromBody] CreateOrganizationInviteDto dto, 
+        [FromRoute] Guid organizationId,
+        [FromBody] CreateOrganizationInviteDto dto,
         CancellationToken ct)
     {
         var res = await organizationInvitesService.CreateAsync(dto with { OrganizationId = organizationId }, ct);
@@ -22,8 +23,8 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
 
     [HttpGet("{inviteId:guid}")]
     public async Task<IActionResult> GetByIdAsync(
-        [FromRoute] Guid organizationId, 
-        [FromRoute] Guid inviteId, 
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid inviteId,
         CancellationToken ct)
     {
         var res = await organizationInvitesService.GetByIdAsync(inviteId, ct);
@@ -32,9 +33,9 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
 
     [HttpGet("active")]
     public async Task<IActionResult> ListActiveAsync(
-        [FromRoute] Guid organizationId, 
-        [FromQuery] int offset = 0, 
-        [FromQuery] int limit = 50, 
+        [FromRoute] Guid organizationId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
         var res = await organizationInvitesService.ListActiveByOrgAsync(organizationId, offset, limit, ct);
@@ -54,11 +55,22 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     [HttpPatch("{inviteId:guid}/accept")]
     public async Task<IActionResult> AcceptAsync(
         [FromRoute] Guid organizationId,
-        [FromRoute] Guid inviteId, 
-        [FromBody] SetInviteAcceptedDto dto, 
+        [FromRoute] Guid inviteId,
+        [FromBody] SetInviteAcceptedDto dto,
         CancellationToken ct)
     {
         var res = await organizationInvitesService.SetAcceptedAsync(inviteId, dto, ct);
+        return res.ToActionResult();
+    }
+
+    [HttpPatch("{inviteId:guid}/decline")]
+    public async Task<IActionResult> DeclineAsync(
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid inviteId,
+        [FromBody] SetInviteDeclinedDto dto,
+        CancellationToken ct)
+    {
+        var res = await organizationInvitesService.SetDeclinedAsync(inviteId, dto, ct);
         return res.ToActionResult();
     }
 }

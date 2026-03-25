@@ -7,6 +7,8 @@ public sealed record OrganizationMemberDto(
     Guid UserId,
     OrganizationRole Role,
     OrganizationMemberStatus Status,
+    string DisplayName,
+    string Email,
+    string? AvatarUrl,
     DateTime JoinedAt,
     DateTime UpdatedAt);
-

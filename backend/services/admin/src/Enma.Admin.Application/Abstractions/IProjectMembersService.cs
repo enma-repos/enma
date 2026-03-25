@@ -5,7 +5,7 @@ namespace Enma.Admin.Application.Abstractions;
 
 public interface IProjectMembersService
 {
-    Task<Result<ProjectMemberDto>> AddAsync(AddProjectMemberDto dto, CancellationToken ct = default);
+    Task<Result<ProjectMemberDto>> AddAsync(Guid organizationId, AddProjectMemberDto dto, CancellationToken ct = default);
     Task<Result<ProjectMemberDto>> GetAsync(Guid projectId, Guid userId, CancellationToken ct = default);
 
     Task<Result<IReadOnlyList<ProjectMemberDto>>> ListByProjectAsync(

@@ -1,6 +1,8 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Contracts;
+using Enma.Admin.Application.Dto.Notifications;
 using Enma.Admin.Application.Dto.OrganizationMembers;
+using Enma.Common.Enums;
 using FluentResults;
 
 namespace Enma.Admin.Application.Services;
@@ -8,15 +10,19 @@ namespace Enma.Admin.Application.Services;
 internal sealed class OrganizationMembersService : IOrganizationMembersService
 {
     private readonly IOrganizationMembersRepository _organizationMembersRepository;
+    private readonly INotificationsService _notificationsService;
 
-    public OrganizationMembersService(IOrganizationMembersRepository organizationMembersRepository)
+    public OrganizationMembersService(
+        IOrganizationMembersRepository organizationMembersRepository,
+        INotificationsService notificationsService)
     {
         _organizationMembersRepository = organizationMembersRepository;
+        _notificationsService = notificationsService;
     }
 
     public async Task<Result<OrganizationMemberDto>> GetAsync(
-        Guid orgId, 
-        Guid userId, 
+        Guid orgId,
+        Guid userId,
         CancellationToken ct = default)
     {
         var res = await _organizationMembersRepository.GetAsync(orgId, userId, ct);
@@ -29,9 +35,9 @@ internal sealed class OrganizationMembersService : IOrganizationMembersService
         => _organizationMembersRepository.IsMemberAsync(orgId, userId, ct);
 
     public async Task<Result<IReadOnlyList<OrganizationMemberDto>>> ListByOrgAsync(
-        Guid orgId, 
-        int offset, 
-        int limit, 
+        Guid orgId,
+        int offset,
+        int limit,
         CancellationToken ct = default)
     {
         var res = await _organizationMembersRepository.ListByOrgAsync(orgId, offset, limit, ct);
@@ -41,21 +47,31 @@ internal sealed class OrganizationMembersService : IOrganizationMembersService
     }
 
     public async Task<Result> SetRoleAsync(
-        Guid orgId, 
-        Guid userId, 
-        SetOrganizationMemberRoleDto dto, 
+        Guid orgId,
+        Guid userId,
+        SetOrganizationMemberRoleDto dto,
         CancellationToken ct = default)
     {
         var res = await _organizationMembersRepository.SetRoleAsync(orgId, userId, dto.Role, ct);
-        return res.IsSuccess
-            ? Result.Ok()
-            : Result.Fail(res.Errors);
+        if (res.IsFailed)
+        {
+            return Result.Fail(res.Errors);
+        }
+
+        await _notificationsService.CreateAsync(new CreateNotificationDto(
+            RecipientUserId: userId,
+            Type: NotificationType.OrganizationRoleChanged,
+            Title: "Organization role changed",
+            Message: $"Your organization role has been changed to {dto.Role}.",
+            ResourceId: orgId), ct);
+
+        return Result.Ok();
     }
 
     public async Task<Result> SetStatusAsync(
-        Guid orgId, 
-        Guid userId, 
-        SetOrganizationMemberStatusDto dto, 
+        Guid orgId,
+        Guid userId,
+        SetOrganizationMemberStatusDto dto,
         CancellationToken ct = default)
     {
         var res = await _organizationMembersRepository.SetStatusAsync(orgId, userId, dto.Status, ct);
@@ -64,6 +80,21 @@ internal sealed class OrganizationMembersService : IOrganizationMembersService
             : Result.Fail(res.Errors);
     }
 
-    public Task<Result> RemoveAsync(Guid orgId, Guid userId, CancellationToken ct = default)
-        => _organizationMembersRepository.RemoveAsync(orgId, userId, ct);
+    public async Task<Result> RemoveAsync(Guid orgId, Guid userId, CancellationToken ct = default)
+    {
+        var res = await _organizationMembersRepository.RemoveAsync(orgId, userId, ct);
+        if (res.IsFailed)
+        {
+            return Result.Fail(res.Errors);
+        }
+
+        await _notificationsService.CreateAsync(new CreateNotificationDto(
+            RecipientUserId: userId,
+            Type: NotificationType.RemovedFromOrganization,
+            Title: "Removed from organization",
+            Message: "You have been removed from an organization.",
+            ResourceId: orgId), ct);
+
+        return Result.Ok();
+    }
 }

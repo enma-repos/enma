@@ -10,6 +10,9 @@ internal static class ProjectMemberMapper
             projectId: entity.ProjectId,
             userId: entity.UserId,
             role: entity.Role,
+            displayName: entity.User?.DisplayName ?? "",
+            email: entity.User?.Email ?? "",
+            avatarUrl: entity.User?.AvatarUrl,
             joinedAt: entity.JoinedAt,
             updatedAt: entity.UpdatedAt);
 
@@ -23,4 +26,3 @@ internal static class ProjectMemberMapper
             UpdatedAt = model.UpdatedAt
         };
 }
-

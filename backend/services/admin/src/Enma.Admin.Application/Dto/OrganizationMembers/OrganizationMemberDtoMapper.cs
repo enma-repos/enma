@@ -10,7 +10,9 @@ internal static class OrganizationMemberDtoMapper
             UserId: model.UserId,
             Role: model.Role,
             Status: model.Status,
+            DisplayName: model.DisplayName,
+            Email: model.Email,
+            AvatarUrl: model.AvatarUrl,
             JoinedAt: model.JoinedAt,
             UpdatedAt: model.UpdatedAt);
 }
-

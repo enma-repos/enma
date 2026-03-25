@@ -32,14 +32,7 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
         var entity = await _context.ProjectMembers
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId && x.UserId == userId)
-            .Select(x => new ProjectMemberEntity
-            {
-                ProjectId = x.ProjectId,
-                UserId = x.UserId,
-                Role = x.Role,
-                JoinedAt = x.JoinedAt,
-                UpdatedAt = x.UpdatedAt
-            })
+            .Select(x => SelectWithUser(x))
             .FirstOrDefaultAsync(ct);
 
         return entity is null
@@ -54,14 +47,7 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
             .Where(x => x.ProjectId == projectId)
             .Skip(offset)
             .Take(limit)
-            .Select(x => new ProjectMemberEntity
-            {
-                ProjectId = x.ProjectId,
-                UserId = x.UserId,
-                Role = x.Role,
-                JoinedAt = x.JoinedAt,
-                UpdatedAt = x.UpdatedAt
-            })
+            .Select(x => SelectWithUser(x))
             .ToListAsync(ct);
 
         return Result.Ok<IReadOnlyList<ProjectMember>>(entities.Select(x => x.ToModel()).ToList());
@@ -79,8 +65,8 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("ProjectMember", $"projectId={projectId}, userId={userId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("ProjectMember", $"projectId={projectId}, userId={userId}"))
             : Result.Ok();
     }
 
@@ -94,4 +80,21 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
             ? Result.Fail(ApplicationErrors.EntityNotFound("ProjectMember", $"projectId={projectId}, userId={userId}"))
             : Result.Ok();
     }
+
+    private static ProjectMemberEntity SelectWithUser(ProjectMemberEntity x)
+        => new()
+        {
+            ProjectId = x.ProjectId,
+            UserId = x.UserId,
+            Role = x.Role,
+            JoinedAt = x.JoinedAt,
+            UpdatedAt = x.UpdatedAt,
+            User = x.User == null ? null : new UserEntity
+            {
+                Id = x.User.Id,
+                Email = x.User.Email,
+                DisplayName = x.User.DisplayName,
+                AvatarUrl = x.User.AvatarUrl
+            }
+        };
 }

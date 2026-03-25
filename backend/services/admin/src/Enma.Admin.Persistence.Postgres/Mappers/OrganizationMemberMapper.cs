@@ -11,6 +11,9 @@ internal static class OrganizationMemberMapper
             userId: entity.UserId,
             role: entity.Role,
             status: entity.Status,
+            displayName: entity.User?.DisplayName ?? "",
+            email: entity.User?.Email ?? "",
+            avatarUrl: entity.User?.AvatarUrl,
             joinedAt: entity.JoinedAt,
             updatedAt: entity.UpdatedAt);
 
@@ -25,4 +28,3 @@ internal static class OrganizationMemberMapper
             UpdatedAt = model.UpdatedAt
         };
 }
-

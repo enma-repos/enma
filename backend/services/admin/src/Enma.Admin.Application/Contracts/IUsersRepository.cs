@@ -19,6 +19,9 @@ public interface IUsersRepository
     /// <summary>Gets a user by id (equals auth AccountId).</summary>
     Task<Result<User>> GetByIdAsync(Guid userId, CancellationToken ct = default);
 
+    /// <summary>Gets a user by email address.</summary>
+    Task<Result<User>> GetByEmailAsync(string email, CancellationToken ct = default);
+
     /// <summary>Checks whether a user exists (excluding soft-deleted records).</summary>
     Task<Result<bool>> ExistsAsync(Guid userId, CancellationToken ct = default);
 

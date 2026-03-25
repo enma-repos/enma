@@ -13,10 +13,10 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
     public async Task<IActionResult> AddAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromBody] AddProjectMemberDto dto, 
+        [FromBody] AddProjectMemberDto dto,
         CancellationToken ct)
     {
-        var res = await projectMembersService.AddAsync(dto with { ProjectId = projectId }, ct);
+        var res = await projectMembersService.AddAsync(organizationId, dto with { ProjectId = projectId }, ct);
         return res.ToActionResult();
     }
 
@@ -47,7 +47,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
     public async Task<IActionResult> SetRoleAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromRoute] Guid userId, 
+        [FromRoute] Guid userId,
         [FromBody] SetProjectMemberRoleDto dto,
         CancellationToken ct)
     {

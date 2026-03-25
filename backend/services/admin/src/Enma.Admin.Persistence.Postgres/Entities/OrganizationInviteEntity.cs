@@ -8,11 +8,9 @@ internal sealed class OrganizationInviteEntity
 
     public Guid OrganizationId { get; set; }
     public OrganizationEntity? Organization { get; set; }
-    
+
     public required string TargetEmail { get; set; }
     public OrganizationRole Role { get; set; }
-    
-    public required string TokenHash { get; set; }
 
     public DateTime ExpiresAt { get; set; }
 
@@ -21,7 +19,12 @@ internal sealed class OrganizationInviteEntity
 
     public DateTime CreatedAt { get; set; }
     public DateTime? AcceptedAt { get; set; }
-    
+
     public Guid? AcceptedUserId { get; set; }
     public UserEntity? AcceptedUser { get; set; }
+
+    public DateTime? DeclinedAt { get; set; }
+
+    public Guid? DeclinedUserId { get; set; }
+    public UserEntity? DeclinedUser { get; set; }
 }

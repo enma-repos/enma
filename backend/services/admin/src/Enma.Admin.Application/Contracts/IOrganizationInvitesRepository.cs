@@ -16,12 +16,18 @@ public interface IOrganizationInvitesRepository
     /// <summary>Gets an invite by id.</summary>
     Task<Result<OrganizationInvite>> GetByIdAsync(Guid inviteId, CancellationToken ct = default);
 
-    /// <summary>Gets an active invite for the given org/email (not accepted, not revoked, not expired).</summary>
+    /// <summary>Gets an active invite for the given org/email (not accepted, not declined, not expired).</summary>
     Task<Result<OrganizationInvite>> GetActiveByOrgAndEmailAsync(Guid orgId, string email, CancellationToken ct = default);
 
     /// <summary>Lists active invites for an organization (paged by offset/limit).</summary>
     Task<Result<IReadOnlyList<OrganizationInvite>>> ListActiveByOrgAsync(Guid orgId, int offset, int limit, CancellationToken ct = default);
 
+    /// <summary>Lists pending invites for a user by email (not accepted, not declined, not expired).</summary>
+    Task<Result<IReadOnlyList<OrganizationInvite>>> ListPendingByEmailAsync(string email, int offset, int limit, CancellationToken ct = default);
+
     /// <summary>Marks an invite as accepted and links it to a user id (AccountId).</summary>
     Task<Result> SetAcceptedAsync(Guid inviteId, Guid acceptedUserId, CancellationToken ct = default);
+
+    /// <summary>Marks an invite as declined and links it to a user id (AccountId).</summary>
+    Task<Result> SetDeclinedAsync(Guid inviteId, Guid declinedUserId, CancellationToken ct = default);
 }

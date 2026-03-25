@@ -8,12 +8,14 @@ internal static class OrganizationInviteDtoMapper
         => new(
             Id: model.Id,
             OrganizationId: model.OrganizationId,
+            OrganizationName: model.OrganizationName,
             TargetEmail: model.TargetEmail.Value,
             Role: model.Role,
             ExpiresAt: model.ExpiresAt,
             CreatedByUserId: model.CreatedByUserId,
             AcceptedUserId: model.AcceptedUserId,
             CreatedAt: model.CreatedAt,
-            AcceptedAt: model.AcceptedAt);
+            AcceptedAt: model.AcceptedAt,
+            DeclinedUserId: model.DeclinedUserId,
+            DeclinedAt: model.DeclinedAt);
 }
-

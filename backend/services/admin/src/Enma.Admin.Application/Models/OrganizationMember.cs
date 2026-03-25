@@ -11,6 +11,10 @@ public sealed class OrganizationMember
     public OrganizationRole Role { get; set; }
     public OrganizationMemberStatus Status { get; set; } = OrganizationMemberStatus.Active;
 
+    public string DisplayName { get; private set; } = null!;
+    public string Email { get; private set; } = null!;
+    public string? AvatarUrl { get; private set; }
+
     public DateTime JoinedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -32,7 +36,8 @@ public sealed class OrganizationMember
         => new(orgId, userId, role, now);
 
     public static OrganizationMember Rehydrate(Guid orgId, Guid userId, OrganizationRole role,
-        OrganizationMemberStatus status, DateTime joinedAt, DateTime updatedAt)
+        OrganizationMemberStatus status, string displayName, string email, string? avatarUrl,
+        DateTime joinedAt, DateTime updatedAt)
     {
         return new OrganizationMember
         {
@@ -40,6 +45,9 @@ public sealed class OrganizationMember
             UserId = userId,
             Role = role,
             Status = status,
+            DisplayName = displayName,
+            Email = email,
+            AvatarUrl = avatarUrl,
             JoinedAt = joinedAt,
             UpdatedAt = updatedAt
         };

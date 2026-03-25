@@ -1,7 +1,6 @@
 using Enma.Admin.Application.Contracts;
 using Enma.Admin.Application.Models;
 using Enma.Admin.Persistence.Postgres.Connection;
-using Enma.Admin.Persistence.Postgres.Entities;
 using Enma.Admin.Persistence.Postgres.Mappers;
 using Enma.Common.Errors;
 using FluentResults;
@@ -30,20 +29,8 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
     {
         var entity = await _context.OrganizationInvites
             .AsNoTracking()
+            .Include(x => x.Organization)
             .Where(x => x.Id == inviteId)
-            .Select(x => new OrganizationInviteEntity
-            {
-                Id = x.Id,
-                OrganizationId = x.OrganizationId,
-                TargetEmail = x.TargetEmail,
-                Role = x.Role,
-                TokenHash = x.TokenHash,
-                ExpiresAt = x.ExpiresAt,
-                CreatedByUserId = x.CreatedByUserId,
-                AcceptedUserId = x.AcceptedUserId,
-                CreatedAt = x.CreatedAt,
-                AcceptedAt = x.AcceptedAt
-            })
             .FirstOrDefaultAsync(ct);
 
         return entity is null
@@ -57,24 +44,13 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
 
         var entity = await _context.OrganizationInvites
             .AsNoTracking()
+            .Include(x => x.Organization)
             .Where(x =>
                 x.OrganizationId == orgId &&
                 x.TargetEmail == email &&
                 x.AcceptedAt == null &&
+                x.DeclinedAt == null &&
                 x.ExpiresAt > now)
-            .Select(x => new OrganizationInviteEntity
-            {
-                Id = x.Id,
-                OrganizationId = x.OrganizationId,
-                TargetEmail = x.TargetEmail,
-                Role = x.Role,
-                TokenHash = x.TokenHash,
-                ExpiresAt = x.ExpiresAt,
-                CreatedByUserId = x.CreatedByUserId,
-                AcceptedUserId = x.AcceptedUserId,
-                CreatedAt = x.CreatedAt,
-                AcceptedAt = x.AcceptedAt
-            })
             .FirstOrDefaultAsync(ct);
 
         return entity is null
@@ -90,22 +66,31 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
 
         var entities = await _context.OrganizationInvites
             .AsNoTracking()
-            .Where(x => x.OrganizationId == orgId && x.AcceptedAt == null && x.ExpiresAt > now)
+            .Include(x => x.Organization)
+            .Where(x => x.OrganizationId == orgId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
+            .OrderByDescending(x => x.CreatedAt)
             .Skip(offset)
             .Take(limit)
-            .Select(x => new OrganizationInviteEntity
-            {
-                Id = x.Id,
-                OrganizationId = x.OrganizationId,
-                TargetEmail = x.TargetEmail,
-                Role = x.Role,
-                TokenHash = x.TokenHash,
-                ExpiresAt = x.ExpiresAt,
-                CreatedByUserId = x.CreatedByUserId,
-                AcceptedUserId = x.AcceptedUserId,
-                CreatedAt = x.CreatedAt,
-                AcceptedAt = x.AcceptedAt
-            })
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<OrganizationInvite>>(entities.Select(x => x.ToModel()).ToList());
+    }
+
+    public async Task<Result<IReadOnlyList<OrganizationInvite>>> ListPendingByEmailAsync(string email, int offset, int limit, CancellationToken ct = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var entities = await _context.OrganizationInvites
+            .AsNoTracking()
+            .Include(x => x.Organization)
+            .Where(x =>
+                x.TargetEmail == email &&
+                x.AcceptedAt == null &&
+                x.DeclinedAt == null &&
+                x.ExpiresAt > now)
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip(offset)
+            .Take(limit)
             .ToListAsync(ct);
 
         return Result.Ok<IReadOnlyList<OrganizationInvite>>(entities.Select(x => x.ToModel()).ToList());
@@ -118,7 +103,7 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
         var state = await _context.OrganizationInvites
             .AsNoTracking()
             .Where(x => x.Id == inviteId)
-            .Select(x => new { x.AcceptedAt, x.ExpiresAt })
+            .Select(x => new { x.AcceptedAt, x.DeclinedAt, x.ExpiresAt })
             .FirstOrDefaultAsync(ct);
 
         if (state is null)
@@ -131,21 +116,69 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
             return Result.Fail(ApplicationErrors.Conflict("Invite is already accepted.", code: "invite_accepted"));
         }
 
+        if (state.DeclinedAt is not null)
+        {
+            return Result.Fail(ApplicationErrors.Conflict("Invite is already declined.", code: "invite_declined"));
+        }
+
         if (state.ExpiresAt <= now)
         {
             return Result.Fail(ApplicationErrors.Conflict("Invite is expired.", code: "invite_expired"));
         }
 
         var affected = await _context.OrganizationInvites
-            .Where(x => x.Id == inviteId && x.AcceptedAt == null && x.ExpiresAt > now)
+            .Where(x => x.Id == inviteId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.AcceptedAt, now)
                     .SetProperty(x => x.AcceptedUserId, acceptedUserId),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.Conflict("Invite cannot be accepted.", code: "invite_accept_failed")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.Conflict("Invite cannot be accepted.", code: "invite_accept_failed"))
+            : Result.Ok();
+    }
+
+    public async Task<Result> SetDeclinedAsync(Guid inviteId, Guid declinedUserId, CancellationToken ct = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var state = await _context.OrganizationInvites
+            .AsNoTracking()
+            .Where(x => x.Id == inviteId)
+            .Select(x => new { x.AcceptedAt, x.DeclinedAt, x.ExpiresAt })
+            .FirstOrDefaultAsync(ct);
+
+        if (state is null)
+        {
+            return Result.Fail(ApplicationErrors.EntityNotFound("OrganizationInvite", $"id={inviteId}"));
+        }
+
+        if (state.AcceptedAt is not null)
+        {
+            return Result.Fail(ApplicationErrors.Conflict("Invite is already accepted.", code: "invite_accepted"));
+        }
+
+        if (state.DeclinedAt is not null)
+        {
+            return Result.Fail(ApplicationErrors.Conflict("Invite is already declined.", code: "invite_declined"));
+        }
+
+        if (state.ExpiresAt <= now)
+        {
+            return Result.Fail(ApplicationErrors.Conflict("Invite is expired.", code: "invite_expired"));
+        }
+
+        var affected = await _context.OrganizationInvites
+            .Where(x => x.Id == inviteId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
+            .ExecuteUpdateAsync(
+                s => s
+                    .SetProperty(x => x.DeclinedAt, now)
+                    .SetProperty(x => x.DeclinedUserId, declinedUserId),
+                ct);
+
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.Conflict("Invite cannot be declined.", code: "invite_decline_failed"))
             : Result.Ok();
     }
 }
