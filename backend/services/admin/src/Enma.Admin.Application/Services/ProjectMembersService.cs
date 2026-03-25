@@ -73,10 +73,11 @@ internal sealed class ProjectMembersService : IProjectMembersService
 
     public async Task<Result<ProjectMemberDto>> GetAsync(
         Guid projectId,
+        Guid orgId,
         Guid userId,
         CancellationToken ct = default)
     {
-        var res = await _projectMembersRepository.GetAsync(projectId, userId, ct);
+        var res = await _projectMembersRepository.GetAsync(projectId, orgId, userId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<ProjectMemberDto>(res.Errors);
@@ -84,11 +85,12 @@ internal sealed class ProjectMembersService : IProjectMembersService
 
     public async Task<Result<IReadOnlyList<ProjectMemberDto>>> ListByProjectAsync(
         Guid projectId,
+        Guid orgId,
         int offset,
         int limit,
         CancellationToken ct = default)
     {
-        var res = await _projectMembersRepository.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await _projectMembersRepository.ListByProjectAsync(projectId, orgId, offset, limit, ct);
         return res.IsSuccess
             ? Result.Ok<IReadOnlyList<ProjectMemberDto>>(res.Value.Select(x => x.ToDto()).ToList())
             : Result.Fail<IReadOnlyList<ProjectMemberDto>>(res.Errors);
@@ -96,11 +98,12 @@ internal sealed class ProjectMembersService : IProjectMembersService
 
     public async Task<Result> SetRoleAsync(
         Guid projectId,
+        Guid orgId,
         Guid userId,
         SetProjectMemberRoleDto dto,
         CancellationToken ct = default)
     {
-        var res = await _projectMembersRepository.SetRoleAsync(projectId, userId, dto.Role, ct);
+        var res = await _projectMembersRepository.SetRoleAsync(projectId, orgId, userId, dto.Role, ct);
         if (res.IsFailed)
         {
             return Result.Fail(res.Errors);
@@ -116,9 +119,9 @@ internal sealed class ProjectMembersService : IProjectMembersService
         return Result.Ok();
     }
 
-    public async Task<Result> RemoveAsync(Guid projectId, Guid userId, CancellationToken ct = default)
+    public async Task<Result> RemoveAsync(Guid projectId, Guid orgId, Guid userId, CancellationToken ct = default)
     {
-        var res = await _projectMembersRepository.RemoveAsync(projectId, userId, ct);
+        var res = await _projectMembersRepository.RemoveAsync(projectId, orgId, userId, ct);
         if (res.IsFailed)
         {
             return Result.Fail(res.Errors);

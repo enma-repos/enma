@@ -27,11 +27,11 @@ internal sealed class ProjectsRepository : IProjectsRepository
         return Result.Ok(project);
     }
 
-    public async Task<Result<Project>> GetByIdAsync(Guid projectId, CancellationToken ct = default)
+    public async Task<Result<Project>> GetByIdAsync(Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.Projects
             .AsNoTracking()
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .Select(x => new ProjectEntity
             {
                 Id = x.Id,
@@ -158,12 +158,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SetNameAsync(Guid projectId, string name, CancellationToken ct = default)
+    public async Task<Result> SetNameAsync(Guid projectId, Guid orgId, string name, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Name, name)
@@ -175,12 +175,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SetDescriptionAsync(Guid projectId, string? description, CancellationToken ct = default)
+    public async Task<Result> SetDescriptionAsync(Guid projectId, Guid orgId, string? description, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Description, description)
@@ -192,12 +192,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SetSettingsAsync(Guid projectId, JsonObject? settings, CancellationToken ct = default)
+    public async Task<Result> SetSettingsAsync(Guid projectId, Guid orgId, JsonObject? settings, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Settings, settings)
@@ -209,12 +209,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SetArchivedAsync(Guid projectId, CancellationToken ct = default)
+    public async Task<Result> SetArchivedAsync(Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.ArchivedAt, now)
@@ -226,12 +226,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> ClearArchivedAsync(Guid projectId, CancellationToken ct = default)
+    public async Task<Result> ClearArchivedAsync(Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.ArchivedAt, (DateTime?)null)
@@ -243,12 +243,12 @@ internal sealed class ProjectsRepository : IProjectsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SoftDeleteAsync(Guid projectId, CancellationToken ct = default)
+    public async Task<Result> SoftDeleteAsync(Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.Projects
-            .Where(x => x.Id == projectId && x.DeletedAt == null)
+            .Where(x => x.Id == projectId && x.OrganizationId == orgId && x.DeletedAt == null)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DeletedAt, now)

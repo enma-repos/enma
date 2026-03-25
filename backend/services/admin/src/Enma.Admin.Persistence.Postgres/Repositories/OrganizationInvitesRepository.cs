@@ -25,12 +25,12 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
         return Result.Ok(invite);
     }
 
-    public async Task<Result<OrganizationInvite>> GetByIdAsync(Guid inviteId, CancellationToken ct = default)
+    public async Task<Result<OrganizationInvite>> GetByIdAsync(Guid inviteId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.OrganizationInvites
             .AsNoTracking()
             .Include(x => x.Organization)
-            .Where(x => x.Id == inviteId)
+            .Where(x => x.Id == inviteId && x.OrganizationId == orgId)
             .FirstOrDefaultAsync(ct);
 
         return entity is null
@@ -96,13 +96,13 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
         return Result.Ok<IReadOnlyList<OrganizationInvite>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result> SetAcceptedAsync(Guid inviteId, Guid acceptedUserId, CancellationToken ct = default)
+    public async Task<Result> SetAcceptedAsync(Guid inviteId, Guid orgId, Guid acceptedUserId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var state = await _context.OrganizationInvites
             .AsNoTracking()
-            .Where(x => x.Id == inviteId)
+            .Where(x => x.Id == inviteId && x.OrganizationId == orgId)
             .Select(x => new { x.AcceptedAt, x.DeclinedAt, x.ExpiresAt })
             .FirstOrDefaultAsync(ct);
 
@@ -127,7 +127,7 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
         }
 
         var affected = await _context.OrganizationInvites
-            .Where(x => x.Id == inviteId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
+            .Where(x => x.Id == inviteId && x.OrganizationId == orgId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.AcceptedAt, now)
@@ -139,13 +139,13 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
             : Result.Ok();
     }
 
-    public async Task<Result> SetDeclinedAsync(Guid inviteId, Guid declinedUserId, CancellationToken ct = default)
+    public async Task<Result> SetDeclinedAsync(Guid inviteId, Guid orgId, Guid declinedUserId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var state = await _context.OrganizationInvites
             .AsNoTracking()
-            .Where(x => x.Id == inviteId)
+            .Where(x => x.Id == inviteId && x.OrganizationId == orgId)
             .Select(x => new { x.AcceptedAt, x.DeclinedAt, x.ExpiresAt })
             .FirstOrDefaultAsync(ct);
 
@@ -170,7 +170,7 @@ internal sealed class OrganizationInvitesRepository : IOrganizationInvitesReposi
         }
 
         var affected = await _context.OrganizationInvites
-            .Where(x => x.Id == inviteId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
+            .Where(x => x.Id == inviteId && x.OrganizationId == orgId && x.AcceptedAt == null && x.DeclinedAt == null && x.ExpiresAt > now)
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DeclinedAt, now)

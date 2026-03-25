@@ -13,32 +13,32 @@ namespace Enma.Admin.Application.Contracts;
 public interface ISdkClientsRepository
 {
     /// <summary>Creates a new SDK client.</summary>
-    Task<Result<SdkClient>> CreateAsync(SdkClient client, CancellationToken ct = default);
+    Task<Result<SdkClient>> CreateAsync(SdkClient client, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Gets an SDK client by id.</summary>
-    Task<Result<SdkClient>> GetByIdAsync(Guid clientId, CancellationToken ct = default);
+    Task<Result<SdkClient>> GetByIdAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Lists SDK clients for a project (paged by offset/limit).</summary>
-    Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, int offset, int limit, CancellationToken ct = default);
+    Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default);
 
     /// <summary>Persists a full SDK client update (when a fully loaded domain model is available).</summary>
     Task<Result> UpdateAsync(SdkClient client, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="SdkClient.Name"/> only.</summary>
-    Task<Result> SetNameAsync(Guid clientId, string name, CancellationToken ct = default);
+    Task<Result> SetNameAsync(Guid clientId, Guid projectId, Guid orgId, string name, CancellationToken ct = default);
 
     /// <summary>
     /// Updates <see cref="SdkClient.Settings"/> only. Pass null to clear the value.
     /// Stored as jsonb on persistence side.
     /// </summary>
-    Task<Result> SetSettingsAsync(Guid clientId, JsonObject? settings, CancellationToken ct = default);
+    Task<Result> SetSettingsAsync(Guid clientId, Guid projectId, Guid orgId, JsonObject? settings, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="SdkClient.Type"/> only.</summary>
-    Task<Result> SetTypeAsync(Guid clientId, SdkClientType type, CancellationToken ct = default);
+    Task<Result> SetTypeAsync(Guid clientId, Guid projectId, Guid orgId, SdkClientType type, CancellationToken ct = default);
 
     /// <summary>Disables an SDK client (sets DisabledAt).</summary>
-    Task<Result> SetDisabledAsync(Guid clientId, CancellationToken ct = default);
+    Task<Result> SetDisabledAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Enables an SDK client (clears DisabledAt).</summary>
-    Task<Result> ClearDisabledAsync(Guid clientId, CancellationToken ct = default);
+    Task<Result> ClearDisabledAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 }

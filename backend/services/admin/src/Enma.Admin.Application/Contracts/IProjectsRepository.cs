@@ -15,7 +15,7 @@ public interface IProjectsRepository
     Task<Result<Project>> CreateAsync(Project project, CancellationToken ct = default);
 
     /// <summary>Gets a project by id.</summary>
-    Task<Result<Project>> GetByIdAsync(Guid projectId, CancellationToken ct = default);
+    Task<Result<Project>> GetByIdAsync(Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Gets a project by (orgId, key).</summary>
     Task<Result<Project>> GetByOrgAndKeyAsync(Guid orgId, string key, CancellationToken ct = default);
@@ -32,25 +32,25 @@ public interface IProjectsRepository
     Task<Result> UpdateAsync(Project project, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="Project.Name"/> only.</summary>
-    Task<Result> SetNameAsync(Guid projectId, string name, CancellationToken ct = default);
+    Task<Result> SetNameAsync(Guid projectId, Guid orgId, string name, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="Project.Description"/> only. Pass null to clear the value.</summary>
-    Task<Result> SetDescriptionAsync(Guid projectId, string? description,  CancellationToken ct = default);
+    Task<Result> SetDescriptionAsync(Guid projectId, Guid orgId, string? description, CancellationToken ct = default);
 
     /// <summary>
     /// Updates <see cref="Project.Settings"/> only. Pass null to clear the value.
     /// Stored as jsonb on persistence side.
     /// </summary>
-    Task<Result> SetSettingsAsync(Guid projectId, JsonObject? settings, CancellationToken ct = default);
+    Task<Result> SetSettingsAsync(Guid projectId, Guid orgId, JsonObject? settings, CancellationToken ct = default);
 
     /// <summary>Archives a project (sets ArchivedAt).</summary>
-    Task<Result> SetArchivedAsync(Guid projectId, CancellationToken ct = default);
+    Task<Result> SetArchivedAsync(Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Unarchives a project (clears ArchivedAt).</summary>
-    Task<Result> ClearArchivedAsync(Guid projectId, CancellationToken ct = default);
+    Task<Result> ClearArchivedAsync(Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Soft-deletes a project (sets DeletedAt).</summary>
-    Task<Result> SoftDeleteAsync(Guid projectId, CancellationToken ct = default);
+    Task<Result> SoftDeleteAsync(Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Counts non-deleted projects in an organization.</summary>
     Task<Result<int>> CountByOrgAsync(Guid orgId, CancellationToken ct = default);

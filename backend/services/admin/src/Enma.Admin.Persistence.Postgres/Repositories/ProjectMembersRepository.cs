@@ -27,11 +27,12 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
         return Result.Ok(member);
     }
 
-    public async Task<Result<ProjectMember>> GetAsync(Guid projectId, Guid userId, CancellationToken ct = default)
+    public async Task<Result<ProjectMember>> GetAsync(Guid projectId, Guid orgId, Guid userId, CancellationToken ct = default)
     {
         var entity = await _context.ProjectMembers
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId && x.UserId == userId)
+            .Where(x => x.ProjectId == projectId && x.UserId == userId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => SelectWithUser(x))
             .FirstOrDefaultAsync(ct);
 
@@ -40,11 +41,12 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<ProjectMember>>> ListByProjectAsync(Guid projectId, int offset, int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<ProjectMember>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default)
     {
         var entities = await _context.ProjectMembers
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId)
+            .Where(x => x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Skip(offset)
             .Take(limit)
             .Select(x => SelectWithUser(x))
@@ -53,12 +55,13 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
         return Result.Ok<IReadOnlyList<ProjectMember>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result> SetRoleAsync(Guid projectId, Guid userId, ProjectRole role, CancellationToken ct = default)
+    public async Task<Result> SetRoleAsync(Guid projectId, Guid orgId, Guid userId, ProjectRole role, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ProjectMembers
-            .Where(x => x.ProjectId == projectId && x.UserId == userId)
+            .Where(x => x.ProjectId == projectId && x.UserId == userId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Role, role)
@@ -70,10 +73,11 @@ internal sealed class ProjectMembersRepository : IProjectMembersRepository
             : Result.Ok();
     }
 
-    public async Task<Result> RemoveAsync(Guid projectId, Guid userId, CancellationToken ct = default)
+    public async Task<Result> RemoveAsync(Guid projectId, Guid orgId, Guid userId, CancellationToken ct = default)
     {
         var affected = await _context.ProjectMembers
-            .Where(x => x.ProjectId == projectId && x.UserId == userId)
+            .Where(x => x.ProjectId == projectId && x.UserId == userId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteDeleteAsync(ct);
 
         return affected == 0

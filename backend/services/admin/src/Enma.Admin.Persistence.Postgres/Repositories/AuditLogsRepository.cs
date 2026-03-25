@@ -63,12 +63,12 @@ internal sealed class AuditLogsRepository : IAuditLogsRepository
         return Result.Ok<IReadOnlyList<AuditLog>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result<IReadOnlyList<AuditLog>>> ListByProjectAsync(Guid projectId, DateTime? from, DateTime? to, int offset, int limit,
+    public async Task<Result<IReadOnlyList<AuditLog>>> ListByProjectAsync(Guid projectId, Guid orgId, DateTime? from, DateTime? to, int offset, int limit,
         CancellationToken ct = default)
     {
         var query = _context.AuditLogs
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId);
+            .Where(x => x.ProjectId == projectId && x.OrganizationId == orgId);
 
         if (from is not null)
         {

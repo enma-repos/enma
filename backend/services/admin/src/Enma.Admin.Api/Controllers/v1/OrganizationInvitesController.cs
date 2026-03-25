@@ -32,7 +32,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
         [FromRoute] Guid inviteId,
         CancellationToken ct)
     {
-        var res = await organizationInvitesService.GetByIdAsync(inviteId, ct);
+        var res = await organizationInvitesService.GetByIdAsync(inviteId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -67,7 +67,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
             return Unauthorized();
 
         var dto = new SetInviteAcceptedDto(accountId);
-        var res = await organizationInvitesService.SetAcceptedAsync(inviteId, dto, ct);
+        var res = await organizationInvitesService.SetAcceptedAsync(inviteId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -81,7 +81,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
             return Unauthorized();
 
         var dto = new SetInviteDeclinedDto(accountId);
-        var res = await organizationInvitesService.SetDeclinedAsync(inviteId, dto, ct);
+        var res = await organizationInvitesService.SetDeclinedAsync(inviteId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 }

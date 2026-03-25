@@ -18,19 +18,28 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
         _context = context;
     }
 
-    public async Task<Result<ProcessDefinition>> CreateAsync(ProcessDefinition model, CancellationToken ct = default)
+    public async Task<Result<ProcessDefinition>> CreateAsync(ProcessDefinition model, Guid orgId, CancellationToken ct = default)
     {
+        var projectBelongsToOrg = await _context.Projects
+            .AnyAsync(p => p.Id == model.ProjectId && p.OrganizationId == orgId && p.DeletedAt == null, ct);
+
+        if (!projectBelongsToOrg)
+        {
+            return Result.Fail<ProcessDefinition>(ApplicationErrors.EntityNotFound("Project", $"id={model.ProjectId}, orgId={orgId}"));
+        }
+
         _context.ProcessDefinitions.Add(model.ToEntity());
         await _context.SaveChangesAsync(ct);
 
         return Result.Ok(model);
     }
 
-    public async Task<Result<ProcessDefinition>> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result<ProcessDefinition>> GetByIdAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.ProcessDefinitions
             .AsNoTracking()
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new ProcessDefinitionEntity
             {
                 Id = x.Id,
@@ -51,12 +60,13 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<ProcessDefinition>> GetByProjectAndKeyAsync(Guid projectId, string key,
+    public async Task<Result<ProcessDefinition>> GetByProjectAndKeyAsync(Guid projectId, Guid orgId, string key,
         CancellationToken ct = default)
     {
         var entity = await _context.ProcessDefinitions
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId && x.Key == key && x.DeletedAt == null)
+            .Where(x => x.ProjectId == projectId && x.Key == key && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new ProcessDefinitionEntity
             {
                 Id = x.Id,
@@ -78,12 +88,13 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<ProcessDefinition>>> ListByProjectAsync(Guid projectId, int offset,
+    public async Task<Result<IReadOnlyList<ProcessDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset,
         int limit, CancellationToken ct = default)
     {
         var entities = await _context.ProcessDefinitions
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId && x.DeletedAt == null)
+            .Where(x => x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .OrderBy(x => x.Name)
             .Skip(offset)
             .Take(limit)
@@ -105,12 +116,13 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
         return Result.Ok<IReadOnlyList<ProcessDefinition>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result> SetNameAsync(Guid id, string name, CancellationToken ct = default)
+    public async Task<Result> SetNameAsync(Guid id, Guid projectId, Guid orgId, string name, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ProcessDefinitions
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Name, name)
@@ -122,12 +134,13 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
             : Result.Ok();
     }
 
-    public async Task<Result> SetDescriptionAsync(Guid id, string? description, CancellationToken ct = default)
+    public async Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ProcessDefinitions
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Description, description)
@@ -139,12 +152,13 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
             : Result.Ok();
     }
 
-    public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result> SoftDeleteAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ProcessDefinitions
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DeletedAt, now)

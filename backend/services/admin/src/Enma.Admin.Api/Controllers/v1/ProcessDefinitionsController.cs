@@ -22,7 +22,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
             return Unauthorized();
 
         var res = await service.CreateAsync(
-            dto with { ProjectId = projectId, CreatedByUserId = accountId }, ct);
+            dto with { ProjectId = projectId, CreatedByUserId = accountId }, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -33,7 +33,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var res = await service.GetByIdAsync(id, ct);
+        var res = await service.GetByIdAsync(id, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -44,7 +44,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromRoute] string key,
         CancellationToken ct)
     {
-        var res = await service.GetByProjectAndKeyAsync(projectId, key, ct);
+        var res = await service.GetByProjectAndKeyAsync(projectId, organizationId, key, ct);
         return res.ToActionResult();
     }
 
@@ -56,7 +56,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await service.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await service.ListByProjectAsync(projectId, organizationId, offset, limit, ct);
         return res.ToActionResult();
     }
 
@@ -68,7 +68,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromBody] SetProcessDefinitionNameDto dto,
         CancellationToken ct)
     {
-        var res = await service.SetNameAsync(id, dto, ct);
+        var res = await service.SetNameAsync(id, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -80,7 +80,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromBody] SetProcessDefinitionDescriptionDto dto,
         CancellationToken ct)
     {
-        var res = await service.SetDescriptionAsync(id, dto, ct);
+        var res = await service.SetDescriptionAsync(id, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -91,7 +91,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var res = await service.SoftDeleteAsync(id, ct);
+        var res = await service.SoftDeleteAsync(id, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 }

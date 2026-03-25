@@ -18,19 +18,31 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
         _context = context;
     }
 
-    public async Task<Result<ApiKey>> CreateAsync(ApiKey key, CancellationToken ct = default)
+    public async Task<Result<ApiKey>> CreateAsync(ApiKey key, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
+        var clientBelongsToProject = await _context.ApiClients
+            .AnyAsync(c => c.Id == sdkClientId && c.ProjectId == projectId, ct);
+        if (!clientBelongsToProject)
+            return Result.Fail<ApiKey>(ApplicationErrors.EntityNotFound("SdkClient", $"id={sdkClientId}, projectId={projectId}"));
+
+        var projectBelongsToOrg = await _context.Projects
+            .AnyAsync(p => p.Id == projectId && p.OrganizationId == orgId && p.DeletedAt == null, ct);
+        if (!projectBelongsToOrg)
+            return Result.Fail<ApiKey>(ApplicationErrors.EntityNotFound("Project", $"id={projectId}, orgId={orgId}"));
+
         _context.ApiKeys.Add(key.ToEntity());
         await _context.SaveChangesAsync(ct);
 
         return Result.Ok(key);
     }
 
-    public async Task<Result<ApiKey>> GetByIdAsync(Guid apiKeyId, CancellationToken ct = default)
+    public async Task<Result<ApiKey>> GetByIdAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.ApiKeys
             .AsNoTracking()
-            .Where(x => x.Id == apiKeyId)
+            .Where(x => x.Id == apiKeyId && x.SdkClientId == sdkClientId
+                && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new ApiKeyEntity
             {
                 Id = x.Id,
@@ -49,11 +61,13 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, int offset, int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default)
     {
         var entities = await _context.ApiKeys
             .AsNoTracking()
-            .Where(x => x.SdkClientId == sdkClientId)
+            .Where(x => x.SdkClientId == sdkClientId
+                && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Skip(offset)
             .Take(limit)
             .Select(x => new ApiKeyEntity
@@ -94,29 +108,33 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
         return Result.Ok<IReadOnlyList<ApiKey>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result> UpdateLastUsedAsync(Guid apiKeyId, CancellationToken ct = default)
+    public async Task<Result> UpdateLastUsedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiKeys
-            .Where(x => x.Id == apiKeyId && x.RevokedAt == null)
+            .Where(x => x.Id == apiKeyId && x.SdkClientId == sdkClientId && x.RevokedAt == null
+                && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.LastUsedAt, now), ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("ApiKey", $"id={apiKeyId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("ApiKey", $"id={apiKeyId}"))
             : Result.Ok();
     }
 
-    public async Task<Result> UpdateRevokedAsync(Guid apiKeyId, CancellationToken ct = default)
+    public async Task<Result> UpdateRevokedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiKeys
-            .Where(x => x.Id == apiKeyId && x.RevokedAt == null)
+            .Where(x => x.Id == apiKeyId && x.SdkClientId == sdkClientId && x.RevokedAt == null
+                && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, now), ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("ApiKey", $"id={apiKeyId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("ApiKey", $"id={apiKeyId}"))
             : Result.Ok();
     }
 }

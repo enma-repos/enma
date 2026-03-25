@@ -6,19 +6,21 @@ namespace Enma.Admin.Application.Abstractions;
 public interface IProjectMembersService
 {
     Task<Result<ProjectMemberDto>> AddAsync(Guid organizationId, AddProjectMemberDto dto, CancellationToken ct = default);
-    Task<Result<ProjectMemberDto>> GetAsync(Guid projectId, Guid userId, CancellationToken ct = default);
+    Task<Result<ProjectMemberDto>> GetAsync(Guid projectId, Guid orgId, Guid userId, CancellationToken ct = default);
 
     Task<Result<IReadOnlyList<ProjectMemberDto>>> ListByProjectAsync(
         Guid projectId,
+        Guid orgId,
         int offset,
         int limit,
         CancellationToken ct = default);
 
     Task<Result> SetRoleAsync(
         Guid projectId,
+        Guid orgId,
         Guid userId,
         SetProjectMemberRoleDto dto,
         CancellationToken ct = default);
 
-    Task<Result> RemoveAsync(Guid projectId, Guid userId, CancellationToken ct = default);
+    Task<Result> RemoveAsync(Guid projectId, Guid orgId, Guid userId, CancellationToken ct = default);
 }

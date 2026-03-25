@@ -44,10 +44,11 @@ internal sealed class ProjectsService : IProjectsService
     }
 
     public async Task<Result<ProjectDto>> GetByIdAsync(
-        Guid projectId, 
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.GetByIdAsync(projectId, ct);
+        var res = await _projectsRepository.GetByIdAsync(projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<ProjectDto>(res.Errors);
@@ -89,43 +90,47 @@ internal sealed class ProjectsService : IProjectsService
     }
 
     public async Task<Result> SetNameAsync(
-        Guid projectId, 
-        SetProjectNameDto dto, 
+        Guid projectId,
+        Guid orgId,
+        SetProjectNameDto dto,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.SetNameAsync(projectId, dto.Name, ct);
+        var res = await _projectsRepository.SetNameAsync(projectId, orgId, dto.Name, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetDescriptionAsync(
-        Guid projectId, 
-        SetProjectDescriptionDto dto, 
+        Guid projectId,
+        Guid orgId,
+        SetProjectDescriptionDto dto,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.SetDescriptionAsync(projectId, dto.Description, ct);
+        var res = await _projectsRepository.SetDescriptionAsync(projectId, orgId, dto.Description, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetSettingsAsync(
-        Guid projectId, 
-        SetProjectSettingsDto dto, 
+        Guid projectId,
+        Guid orgId,
+        SetProjectSettingsDto dto,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.SetSettingsAsync(projectId, dto.Settings, ct);
+        var res = await _projectsRepository.SetSettingsAsync(projectId, orgId, dto.Settings, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetArchivedAsync(
-        Guid projectId, 
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.SetArchivedAsync(projectId, ct);
+        var res = await _projectsRepository.SetArchivedAsync(projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
@@ -133,9 +138,10 @@ internal sealed class ProjectsService : IProjectsService
 
     public async Task<Result> ClearArchivedAsync(
         Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _projectsRepository.ClearArchivedAsync(projectId, ct);
+        var res = await _projectsRepository.ClearArchivedAsync(projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
@@ -152,7 +158,7 @@ internal sealed class ProjectsService : IProjectsService
             return Result.Fail("Cannot delete the last project in the organization.");
         }
 
-        var res = await _projectsRepository.SoftDeleteAsync(projectId, ct);
+        var res = await _projectsRepository.SoftDeleteAsync(projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);

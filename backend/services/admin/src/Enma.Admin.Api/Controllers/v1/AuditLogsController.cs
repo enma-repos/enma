@@ -48,7 +48,7 @@ public sealed class AuditLogsController(IAuditLogsService auditLogsService) : Co
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await auditLogsService.ListByProjectAsync(projectId, from, to, offset, limit, ct);
+        var res = await auditLogsService.ListByProjectAsync(projectId, organizationId, from, to, offset, limit, ct);
         return res.ToActionResult();
     }
 }

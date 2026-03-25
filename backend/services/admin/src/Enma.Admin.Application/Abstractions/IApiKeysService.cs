@@ -5,11 +5,13 @@ namespace Enma.Admin.Application.Abstractions;
 
 public interface IApiKeysService
 {
-    Task<Result<ApiKeyFirstCreationDto>> CreateAsync(Guid sdkClientId, CancellationToken ct = default);
-    Task<Result<ApiKeyDto>> GetByIdAsync(Guid apiKeyId, CancellationToken ct = default);
+    Task<Result<ApiKeyFirstCreationDto>> CreateAsync(Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
+    Task<Result<ApiKeyDto>> GetByIdAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     Task<Result<IReadOnlyList<ApiKeyDto>>> ListBySdkClientAsync(
         Guid sdkClientId,
+        Guid projectId,
+        Guid orgId,
         int offset,
         int limit,
         CancellationToken ct = default);
@@ -19,6 +21,6 @@ public interface IApiKeysService
         int limit,
         CancellationToken ct = default);
 
-    Task<Result> UpdateLastUsedAsync(Guid apiKeyId, CancellationToken ct = default);
-    Task<Result> UpdateRevokedAsync(Guid apiKeyId, CancellationToken ct = default);
+    Task<Result> UpdateLastUsedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
+    Task<Result> UpdateRevokedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 }

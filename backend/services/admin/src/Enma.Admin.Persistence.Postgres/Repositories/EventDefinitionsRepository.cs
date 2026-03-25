@@ -18,19 +18,28 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
         _context = context;
     }
 
-    public async Task<Result<EventDefinition>> CreateAsync(EventDefinition model, CancellationToken ct = default)
+    public async Task<Result<EventDefinition>> CreateAsync(EventDefinition model, Guid orgId, CancellationToken ct = default)
     {
+        var projectBelongsToOrg = await _context.Projects
+            .AnyAsync(p => p.Id == model.ProjectId && p.OrganizationId == orgId && p.DeletedAt == null, ct);
+
+        if (!projectBelongsToOrg)
+        {
+            return Result.Fail<EventDefinition>(ApplicationErrors.EntityNotFound("Project", $"id={model.ProjectId}, orgId={orgId}"));
+        }
+
         _context.EventDefinitions.Add(model.ToEntity());
         await _context.SaveChangesAsync(ct);
 
         return Result.Ok(model);
     }
 
-    public async Task<Result<EventDefinition>> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result<EventDefinition>> GetByIdAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.EventDefinitions
             .AsNoTracking()
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new EventDefinitionEntity
             {
                 Id = x.Id,
@@ -49,12 +58,13 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<EventDefinition>> GetByProjectAndNameAsync(Guid projectId, string name,
+    public async Task<Result<EventDefinition>> GetByProjectAndNameAsync(Guid projectId, Guid orgId, string name,
         CancellationToken ct = default)
     {
         var entity = await _context.EventDefinitions
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId && x.Name == name && x.DeletedAt == null)
+            .Where(x => x.ProjectId == projectId && x.Name == name && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new EventDefinitionEntity
             {
                 Id = x.Id,
@@ -74,12 +84,13 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<EventDefinition>>> ListByProjectAsync(Guid projectId, int offset,
+    public async Task<Result<IReadOnlyList<EventDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset,
         int limit, CancellationToken ct = default)
     {
         var entities = await _context.EventDefinitions
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId && x.DeletedAt == null)
+            .Where(x => x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .OrderBy(x => x.Name)
             .Skip(offset)
             .Take(limit)
@@ -99,12 +110,13 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
         return Result.Ok<IReadOnlyList<EventDefinition>>(entities.Select(x => x.ToModel()).ToList());
     }
 
-    public async Task<Result> SetDescriptionAsync(Guid id, string? description, CancellationToken ct = default)
+    public async Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.EventDefinitions
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Description, description)
@@ -116,12 +128,13 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result> SoftDeleteAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.EventDefinitions
-            .Where(x => x.Id == id && x.DeletedAt == null)
+            .Where(x => x.Id == id && x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DeletedAt, now)

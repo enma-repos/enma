@@ -17,32 +17,32 @@ public sealed class ApiKeysController(IApiKeysService apiKeysService) : Controll
         [FromRoute] Guid projectId, 
         CancellationToken ct)
     {
-        var res = await apiKeysService.CreateAsync(clientId, ct);
+        var res = await apiKeysService.CreateAsync(clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
     [HttpGet("{apiKeyId:guid}")]
     public async Task<IActionResult> GetByIdAsync(
         [FromRoute] Guid apiKeyId,
-        [FromRoute] Guid clientId, 
-        [FromRoute] Guid organizationId, 
-        [FromRoute] Guid projectId, 
+        [FromRoute] Guid clientId,
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
         CancellationToken ct)
     {
-        var res = await apiKeysService.GetByIdAsync(apiKeyId, ct);
+        var res = await apiKeysService.GetByIdAsync(apiKeyId, clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
     [HttpGet]
     public async Task<IActionResult> ListBySdkClientAsync(
-        [FromRoute] Guid clientId, 
-        [FromRoute] Guid organizationId, 
-        [FromRoute] Guid projectId, 
-        [FromQuery] int offset = 0, 
-        [FromQuery] int limit = 50, 
+        [FromRoute] Guid clientId,
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await apiKeysService.ListBySdkClientAsync(clientId, offset, limit, ct);
+        var res = await apiKeysService.ListBySdkClientAsync(clientId, projectId, organizationId, offset, limit, ct);
         return res.ToActionResult();
     }
 
@@ -67,19 +67,19 @@ public sealed class ApiKeysController(IApiKeysService apiKeysService) : Controll
         [FromRoute] Guid projectId, 
         CancellationToken ct)
     {
-        var res = await apiKeysService.UpdateLastUsedAsync(apiKeyId, ct);
+        var res = await apiKeysService.UpdateLastUsedAsync(apiKeyId, clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
     [HttpPatch("{apiKeyId:guid}/revoke")]
     public async Task<IActionResult> RevokeAsync(
-        [FromRoute] Guid apiKeyId, 
-        [FromRoute] Guid clientId, 
-        [FromRoute] Guid organizationId, 
-        [FromRoute] Guid projectId, 
+        [FromRoute] Guid apiKeyId,
+        [FromRoute] Guid clientId,
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
         CancellationToken ct)
     {
-        var res = await apiKeysService.UpdateRevokedAsync(apiKeyId, ct);
+        var res = await apiKeysService.UpdateRevokedAsync(apiKeyId, clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 }

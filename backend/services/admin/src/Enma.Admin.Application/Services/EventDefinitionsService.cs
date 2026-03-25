@@ -17,6 +17,7 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result<EventDefinitionDto>> CreateAsync(
         CreateEventDefinitionDto dto,
+        Guid orgId,
         CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
@@ -34,7 +35,7 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
             return Result.Fail<EventDefinitionDto>(modelRes.Errors);
         }
 
-        var res = await _repository.CreateAsync(modelRes.Value, ct);
+        var res = await _repository.CreateAsync(modelRes.Value, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<EventDefinitionDto>(res.Errors);
@@ -42,9 +43,11 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result<EventDefinitionDto>> GetByIdAsync(
         Guid id,
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _repository.GetByIdAsync(id, ct);
+        var res = await _repository.GetByIdAsync(id, projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<EventDefinitionDto>(res.Errors);
@@ -52,10 +55,11 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result<EventDefinitionDto>> GetByProjectAndNameAsync(
         Guid projectId,
+        Guid orgId,
         string name,
         CancellationToken ct = default)
     {
-        var res = await _repository.GetByProjectAndNameAsync(projectId, name, ct);
+        var res = await _repository.GetByProjectAndNameAsync(projectId, orgId, name, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<EventDefinitionDto>(res.Errors);
@@ -63,11 +67,12 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result<IReadOnlyList<EventDefinitionDto>>> ListByProjectAsync(
         Guid projectId,
+        Guid orgId,
         int offset,
         int limit,
         CancellationToken ct = default)
     {
-        var res = await _repository.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await _repository.ListByProjectAsync(projectId, orgId, offset, limit, ct);
         return res.IsSuccess
             ? Result.Ok<IReadOnlyList<EventDefinitionDto>>(res.Value.Select(x => x.ToDto()).ToList())
             : Result.Fail<IReadOnlyList<EventDefinitionDto>>(res.Errors);
@@ -75,10 +80,12 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result> SetDescriptionAsync(
         Guid id,
+        Guid projectId,
+        Guid orgId,
         SetEventDefinitionDescriptionDto dto,
         CancellationToken ct = default)
     {
-        var res = await _repository.SetDescriptionAsync(id, dto.Description, ct);
+        var res = await _repository.SetDescriptionAsync(id, projectId, orgId, dto.Description, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
@@ -86,9 +93,11 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
 
     public async Task<Result> SoftDeleteAsync(
         Guid id,
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _repository.SoftDeleteAsync(id, ct);
+        var res = await _repository.SoftDeleteAsync(id, projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);

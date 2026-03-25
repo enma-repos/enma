@@ -6,7 +6,7 @@ namespace Enma.Admin.Application.Abstractions;
 public interface IOrganizationInvitesService
 {
     Task<Result<OrganizationInviteDto>> CreateAsync(CreateOrganizationInviteDto dto, CancellationToken ct = default);
-    Task<Result<OrganizationInviteDto>> GetByIdAsync(Guid inviteId, CancellationToken ct = default);
+    Task<Result<OrganizationInviteDto>> GetByIdAsync(Guid inviteId, Guid orgId, CancellationToken ct = default);
 
     Task<Result<OrganizationInviteDto>> GetActiveByOrgAndEmailAsync(
         Guid orgId,
@@ -27,11 +27,13 @@ public interface IOrganizationInvitesService
 
     Task<Result> SetAcceptedAsync(
         Guid inviteId,
+        Guid orgId,
         SetInviteAcceptedDto dto,
         CancellationToken ct = default);
 
     Task<Result> SetDeclinedAsync(
         Guid inviteId,
+        Guid orgId,
         SetInviteDeclinedDto dto,
         CancellationToken ct = default);
 }

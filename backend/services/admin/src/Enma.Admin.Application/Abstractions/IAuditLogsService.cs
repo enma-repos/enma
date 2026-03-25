@@ -17,6 +17,7 @@ public interface IAuditLogsService
 
     Task<Result<IReadOnlyList<AuditLogDto>>> ListByProjectAsync(
         Guid projectId,
+        Guid orgId,
         DateTime? from,
         DateTime? to,
         int offset,

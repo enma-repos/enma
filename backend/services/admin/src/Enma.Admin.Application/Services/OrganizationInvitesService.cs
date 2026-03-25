@@ -66,9 +66,10 @@ internal sealed class OrganizationInvitesService : IOrganizationInvitesService
 
     public async Task<Result<OrganizationInviteDto>> GetByIdAsync(
         Guid inviteId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _organizationInvitesRepository.GetByIdAsync(inviteId, ct);
+        var res = await _organizationInvitesRepository.GetByIdAsync(inviteId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<OrganizationInviteDto>(res.Errors);
@@ -117,10 +118,11 @@ internal sealed class OrganizationInvitesService : IOrganizationInvitesService
 
     public async Task<Result> SetAcceptedAsync(
         Guid inviteId,
+        Guid orgId,
         SetInviteAcceptedDto dto,
         CancellationToken ct = default)
     {
-        var inviteRes = await _organizationInvitesRepository.GetByIdAsync(inviteId, ct);
+        var inviteRes = await _organizationInvitesRepository.GetByIdAsync(inviteId, orgId, ct);
         if (inviteRes.IsFailed)
         {
             return Result.Fail(inviteRes.Errors);
@@ -132,7 +134,7 @@ internal sealed class OrganizationInvitesService : IOrganizationInvitesService
 
         await _unitOfWork.ExecuteInTransactionAsync(async innerCt =>
         {
-            var acceptRes = await _organizationInvitesRepository.SetAcceptedAsync(inviteId, dto.AcceptedUserId, innerCt);
+            var acceptRes = await _organizationInvitesRepository.SetAcceptedAsync(inviteId, orgId, dto.AcceptedUserId, innerCt);
             if (acceptRes.IsFailed)
             {
                 failure = acceptRes;
@@ -171,10 +173,11 @@ internal sealed class OrganizationInvitesService : IOrganizationInvitesService
 
     public async Task<Result> SetDeclinedAsync(
         Guid inviteId,
+        Guid orgId,
         SetInviteDeclinedDto dto,
         CancellationToken ct = default)
     {
-        var inviteRes = await _organizationInvitesRepository.GetByIdAsync(inviteId, ct);
+        var inviteRes = await _organizationInvitesRepository.GetByIdAsync(inviteId, orgId, ct);
         if (inviteRes.IsFailed)
         {
             return Result.Fail(inviteRes.Errors);
@@ -182,7 +185,7 @@ internal sealed class OrganizationInvitesService : IOrganizationInvitesService
 
         var invite = inviteRes.Value;
 
-        var res = await _organizationInvitesRepository.SetDeclinedAsync(inviteId, dto.DeclinedUserId, ct);
+        var res = await _organizationInvitesRepository.SetDeclinedAsync(inviteId, orgId, dto.DeclinedUserId, ct);
         if (res.IsFailed)
         {
             return res;

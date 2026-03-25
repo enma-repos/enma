@@ -22,7 +22,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
             return Unauthorized();
 
         var res = await service.CreateAsync(
-            dto with { ProjectId = projectId, CreatedByUserId = accountId }, ct);
+            dto with { ProjectId = projectId, CreatedByUserId = accountId }, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -33,7 +33,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var res = await service.GetByIdAsync(id, ct);
+        var res = await service.GetByIdAsync(id, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -44,7 +44,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
         [FromRoute] string name,
         CancellationToken ct)
     {
-        var res = await service.GetByProjectAndNameAsync(projectId, name, ct);
+        var res = await service.GetByProjectAndNameAsync(projectId, organizationId, name, ct);
         return res.ToActionResult();
     }
 
@@ -56,7 +56,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await service.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await service.ListByProjectAsync(projectId, organizationId, offset, limit, ct);
         return res.ToActionResult();
     }
 
@@ -68,7 +68,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
         [FromBody] SetEventDefinitionDescriptionDto dto,
         CancellationToken ct)
     {
-        var res = await service.SetDescriptionAsync(id, dto, ct);
+        var res = await service.SetDescriptionAsync(id, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -79,7 +79,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var res = await service.SoftDeleteAsync(id, ct);
+        var res = await service.SoftDeleteAsync(id, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 }

@@ -18,7 +18,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         [FromBody] CreateSdkClientDto dto,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.CreateAsync(dto with { ProjectId = projectId }, ct);
+        var res = await sdkClientsService.CreateAsync(dto with { ProjectId = projectId }, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -29,7 +29,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         [FromRoute] Guid clientId,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.GetByIdAsync(clientId, ct);
+        var res = await sdkClientsService.GetByIdAsync(clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -41,7 +41,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await sdkClientsService.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await sdkClientsService.ListByProjectAsync(projectId, organizationId, offset, limit, ct);
         return res.ToActionResult();
     }
 
@@ -53,7 +53,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         [FromBody] SetSdkClientNameDto dto,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.SetNameAsync(clientId, dto, ct);
+        var res = await sdkClientsService.SetNameAsync(clientId, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -61,11 +61,11 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     public async Task<IActionResult> SetSettingsAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromRoute] Guid clientId, 
+        [FromRoute] Guid clientId,
         [FromBody] SetSdkClientSettingsDto dto,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.SetSettingsAsync(clientId, dto, ct);
+        var res = await sdkClientsService.SetSettingsAsync(clientId, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -73,11 +73,11 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     public async Task<IActionResult> SetTypeAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromRoute] Guid clientId, 
+        [FromRoute] Guid clientId,
         [FromBody] SetSdkClientTypeDto dto,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.SetTypeAsync(clientId, dto, ct);
+        var res = await sdkClientsService.SetTypeAsync(clientId, projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -85,10 +85,10 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     public async Task<IActionResult> DisableAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromRoute] Guid clientId, 
+        [FromRoute] Guid clientId,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.SetDisabledAsync(clientId, ct);
+        var res = await sdkClientsService.SetDisabledAsync(clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -99,7 +99,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         [FromRoute] Guid clientId,
         CancellationToken ct)
     {
-        var res = await sdkClientsService.ClearDisabledAsync(clientId, ct);
+        var res = await sdkClientsService.ClearDisabledAsync(clientId, projectId, organizationId, ct);
         return res.ToActionResult();
     }
 }

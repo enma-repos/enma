@@ -11,13 +11,13 @@ namespace Enma.Admin.Application.Contracts;
 public interface IApiKeysRepository
 {
     /// <summary>Creates a new API key record (hash/prefix must already be computed by application/infrastructure).</summary>
-    Task<Result<ApiKey>> CreateAsync(ApiKey key, CancellationToken ct = default);
+    Task<Result<ApiKey>> CreateAsync(ApiKey key, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Gets an API key by id.</summary>
-    Task<Result<ApiKey>> GetByIdAsync(Guid apiKeyId, CancellationToken ct = default);
+    Task<Result<ApiKey>> GetByIdAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Lists API keys for an SDK client (paged by offset/limit).</summary>
-    Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, int offset, int limit, CancellationToken ct = default);
+    Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default);
 
     /// <summary>
     /// Lists active (non-revoked) API keys by prefix for authentication purposes.
@@ -26,8 +26,8 @@ public interface IApiKeysRepository
     Task<Result<IReadOnlyList<ApiKey>>> ListActiveByPrefixAsync(string keyPrefix, int limit, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="ApiKey.LastUsedAt"/> only.</summary>
-    Task<Result> UpdateLastUsedAsync(Guid apiKeyId, CancellationToken ct = default);
+    Task<Result> UpdateLastUsedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
     /// <summary>Updates <see cref="ApiKey.RevokedAt"/> only.</summary>
-    Task<Result> UpdateRevokedAsync(Guid apiKeyId, CancellationToken ct = default);
+    Task<Result> UpdateRevokedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 }

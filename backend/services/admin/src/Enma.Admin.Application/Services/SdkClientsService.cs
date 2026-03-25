@@ -16,7 +16,8 @@ internal sealed class SdkClientsService : ISdkClientsService
     }
 
     public async Task<Result<SdkClientDto>> CreateAsync(
-        CreateSdkClientDto dto, 
+        CreateSdkClientDto dto,
+        Guid orgId,
         CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
@@ -35,82 +36,95 @@ internal sealed class SdkClientsService : ISdkClientsService
             return Result.Fail<SdkClientDto>(modelRes.Errors);
         }
 
-        var res = await _sdkClientsRepository.CreateAsync(modelRes.Value, ct);
+        var res = await _sdkClientsRepository.CreateAsync(modelRes.Value, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<SdkClientDto>(res.Errors);
     }
 
     public async Task<Result<SdkClientDto>> GetByIdAsync(
-        Guid clientId, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.GetByIdAsync(clientId, ct);
+        var res = await _sdkClientsRepository.GetByIdAsync(clientId, projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<SdkClientDto>(res.Errors);
     }
 
     public async Task<Result<IReadOnlyList<SdkClientDto>>> ListByProjectAsync(
-        Guid projectId, 
-        int offset, 
-        int limit, 
+        Guid projectId,
+        Guid orgId,
+        int offset,
+        int limit,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await _sdkClientsRepository.ListByProjectAsync(projectId, orgId, offset, limit, ct);
         return res.IsSuccess
             ? Result.Ok<IReadOnlyList<SdkClientDto>>(res.Value.Select(x => x.ToDto()).ToList())
             : Result.Fail<IReadOnlyList<SdkClientDto>>(res.Errors);
     }
 
     public async Task<Result> SetNameAsync(
-        Guid clientId, 
-        SetSdkClientNameDto dto, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
+        SetSdkClientNameDto dto,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.SetNameAsync(clientId, dto.Name, ct);
+        var res = await _sdkClientsRepository.SetNameAsync(clientId, projectId, orgId, dto.Name, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetSettingsAsync(
-        Guid clientId, 
-        SetSdkClientSettingsDto dto, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
+        SetSdkClientSettingsDto dto,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.SetSettingsAsync(clientId, dto.Settings, ct);
+        var res = await _sdkClientsRepository.SetSettingsAsync(clientId, projectId, orgId, dto.Settings, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetTypeAsync(
-        Guid clientId, 
-        SetSdkClientTypeDto dto, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
+        SetSdkClientTypeDto dto,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.SetTypeAsync(clientId, dto.Type, ct);
+        var res = await _sdkClientsRepository.SetTypeAsync(clientId, projectId, orgId, dto.Type, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> SetDisabledAsync(
-        Guid clientId, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.SetDisabledAsync(clientId, ct);
+        var res = await _sdkClientsRepository.SetDisabledAsync(clientId, projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);
     }
 
     public async Task<Result> ClearDisabledAsync(
-        Guid clientId, 
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
         CancellationToken ct = default)
     {
-        var res = await _sdkClientsRepository.ClearDisabledAsync(clientId, ct);
+        var res = await _sdkClientsRepository.ClearDisabledAsync(clientId, projectId, orgId, ct);
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);

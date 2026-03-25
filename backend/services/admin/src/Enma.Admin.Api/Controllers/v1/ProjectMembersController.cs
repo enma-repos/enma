@@ -29,7 +29,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
         [FromRoute] Guid userId,
         CancellationToken ct)
     {
-        var res = await projectMembersService.GetAsync(projectId, userId, ct);
+        var res = await projectMembersService.GetAsync(projectId, organizationId, userId, ct);
         return res.ToActionResult();
     }
 
@@ -41,7 +41,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await projectMembersService.ListByProjectAsync(projectId, offset, limit, ct);
+        var res = await projectMembersService.ListByProjectAsync(projectId, organizationId, offset, limit, ct);
         return res.ToActionResult();
     }
 
@@ -53,7 +53,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
         [FromBody] SetProjectMemberRoleDto dto,
         CancellationToken ct)
     {
-        var res = await projectMembersService.SetRoleAsync(projectId, userId, dto, ct);
+        var res = await projectMembersService.SetRoleAsync(projectId, organizationId, userId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -64,7 +64,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
         [FromRoute] Guid userId,
         CancellationToken ct)
     {
-        var res = await projectMembersService.RemoveAsync(projectId, userId, ct);
+        var res = await projectMembersService.RemoveAsync(projectId, organizationId, userId, ct);
         return res.ToActionResult();
     }
 }

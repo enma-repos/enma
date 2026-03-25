@@ -30,6 +30,7 @@ public interface IAuditLogsRepository
     /// </summary>
     Task<Result<IReadOnlyList<AuditLog>>> ListByProjectAsync(
         Guid projectId,
+        Guid orgId,
         DateTime? from,
         DateTime? to,
         int offset,

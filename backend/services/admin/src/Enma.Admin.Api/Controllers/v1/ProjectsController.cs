@@ -31,7 +31,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromRoute] Guid projectId,
         CancellationToken ct)
     {
-        var res = await projectsService.GetByIdAsync(projectId, ct);
+        var res = await projectsService.GetByIdAsync(projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -76,7 +76,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromBody] SetProjectNameDto dto,
         CancellationToken ct)
     {
-        var res = await projectsService.SetNameAsync(projectId, dto, ct);
+        var res = await projectsService.SetNameAsync(projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -87,7 +87,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromBody] SetProjectDescriptionDto dto, 
         CancellationToken ct)
     {
-        var res = await projectsService.SetDescriptionAsync(projectId, dto, ct);
+        var res = await projectsService.SetDescriptionAsync(projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -98,7 +98,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromBody] SetProjectSettingsDto dto,
         CancellationToken ct)
     {
-        var res = await projectsService.SetSettingsAsync(projectId, dto, ct);
+        var res = await projectsService.SetSettingsAsync(projectId, organizationId, dto, ct);
         return res.ToActionResult();
     }
 
@@ -108,7 +108,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromRoute] Guid projectId,
         CancellationToken ct)
     {
-        var res = await projectsService.SetArchivedAsync(projectId, ct);
+        var res = await projectsService.SetArchivedAsync(projectId, organizationId, ct);
         return res.ToActionResult();
     }
 
@@ -118,7 +118,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         [FromRoute] Guid projectId,
         CancellationToken ct)
     {
-        var res = await projectsService.ClearArchivedAsync(projectId, ct);
+        var res = await projectsService.ClearArchivedAsync(projectId, organizationId, ct);
         return res.ToActionResult();
     }
 

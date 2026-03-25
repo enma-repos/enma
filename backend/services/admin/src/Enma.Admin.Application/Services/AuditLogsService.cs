@@ -64,14 +64,15 @@ internal sealed class AuditLogsService : IAuditLogsService
     }
 
     public async Task<Result<IReadOnlyList<AuditLogDto>>> ListByProjectAsync(
-        Guid projectId, 
-        DateTime? from, 
-        DateTime? to, 
-        int offset, 
-        int limit, 
+        Guid projectId,
+        Guid orgId,
+        DateTime? from,
+        DateTime? to,
+        int offset,
+        int limit,
         CancellationToken ct = default)
     {
-        var res = await _auditLogsRepository.ListByProjectAsync(projectId, from, to, offset, limit, ct);
+        var res = await _auditLogsRepository.ListByProjectAsync(projectId, orgId, from, to, offset, limit, ct);
         return res.IsSuccess
             ? Result.Ok<IReadOnlyList<AuditLogDto>>(res.Value.Select(x => x.ToDto()).ToList())
             : Result.Fail<IReadOnlyList<AuditLogDto>>(res.Errors);

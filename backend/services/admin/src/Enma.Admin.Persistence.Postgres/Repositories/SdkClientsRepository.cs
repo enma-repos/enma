@@ -20,19 +20,28 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
         _context = context;
     }
 
-    public async Task<Result<SdkClient>> CreateAsync(SdkClient client, CancellationToken ct = default)
+    public async Task<Result<SdkClient>> CreateAsync(SdkClient client, Guid orgId, CancellationToken ct = default)
     {
+        var projectBelongsToOrg = await _context.Projects
+            .AnyAsync(p => p.Id == client.ProjectId && p.OrganizationId == orgId && p.DeletedAt == null, ct);
+
+        if (!projectBelongsToOrg)
+        {
+            return Result.Fail<SdkClient>(ApplicationErrors.EntityNotFound("Project", $"id={client.ProjectId}, orgId={orgId}"));
+        }
+
         _context.ApiClients.Add(client.ToEntity());
         await _context.SaveChangesAsync(ct);
 
         return Result.Ok(client);
     }
 
-    public async Task<Result<SdkClient>> GetByIdAsync(Guid clientId, CancellationToken ct = default)
+    public async Task<Result<SdkClient>> GetByIdAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var entity = await _context.ApiClients
             .AsNoTracking()
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Select(x => new SdkClientEntity
             {
                 Id = x.Id,
@@ -52,11 +61,12 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, int offset, int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default)
     {
         var entities = await _context.ApiClients
             .AsNoTracking()
-            .Where(x => x.ProjectId == projectId)
+            .Where(x => x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .Skip(offset)
             .Take(limit)
             .Select(x => new SdkClientEntity
@@ -97,88 +107,93 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
             : Result.Ok();
     }
 
-    public async Task<Result> SetNameAsync(Guid clientId, string name, CancellationToken ct = default)
+    public async Task<Result> SetNameAsync(Guid clientId, Guid projectId, Guid orgId, string name, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiClients
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Name, name)
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
             : Result.Ok();
     }
 
-    public async Task<Result> SetSettingsAsync(Guid clientId, JsonObject? settings, CancellationToken ct = default)
+    public async Task<Result> SetSettingsAsync(Guid clientId, Guid projectId, Guid orgId, JsonObject? settings, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiClients
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Settings, settings)
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
             : Result.Ok();
     }
 
-    public async Task<Result> SetTypeAsync(Guid clientId, SdkClientType type, CancellationToken ct = default)
+    public async Task<Result> SetTypeAsync(Guid clientId, Guid projectId, Guid orgId, SdkClientType type, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiClients
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.Type, type)
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
             : Result.Ok();
     }
 
-    public async Task<Result> SetDisabledAsync(Guid clientId, CancellationToken ct = default)
+    public async Task<Result> SetDisabledAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiClients
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DisabledAt, now)
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
             : Result.Ok();
     }
 
-    public async Task<Result> ClearDisabledAsync(Guid clientId, CancellationToken ct = default)
+    public async Task<Result> ClearDisabledAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
 
         var affected = await _context.ApiClients
-            .Where(x => x.Id == clientId)
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
             .ExecuteUpdateAsync(
                 s => s
                     .SetProperty(x => x.DisabledAt, (DateTime?)null)
                     .SetProperty(x => x.UpdatedAt, now),
                 ct);
 
-        return affected == 0 
-            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}")) 
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
             : Result.Ok();
     }
 }
