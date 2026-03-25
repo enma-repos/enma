@@ -6,6 +6,7 @@ using Enma.Admin.Persistence.Postgres.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
+using Enma.Admin.Api.Filters;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +65,10 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(o =>
+{
+    o.Filters.Add<AuditActionFilter>();
+});
 builder.Services.AddOpenApi("v1");
 
 var app = builder.Build();

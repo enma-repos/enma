@@ -18,7 +18,7 @@ export type OrganizationCardProps = {
 
 export function OrganizationCard({ organization }: OrganizationCardProps) {
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card className="transition-shadow hover:shadow-sm">
       <Link
         href={`/app/organizations/${encodeURIComponent(organization.slug)}/projects`}
         className={cn(

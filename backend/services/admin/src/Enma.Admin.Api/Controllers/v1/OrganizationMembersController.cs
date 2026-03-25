@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.OrganizationMembers;
 using Enma.Api.Shared.Extensions;
@@ -44,6 +45,7 @@ public sealed class OrganizationMembersController(IOrganizationMembersService or
     }
 
     [HttpPatch("{userId:guid}/role")]
+    [AuditAction("update.role", "OrganizationMember", ResourceIdParam = "userId")]
     public async Task<IActionResult> SetRoleAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid userId,
@@ -55,6 +57,7 @@ public sealed class OrganizationMembersController(IOrganizationMembersService or
     }
 
     [HttpPatch("{userId:guid}/status")]
+    [AuditAction("update.status", "OrganizationMember", ResourceIdParam = "userId")]
     public async Task<IActionResult> SetStatusAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid userId,
@@ -66,6 +69,7 @@ public sealed class OrganizationMembersController(IOrganizationMembersService or
     }
 
     [HttpDelete("{userId:guid}")]
+    [AuditAction("remove", "OrganizationMember", ResourceIdParam = "userId")]
     public async Task<IActionResult> RemoveAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid userId,

@@ -255,6 +255,11 @@ export interface CreateAuditLogDto {
   payload?: JsonObject | null;
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export enum ProcessType {
   Session = 0,
   Order = 1,

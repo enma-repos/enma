@@ -15,6 +15,7 @@ import {
   IconUsers,
   cn,
 } from "@/components/shared";
+import { Route, BookOpen, ClipboardList } from "lucide-react";
 
 type NavItem = {
   href: string;
@@ -37,8 +38,7 @@ function buildNavItems(base: string) {
 
   const analytics: NavItem[] = [
     { href: `${base}/analytics/summary`, label: "Сводка", icon: <IconList className="h-5 w-5" /> },
-    { href: `${base}/analytics/paths`, label: "Пути", icon: <IconList className="h-5 w-5" /> },
-    { href: `${base}/analytics/users`, label: "Пользователи", icon: <IconUsers className="h-5 w-5" /> },
+    { href: `${base}/analytics/paths`, label: "Пути", icon: <Route className="h-5 w-5" /> }
   ];
 
   const product: NavItem[] = [
@@ -48,9 +48,9 @@ function buildNavItems(base: string) {
   ];
 
   const footer: NavItem[] = [
-    { href: "/docs", label: "Documentation", icon: <IconList className="h-5 w-5" /> },
     { href: `${base}/access`, label: "Manage access", icon: <IconUsers className="h-5 w-5" /> },
-    { href: `${base}/logs`, label: "Logs", icon: <IconList className="h-5 w-5" /> },
+    { href: `${base}/logs`, label: "Logs", icon: <ClipboardList className="h-5 w-5" /> },
+    { href: "/docs", label: "Documentation", icon: <BookOpen className="h-5 w-5" /> }
   ];
 
   return { primary, analytics, product, footer };

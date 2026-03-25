@@ -37,7 +37,7 @@ export function FeaturesSection() {
           return (
             <article
               key={feature.title}
-              className="rounded-2xl border border-zinc-200 bg-white p-6 transition-all duration-200 hover:shadow-md"
+              className="rounded-2xl border border-zinc-200 bg-white p-6 transition-all duration-200 hover:shadow-sm"
             >
               <div
                 className={`flex h-11 w-11 items-center justify-center rounded-xl ${

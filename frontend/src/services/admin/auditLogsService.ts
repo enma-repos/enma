@@ -1,11 +1,21 @@
 import { apiClient } from "@/api/apiClient";
-import type { AuditLogDto, CreateAuditLogDto, Guid, IsoDateString } from "@/types/admin.types";
+import type { AuditLogDto, CreateAuditLogDto, Guid, IsoDateString, PagedResult } from "@/types/admin.types";
 
 type DateQuery = IsoDateString | Date;
 
 function toIsoOrUndefined(value: DateQuery | null | undefined): IsoDateString | undefined {
   if (value == null) return undefined;
   return value instanceof Date ? value.toISOString() : value;
+}
+
+export interface AuditLogFilters {
+  from?: DateQuery | null;
+  to?: DateQuery | null;
+  action?: string | null;
+  resourceType?: string | null;
+  actorUserId?: Guid | null;
+  offset?: number;
+  limit?: number;
 }
 
 export default class AuditLogsService {
@@ -22,28 +32,44 @@ export default class AuditLogsService {
 
   public async listByOrg(
     organizationId: Guid,
-    from: DateQuery | null = null,
-    to: DateQuery | null = null,
-    offset = 0,
-    limit = 50,
-  ): Promise<AuditLogDto[]> {
-    const { data } = await apiClient.get<AuditLogDto[]>(`${this.orgBaseUrl(organizationId)}/audit-logs`, {
-      params: { from: toIsoOrUndefined(from), to: toIsoOrUndefined(to), offset, limit },
-    });
+    filters: AuditLogFilters = {},
+  ): Promise<PagedResult<AuditLogDto>> {
+    const { data } = await apiClient.get<PagedResult<AuditLogDto>>(
+      `${this.orgBaseUrl(organizationId)}/audit-logs`,
+      {
+        params: {
+          from: toIsoOrUndefined(filters.from),
+          to: toIsoOrUndefined(filters.to),
+          action: filters.action || undefined,
+          resourceType: filters.resourceType || undefined,
+          actorUserId: filters.actorUserId || undefined,
+          offset: filters.offset ?? 0,
+          limit: filters.limit ?? 50,
+        },
+      },
+    );
     return data;
   }
 
   public async listByProject(
     organizationId: Guid,
     projectId: Guid,
-    from: DateQuery | null = null,
-    to: DateQuery | null = null,
-    offset = 0,
-    limit = 50,
-  ): Promise<AuditLogDto[]> {
-    const { data } = await apiClient.get<AuditLogDto[]>(`${this.orgBaseUrl(organizationId)}/projects/${projectId}/audit-logs`, {
-      params: { from: toIsoOrUndefined(from), to: toIsoOrUndefined(to), offset, limit },
-    });
+    filters: AuditLogFilters = {},
+  ): Promise<PagedResult<AuditLogDto>> {
+    const { data } = await apiClient.get<PagedResult<AuditLogDto>>(
+      `${this.orgBaseUrl(organizationId)}/projects/${projectId}/audit-logs`,
+      {
+        params: {
+          from: toIsoOrUndefined(filters.from),
+          to: toIsoOrUndefined(filters.to),
+          action: filters.action || undefined,
+          resourceType: filters.resourceType || undefined,
+          actorUserId: filters.actorUserId || undefined,
+          offset: filters.offset ?? 0,
+          limit: filters.limit ?? 50,
+        },
+      },
+    );
     return data;
   }
 }

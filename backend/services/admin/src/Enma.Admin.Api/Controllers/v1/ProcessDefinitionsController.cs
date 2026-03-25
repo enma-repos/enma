@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.ProcessDefinitions;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class ProcessDefinitionsController(IProcessDefinitionsService service) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "ProcessDefinition")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -61,6 +63,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
     }
 
     [HttpPatch("{id:guid}/name")]
+    [AuditAction("update.name", "ProcessDefinition", ResourceIdParam = "id")]
     public async Task<IActionResult> SetNameAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -73,6 +76,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
     }
 
     [HttpPatch("{id:guid}/description")]
+    [AuditAction("update.description", "ProcessDefinition", ResourceIdParam = "id")]
     public async Task<IActionResult> SetDescriptionAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -85,6 +89,7 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
     }
 
     [HttpDelete("{id:guid}")]
+    [AuditAction("delete", "ProcessDefinition", ResourceIdParam = "id")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,

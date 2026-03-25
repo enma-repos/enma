@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.SdkClients;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class SdkClientsController(ISdkClientsService sdkClientsService) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "SdkClient")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -46,6 +48,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     }
 
     [HttpPatch("{clientId:guid}/name")]
+    [AuditAction("update.name", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> SetNameAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -58,6 +61,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     }
 
     [HttpPatch("{clientId:guid}/settings")]
+    [AuditAction("update.settings", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> SetSettingsAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -70,6 +74,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     }
 
     [HttpPatch("{clientId:guid}/type")]
+    [AuditAction("update.type", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> SetTypeAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -82,6 +87,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     }
 
     [HttpPatch("{clientId:guid}/disable")]
+    [AuditAction("disable", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> DisableAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -93,6 +99,7 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     }
 
     [HttpPatch("{clientId:guid}/enable")]
+    [AuditAction("enable", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> EnableAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,

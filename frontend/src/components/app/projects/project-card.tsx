@@ -22,7 +22,7 @@ export function ProjectCard({ organizationSlug, project }: ProjectCardProps) {
   const href = `/app/organizations/${encodeURIComponent(organizationSlug)}/projects/${encodeURIComponent(project.key)}`;
 
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card className="transition-shadow hover:shadow-sm">
       <Link
         href={href}
         className={cn(

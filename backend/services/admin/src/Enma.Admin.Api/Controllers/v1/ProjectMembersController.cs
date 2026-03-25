@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.ProjectMembers;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class ProjectMembersController(IProjectMembersService projectMembersService) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("add", "ProjectMember")]
     public async Task<IActionResult> AddAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -46,6 +48,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
     }
 
     [HttpPatch("{userId:guid}/role")]
+    [AuditAction("update.role", "ProjectMember", ResourceIdParam = "userId")]
     public async Task<IActionResult> SetRoleAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -58,6 +61,7 @@ public sealed class ProjectMembersController(IProjectMembersService projectMembe
     }
 
     [HttpDelete("{userId:guid}")]
+    [AuditAction("remove", "ProjectMember", ResourceIdParam = "userId")]
     public async Task<IActionResult> RemoveAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,

@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Api.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,11 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class ApiKeysController(IApiKeysService apiKeysService) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "ApiKey")]
     public async Task<IActionResult> CreateAsync(
-        [FromRoute] Guid clientId, 
-        [FromRoute] Guid organizationId, 
-        [FromRoute] Guid projectId, 
+        [FromRoute] Guid clientId,
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
         CancellationToken ct)
     {
         var res = await apiKeysService.CreateAsync(clientId, projectId, organizationId, ct);
@@ -72,6 +74,7 @@ public sealed class ApiKeysController(IApiKeysService apiKeysService) : Controll
     }
 
     [HttpPatch("{apiKeyId:guid}/revoke")]
+    [AuditAction("revoke", "ApiKey", ResourceIdParam = "apiKeyId")]
     public async Task<IActionResult> RevokeAsync(
         [FromRoute] Guid apiKeyId,
         [FromRoute] Guid clientId,

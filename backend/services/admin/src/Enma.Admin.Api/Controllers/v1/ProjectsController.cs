@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.Projects;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class ProjectsController(IProjectsService projectsService) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "Project")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] Guid organizationId,
         [FromBody] CreateProjectDto dto,
@@ -70,6 +72,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpPatch("{projectId:guid}/name")]
+    [AuditAction("update.name", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> SetNameAsync(
         [FromRoute] Guid organizationId, 
         [FromRoute] Guid projectId, 
@@ -81,6 +84,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpPatch("{projectId:guid}/description")]
+    [AuditAction("update.description", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> SetDescriptionAsync(
         [FromRoute] Guid organizationId, 
         [FromRoute] Guid projectId,
@@ -92,6 +96,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpPatch("{projectId:guid}/settings")]
+    [AuditAction("update.settings", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> SetSettingsAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -103,6 +108,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpPatch("{projectId:guid}/archive")]
+    [AuditAction("archive", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> ArchiveAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -113,6 +119,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpPatch("{projectId:guid}/unarchive")]
+    [AuditAction("unarchive", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> UnarchiveAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -123,6 +130,7 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
     }
 
     [HttpDelete("{projectId:guid}")]
+    [AuditAction("delete", "Project", ResourceIdParam = "projectId")]
     public async Task<IActionResult> SoftDeleteAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,

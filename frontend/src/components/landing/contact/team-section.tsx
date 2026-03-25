@@ -49,7 +49,7 @@ export function TeamSection() {
     <section className="mx-auto max-w-7xl px-6 mt-10">
       <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2">
         {team.map((member) => (
-          <Card key={member.name} className="flex flex-col px-7 py-10 transition-shadow duration-300 hover:shadow-lg">
+          <Card key={member.name} className="flex flex-col px-7 py-10 transition-shadow duration-300 hover:shadow-sm">
             <CardHeader className="flex flex-row items-start gap-5 p-0">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                 <member.icon className="h-6 w-6" />

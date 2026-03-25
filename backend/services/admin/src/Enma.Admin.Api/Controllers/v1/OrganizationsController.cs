@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.Organizations;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class OrganizationsController(IOrganizationsService organizationsService) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "Organization")]
     public async Task<IActionResult> CreateAsync(
         [FromBody] CreateOrganizationDto dto,
         CancellationToken ct)
@@ -55,6 +57,7 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpPatch("{organizationId:guid}/name")]
+    [AuditAction("update.name", "Organization", ResourceIdParam = "organizationId")]
     public async Task<IActionResult> SetNameAsync(
         [FromRoute] Guid organizationId,
         [FromBody] SetOrganizationNameDto dto,
@@ -65,8 +68,9 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpPatch("{organizationId:guid}/owner")]
+    [AuditAction("update.owner", "Organization", ResourceIdParam = "organizationId")]
     public async Task<IActionResult> SetOwnerAsync(
-        [FromRoute] Guid organizationId, 
+        [FromRoute] Guid organizationId,
         [FromBody] SetOrganizationOwnerDto dto,
         CancellationToken ct)
     {
@@ -75,6 +79,7 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpDelete("{organizationId:guid}")]
+    [AuditAction("delete", "Organization", ResourceIdParam = "organizationId")]
     public async Task<IActionResult> SoftDeleteAsync(
         [FromRoute] Guid organizationId,
         CancellationToken ct)

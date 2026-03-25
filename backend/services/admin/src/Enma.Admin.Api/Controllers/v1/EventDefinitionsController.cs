@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.EventDefinitions;
 using Enma.Api.Shared.Extensions;
@@ -12,6 +13,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 public sealed class EventDefinitionsController(IEventDefinitionsService service) : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "EventDefinition")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -61,6 +63,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
     }
 
     [HttpPatch("{id:guid}/description")]
+    [AuditAction("update.description", "EventDefinition", ResourceIdParam = "id")]
     public async Task<IActionResult> SetDescriptionAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
@@ -73,6 +76,7 @@ public sealed class EventDefinitionsController(IEventDefinitionsService service)
     }
 
     [HttpDelete("{id:guid}")]
+    [AuditAction("delete", "EventDefinition", ResourceIdParam = "id")]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,

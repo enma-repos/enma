@@ -1,3 +1,4 @@
+using Enma.Admin.Api.Filters;
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.OrganizationInvites;
 using Enma.Api.Shared.Extensions;
@@ -13,6 +14,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     : ControllerBase
 {
     [HttpPost]
+    [AuditAction("create", "OrganizationInvite")]
     public async Task<IActionResult> CreateAsync(
         [FromRoute] Guid organizationId,
         [FromBody] CreateOrganizationInviteDto dto,
@@ -58,6 +60,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     }
 
     [HttpPatch("{inviteId:guid}/accept")]
+    [AuditAction("accept", "OrganizationInvite", ResourceIdParam = "inviteId")]
     public async Task<IActionResult> AcceptAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid inviteId,
@@ -72,6 +75,7 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     }
 
     [HttpPatch("{inviteId:guid}/decline")]
+    [AuditAction("decline", "OrganizationInvite", ResourceIdParam = "inviteId")]
     public async Task<IActionResult> DeclineAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid inviteId,
