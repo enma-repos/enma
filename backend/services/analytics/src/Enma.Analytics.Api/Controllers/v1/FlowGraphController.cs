@@ -2,12 +2,14 @@ using Enma.Analytics.Application.Abstractions;
 using Enma.Analytics.Application.Dto;
 using Enma.Analytics.Application.ValueObjects;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Analytics.Api.Controllers.v1;
 
 [Route("api/analytics/v1/organizations/{organizationId:guid}/projects/{projectId:guid}/process-definitions/{processDefinitionId:guid}")]
 [ApiController]
+[Authorize]
 public sealed class FlowGraphController(IFlowGraphService service) : ControllerBase
 {
     [HttpGet("flow")]
@@ -35,6 +37,7 @@ public sealed class FlowGraphController(IFlowGraphService service) : ControllerB
 
 [Route("api/analytics/v1/organizations/{organizationId:guid}/projects/{projectId:guid}")]
 [ApiController]
+[Authorize]
 public sealed class MultiProcessFlowGraphController(IFlowGraphService service) : ControllerBase
 {
     [HttpPost("flow")]

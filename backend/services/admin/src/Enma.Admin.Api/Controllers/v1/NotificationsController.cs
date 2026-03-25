@@ -69,8 +69,5 @@ public sealed class NotificationsController(INotificationsService notificationsS
     }
 
     private bool TryGetAccountId(out Guid accountId)
-    {
-        var claim = User.FindFirst("accountId")?.Value;
-        return Guid.TryParse(claim, out accountId);
-    }
+        => User.TryGetAccountId(out accountId);
 }

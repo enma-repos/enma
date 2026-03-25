@@ -1,21 +1,27 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.Projects;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/projects")]
 [ApiController]
+[Authorize]
 public sealed class ProjectsController(IProjectsService projectsService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateAsync(
-        [FromRoute] Guid organizationId, 
+        [FromRoute] Guid organizationId,
         [FromBody] CreateProjectDto dto,
         CancellationToken ct)
     {
-        var res = await projectsService.CreateAsync(dto with { OrganizationId = organizationId }, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await projectsService.CreateAsync(
+            dto with { OrganizationId = organizationId, CreatedByUserId = accountId }, ct);
         return res.ToActionResult();
     }
 
@@ -50,15 +56,16 @@ public sealed class ProjectsController(IProjectsService projectsService) : Contr
         return res.ToActionResult();
     }
 
-    [HttpGet("~/api/v1/users/{userId:guid}/projects")]
+    [HttpGet("~/api/admin/v1/me/projects")]
     public async Task<IActionResult> ListByUserAsync(
-        [FromRoute] Guid organizationId,
-        [FromRoute] Guid userId, 
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var res = await projectsService.ListByUserAsync(userId, offset, limit, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await projectsService.ListByUserAsync(accountId, offset, limit, ct);
         return res.ToActionResult();
     }
 

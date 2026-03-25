@@ -1,12 +1,14 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.ProcessDefinitions;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/projects/{projectId:guid}/process-definitions")]
 [ApiController]
+[Authorize]
 public sealed class ProcessDefinitionsController(IProcessDefinitionsService service) : ControllerBase
 {
     [HttpPost]
@@ -16,7 +18,11 @@ public sealed class ProcessDefinitionsController(IProcessDefinitionsService serv
         [FromBody] CreateProcessDefinitionDto dto,
         CancellationToken ct)
     {
-        var res = await service.CreateAsync(dto with { ProjectId = projectId }, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await service.CreateAsync(
+            dto with { ProjectId = projectId, CreatedByUserId = accountId }, ct);
         return res.ToActionResult();
     }
 

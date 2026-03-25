@@ -2,12 +2,14 @@ using Enma.Analytics.Application.Abstractions;
 using Enma.Analytics.Application.Enums;
 using Enma.Analytics.Application.ValueObjects;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Analytics.Api.Controllers.v1;
 
 [Route("api/analytics/v1/organizations/{organizationId:guid}/projects/{projectId:guid}/process-definitions/{processDefinitionId:guid}")]
 [ApiController]
+[Authorize]
 public sealed class TimeTrendsController(ITimeTrendsService service) : ControllerBase
 {
     [HttpGet("trends")]

@@ -1,21 +1,27 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.AuditLogs;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}")]
 [ApiController]
+[Authorize]
 public sealed class AuditLogsController(IAuditLogsService auditLogsService) : ControllerBase
 {
     [HttpPost("audit-logs")]
     public async Task<IActionResult> AppendAsync(
-        [FromRoute] Guid organizationId, 
-        [FromBody] CreateAuditLogDto dto, 
+        [FromRoute] Guid organizationId,
+        [FromBody] CreateAuditLogDto dto,
         CancellationToken ct)
     {
-        var res = await auditLogsService.AppendAsync(dto with { OrganizationId = organizationId }, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await auditLogsService.AppendAsync(
+            dto with { OrganizationId = organizationId, ActorUserId = accountId }, ct);
         return res.ToActionResult();
     }
 

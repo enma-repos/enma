@@ -1,12 +1,14 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.Users;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/users")]
 [ApiController]
+[Authorize]
 public sealed class UsersController(IUsersService usersService) : ControllerBase
 {
     [HttpGet("{userId:guid}")]
@@ -29,10 +31,11 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
 
     [HttpPatch("{userId:guid}/display-name")]
     public async Task<IActionResult> SetDisplayNameAsync(
-        [FromRoute] Guid userId, 
+        [FromRoute] Guid userId,
         [FromBody] SetUserDisplayNameDto dto,
         CancellationToken ct)
     {
+        if (!VerifyOwnership(userId)) return Forbid();
         var res = await usersService.SetDisplayNameAsync(userId, dto, ct);
         return res.ToActionResult();
     }
@@ -40,9 +43,10 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
     [HttpPatch("{userId:guid}/avatar-url")]
     public async Task<IActionResult> SetAvatarUrlAsync(
         [FromRoute] Guid userId,
-        [FromBody] SetUserAvatarUrlDto dto, 
+        [FromBody] SetUserAvatarUrlDto dto,
         CancellationToken ct)
     {
+        if (!VerifyOwnership(userId)) return Forbid();
         var res = await usersService.SetAvatarUrlAsync(userId, dto, ct);
         return res.ToActionResult();
     }
@@ -53,6 +57,7 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
         [FromBody] SetUserLocaleDto dto,
         CancellationToken ct)
     {
+        if (!VerifyOwnership(userId)) return Forbid();
         var res = await usersService.SetLocaleAsync(userId, dto, ct);
         return res.ToActionResult();
     }
@@ -63,6 +68,7 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
         [FromBody] SetUserTimezoneDto dto,
         CancellationToken ct)
     {
+        if (!VerifyOwnership(userId)) return Forbid();
         var res = await usersService.SetTimezoneAsync(userId, dto, ct);
         return res.ToActionResult();
     }
@@ -72,7 +78,11 @@ public sealed class UsersController(IUsersService usersService) : ControllerBase
         [FromRoute] Guid userId,
         CancellationToken ct)
     {
+        if (!VerifyOwnership(userId)) return Forbid();
         var res = await usersService.SoftDeleteAsync(userId, ct);
         return res.ToActionResult();
     }
+
+    private bool VerifyOwnership(Guid userId)
+        => User.TryGetAccountId(out var accountId) && accountId == userId;
 }

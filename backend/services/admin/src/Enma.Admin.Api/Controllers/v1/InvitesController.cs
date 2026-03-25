@@ -16,11 +16,8 @@ public sealed class InvitesController(IOrganizationInvitesService organizationIn
         [FromQuery] int limit = 20,
         CancellationToken ct = default)
     {
-        var claim = User.FindFirst("accountId")?.Value;
-        if (!Guid.TryParse(claim, out var accountId))
-        {
+        if (!User.TryGetAccountId(out var accountId))
             return Unauthorized();
-        }
 
         var res = await organizationInvitesService.ListPendingByEmailAsync(accountId, offset, limit, ct);
         return res.ToActionResult();

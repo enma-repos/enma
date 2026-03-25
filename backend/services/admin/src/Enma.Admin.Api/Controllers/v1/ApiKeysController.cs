@@ -1,11 +1,13 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/projects/{projectId:guid}/sdk-clients/{clientId:guid}/api-keys")]
 [ApiController]
+[Authorize]
 public sealed class ApiKeysController(IApiKeysService apiKeysService) : ControllerBase
 {
     [HttpPost]

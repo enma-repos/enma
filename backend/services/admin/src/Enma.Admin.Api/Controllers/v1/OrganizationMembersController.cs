@@ -1,12 +1,14 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.OrganizationMembers;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/members")]
 [ApiController]
+[Authorize]
 public sealed class OrganizationMembersController(IOrganizationMembersService organizationMembersService) 
     : ControllerBase
 {

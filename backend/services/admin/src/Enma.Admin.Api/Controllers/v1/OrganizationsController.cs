@@ -8,6 +8,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations")]
 [ApiController]
+[Authorize]
 public sealed class OrganizationsController(IOrganizationsService organizationsService) : ControllerBase
 {
     [HttpPost]
@@ -15,7 +16,10 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
         [FromBody] CreateOrganizationDto dto,
         CancellationToken ct)
     {
-        var res = await organizationsService.CreateAsync(dto, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await organizationsService.CreateAsync(dto with { CreatedByUserId = accountId }, ct);
         return res.ToActionResult();
     }
 
@@ -38,18 +42,14 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> ListByUserAsync(
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 50,
         CancellationToken ct = default)
     {
-        var accountIdClaim = User.FindFirst("accountId")?.Value;
-        if (!Guid.TryParse(accountIdClaim, out var accountId))
-        {
+        if (!User.TryGetAccountId(out var accountId))
             return Unauthorized();
-        }
-        
+
         var res = await organizationsService.ListByUserAsync(accountId, offset, limit, ct);
         return res.ToActionResult();
     }
@@ -75,16 +75,12 @@ public sealed class OrganizationsController(IOrganizationsService organizationsS
     }
 
     [HttpDelete("{organizationId:guid}")]
-    [Authorize]
     public async Task<IActionResult> SoftDeleteAsync(
         [FromRoute] Guid organizationId,
         CancellationToken ct)
     {
-        var accountIdClaim = User.FindFirst("accountId")?.Value;
-        if (!Guid.TryParse(accountIdClaim, out var accountId))
-        {
+        if (!User.TryGetAccountId(out var accountId))
             return Unauthorized();
-        }
 
         var res = await organizationsService.SoftDeleteAsync(organizationId, accountId, ct);
         return res.ToActionResult();

@@ -8,6 +8,7 @@ namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/invites")]
 [ApiController]
+[Authorize]
 public sealed class OrganizationInvitesController(IOrganizationInvitesService organizationInvitesService)
     : ControllerBase
 {
@@ -17,7 +18,11 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
         [FromBody] CreateOrganizationInviteDto dto,
         CancellationToken ct)
     {
-        var res = await organizationInvitesService.CreateAsync(dto with { OrganizationId = organizationId }, ct);
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var res = await organizationInvitesService.CreateAsync(
+            dto with { OrganizationId = organizationId, CreatedByUserId = accountId }, ct);
         return res.ToActionResult();
     }
 
@@ -56,9 +61,12 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     public async Task<IActionResult> AcceptAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid inviteId,
-        [FromBody] SetInviteAcceptedDto dto,
         CancellationToken ct)
     {
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var dto = new SetInviteAcceptedDto(accountId);
         var res = await organizationInvitesService.SetAcceptedAsync(inviteId, dto, ct);
         return res.ToActionResult();
     }
@@ -67,9 +75,12 @@ public sealed class OrganizationInvitesController(IOrganizationInvitesService or
     public async Task<IActionResult> DeclineAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid inviteId,
-        [FromBody] SetInviteDeclinedDto dto,
         CancellationToken ct)
     {
+        if (!User.TryGetAccountId(out var accountId))
+            return Unauthorized();
+
+        var dto = new SetInviteDeclinedDto(accountId);
         var res = await organizationInvitesService.SetDeclinedAsync(inviteId, dto, ct);
         return res.ToActionResult();
     }

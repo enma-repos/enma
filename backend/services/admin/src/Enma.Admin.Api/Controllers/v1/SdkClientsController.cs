@@ -1,12 +1,14 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Dto.SdkClients;
 using Enma.Api.Shared.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enma.Admin.Api.Controllers.v1;
 
 [Route("api/admin/v1/organizations/{organizationId:guid}/projects/{projectId:guid}/sdk-clients")]
 [ApiController]
+[Authorize]
 public sealed class SdkClientsController(ISdkClientsService sdkClientsService) : ControllerBase
 {
     [HttpPost]
