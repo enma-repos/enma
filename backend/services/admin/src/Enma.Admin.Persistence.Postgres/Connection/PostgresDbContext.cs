@@ -16,10 +16,10 @@ internal sealed class PostgresDbContext : DbContext
     public DbSet<AuditLogEntity> AuditLogs { get; set; }
     public DbSet<ProcessDefinitionEntity> ProcessDefinitions { get; set; }
     public DbSet<EventDefinitionEntity> EventDefinitions { get; set; }
+    public DbSet<NotificationEntity> Notifications { get; set; }
 
     public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options)
     {
-        Database.EnsureCreated();
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

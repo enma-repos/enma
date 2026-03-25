@@ -25,7 +25,9 @@ public static class ServiceCollectionExtensions
             var config = sp.GetRequiredService<IOptions<PostgresOptions>>().Value;
             options.UseNpgsql(config.ConnectionString);
         });
-        
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddScoped<IApiKeysRepository, ApiKeysRepository>();
         services.AddScoped<IAuditLogsRepository, AuditLogsRepository>();
         services.AddScoped<IOrganizationInvitesRepository, OrganizationInvitesRepository>();
@@ -37,7 +39,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProjectsRepository, ProjectsRepository>();
         services.AddScoped<ISdkClientsRepository, SdkClientsRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<INotificationsRepository, NotificationsRepository>();
 
         return services;
+    }
+
+    public static void ApplyPendingMigrations(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<PostgresDbContext>();
+        context.Database.Migrate();
     }
 }

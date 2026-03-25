@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProjectsService, ProjectsService>();
         services.AddScoped<ISdkClientsService, SdkClientsService>();
         services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<INotificationsService, NotificationsService>();
         
         services.AddSingleton<ISecretService>(sp =>
         {

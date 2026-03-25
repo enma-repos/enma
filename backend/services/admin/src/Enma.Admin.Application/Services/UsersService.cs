@@ -23,6 +23,7 @@ internal sealed class UsersService : IUsersService
 
         var modelRes = User.Create(
             accountId: dto.AccountId,
+            email: dto.Email,
             displayName: dto.DisplayName,
             avatarUrl: dto.AvatarUrl,
             locale: dto.Locale,
