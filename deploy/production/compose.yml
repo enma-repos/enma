@@ -106,8 +106,6 @@ services:
     container_name: enma-api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-    ports:
-      - "8080:8080"
     networks:
       - enma
     restart: unless-stopped
@@ -126,8 +124,6 @@ services:
     container_name: enma-sdk-api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-    ports:
-      - "8090:8080"
     networks:
       - enma
     restart: unless-stopped
@@ -284,8 +280,6 @@ services:
     container_name: enma-frontend
     environment:
       - NEXT_PUBLIC_API_GATEWAY_URL=${NEXT_PUBLIC_API_GATEWAY_URL}
-    ports:
-      - "3000:3000"
     networks:
       - enma
     restart: unless-stopped
