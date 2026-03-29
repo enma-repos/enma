@@ -279,9 +279,9 @@ services:
     build:
       context: ../../frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_GATEWAY_URL=${NEXT_PUBLIC_API_GATEWAY_URL}
     container_name: enma-frontend
-    environment:
-      - NEXT_PUBLIC_API_GATEWAY_URL=${NEXT_PUBLIC_API_GATEWAY_URL}
     networks:
       - enma
     restart: unless-stopped
