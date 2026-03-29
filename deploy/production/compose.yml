@@ -162,6 +162,7 @@ services:
       - Auth__RefreshTokenLifetimeDays=${AUTH_REFRESH_TOKEN_LIFETIME_DAYS}
       - Auth__StateCacheTtlMinutes=${AUTH_STATE_CACHE_TTL_MINUTES}
       - Auth__RedirectBaseAddress=${AUTH_REDIRECT_BASE_ADDRESS}
+      - Auth__CookieDomain=.${DOMAIN}
       - Redis__ConnectionString=${REDIS_CONNECTION_STRING}
       - Redis__KeyPrefix=${REDIS_KEY_PREFIX}
       - Redis__Database=${REDIS_DATABASE}

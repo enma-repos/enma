@@ -44,23 +44,26 @@ public sealed class ExternalAuthController(
         }
 
         var secure = !env.IsDevelopment();
-        
+        var cookieDomain = string.IsNullOrWhiteSpace(authOptions.Value.CookieDomain) ? null : authOptions.Value.CookieDomain;
+
         Response.Cookies.Append("access_token", result.Value.AuthTokens.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/",
+            Domain = cookieDomain,
             MaxAge = TimeSpan.FromMinutes(jwtOptions.Value.ExpiresMinutes),
             Expires = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(jwtOptions.Value.ExpiresMinutes)
         });
-        
+
         Response.Cookies.Append("refresh_token", result.Value.AuthTokens.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/api/auth",
+            Domain = cookieDomain,
             MaxAge = TimeSpan.FromDays(authOptions.Value.RefreshTokenLifetimeDays),
             Expires = DateTimeOffset.UtcNow + TimeSpan.FromDays(authOptions.Value.RefreshTokenLifetimeDays)
         });

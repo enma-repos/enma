@@ -1,5 +1,6 @@
 using Enma.Auth.Application.Abstractions;
 using Enma.Auth.Application.Dto.Auth;
+using Enma.Auth.Application.Options;
 using Enma.Api.Shared.Extensions;
 using Enma.Common.Options;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ namespace Enma.Auth.Api.Controllers.v1;
 public sealed class AuthController(
     IAuthService authService,
     IOptions<JwtOptions> jwtOptions,
+    IOptions<AuthOptions> authOptions,
     IWebHostEnvironment env) : ControllerBase
 {
     [HttpPost("refresh")]
@@ -35,6 +37,7 @@ public sealed class AuthController(
         var accessExpiresAt = now + TimeSpan.FromMinutes(jwtOptions.Value.ExpiresMinutes);
         var refreshExpiresAt = new DateTimeOffset(result.Value.RefreshTokenExpiresAt, TimeSpan.Zero);
         var secure = !env.IsDevelopment();
+        var cookieDomain = string.IsNullOrWhiteSpace(authOptions.Value.CookieDomain) ? null : authOptions.Value.CookieDomain;
 
         Response.Cookies.Append("access_token", result.Value.AccessToken, new CookieOptions
         {
@@ -42,6 +45,7 @@ public sealed class AuthController(
             Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/",
+            Domain = cookieDomain,
             MaxAge = accessExpiresAt - now,
             Expires = accessExpiresAt
         });
@@ -52,6 +56,7 @@ public sealed class AuthController(
             Secure = secure,
             SameSite = SameSiteMode.Lax,
             Path = "/api/auth",
+            Domain = cookieDomain,
             MaxAge = refreshExpiresAt - now,
             Expires = refreshExpiresAt
         });
@@ -67,8 +72,9 @@ public sealed class AuthController(
         var result = await authService.LogoutAsync(dto, ct);
         if (result.IsSuccess)
         {
-            Response.Cookies.Delete("access_token", new CookieOptions { Path = "/" });
-            Response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/api/auth" });
+            var cookieDomain = string.IsNullOrWhiteSpace(authOptions.Value.CookieDomain) ? null : authOptions.Value.CookieDomain;
+            Response.Cookies.Delete("access_token", new CookieOptions { Path = "/", Domain = cookieDomain });
+            Response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/api/auth", Domain = cookieDomain });
         }
         
         return result.ToActionResult();
