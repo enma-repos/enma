@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -7,10 +7,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj", "services/api-gateway/src/Enma.ApiGateway.Sdk.Api/"]
-RUN dotnet restore "services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj"
+
+COPY ["backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj", "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/"]
+
+RUN dotnet restore "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj"
+
 COPY . .
-WORKDIR "/src/services/api-gateway/src/Enma.ApiGateway.Sdk.Api"
+WORKDIR "/src/backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api"
 RUN dotnet build "Enma.ApiGateway.Sdk.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
