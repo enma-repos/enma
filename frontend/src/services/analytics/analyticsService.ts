@@ -128,6 +128,23 @@ export default class AnalyticsService {
     return data;
   }
 
+  public async getProjectTopEvents(
+    organizationId: Guid,
+    projectId: Guid,
+    processDefinitionIds: Guid[] | null,
+    from: string,
+    to: string,
+    sortBy = "visits",
+    limit = 6,
+  ): Promise<TopEventsDto> {
+    const { data } = await apiClient.post<TopEventsDto>(
+      `${this.projectBaseUrl(organizationId, projectId)}/top-events`,
+      { processDefinitionIds },
+      { params: { from, to, sortBy, limit } },
+    );
+    return data;
+  }
+
   public async getSummary(
     organizationId: Guid,
     projectId: Guid,

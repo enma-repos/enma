@@ -1,88 +1,85 @@
+"use client";
+
 import {
-  Badge,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  IconExternalLink,
-  IconEye,
-  IconClick,
-  IconLogin,
-  IconCart,
-  IconCard,
-  IconSearch,
   cn,
 } from "@/components/shared";
-import type { PopularEvent } from "@/types/analytics.types";
-import type { IconProps } from "@/components/shared/icons";
-import type { FC } from "react";
+import { Zap } from "lucide-react";
+import type { TopEventItemDto } from "@/types/analytics.types";
 
-const dotClasses: Record<PopularEvent["color"], string> = {
-  blue: "bg-blue-500",
-  amber: "bg-amber-500",
-  emerald: "bg-emerald-500",
-  violet: "bg-violet-500",
-  rose: "bg-rose-500",
-  cyan: "bg-cyan-500",
-};
+const palette = [
+  "bg-blue-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-cyan-500",
+];
 
-const iconMap: Record<PopularEvent["icon"], FC<IconProps>> = {
-  eye: IconEye,
-  click: IconClick,
-  login: IconLogin,
-  cart: IconCart,
-  card: IconCard,
-  search: IconSearch,
-};
+function formatNumber(n: number): string {
+  return n.toLocaleString("ru-RU");
+}
 
 export type PopularEventsProps = {
-  events: PopularEvent[];
+  events: TopEventItemDto[];
+  isLoading?: boolean;
 };
 
-export function PopularEvents({ events }: PopularEventsProps) {
+export function PopularEvents({ events, isLoading }: PopularEventsProps) {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div>
           <CardTitle>Популярные события</CardTitle>
-          <CardDescription>Самые посещаемые "остановки" по пути</CardDescription>
+          <CardDescription>Самые посещаемые &quot;остановки&quot; по пути</CardDescription>
         </div>
-        <IconExternalLink className="h-4 w-4 text-zinc-400" aria-hidden="true" />
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {events.map((event) => {
-          const Icon = iconMap[event.icon];
-          return (
-            <div key={event.id} className="flex items-center gap-3">
+        {isLoading ? (
+          [...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-zinc-100" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 w-24 animate-pulse rounded bg-zinc-100" />
+                <div className="h-3 w-16 animate-pulse rounded bg-zinc-100" />
+              </div>
+              <div className="h-4 w-12 animate-pulse rounded bg-zinc-100" />
+            </div>
+          ))
+        ) : events.length === 0 ? (
+          <p className="py-4 text-center text-sm text-zinc-400">Нет данных</p>
+        ) : (
+          events.map((event, index) => (
+            <div key={event.eventName} className="flex items-center gap-3">
               <span
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                  dotClasses[event.color],
+                  palette[index % palette.length],
                 )}
                 aria-hidden="true"
               >
-                <Icon size={16} className="text-white" />
+                <Zap size={14} className="text-white" />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-zinc-900">
-                  {event.title}
+                  {event.eventName}
                 </div>
-                <div className="truncate text-xs text-zinc-500">{event.subtitle}</div>
+                <div className="truncate text-xs text-zinc-500">
+                  {formatNumber(event.visits)} визитов
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold tabular-nums text-zinc-900">
-                  {event.value}
-                </span>
-                <Badge tone="positive" className="tabular-nums">
-                  +{event.deltaPercent}%
-                </Badge>
-              </div>
+              <span className="text-sm font-semibold tabular-nums text-zinc-900">
+                {formatNumber(event.uniqueChains)}
+              </span>
               <span className="h-9 w-1.5 rounded-full bg-zinc-100" aria-hidden="true" />
             </div>
-          );
-        })}
+          ))
+        )}
       </CardContent>
     </Card>
   );

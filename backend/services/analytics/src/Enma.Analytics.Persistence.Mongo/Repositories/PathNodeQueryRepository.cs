@@ -142,6 +142,26 @@ internal sealed class PathNodeQueryRepository(IMongoDbContext db) : IPathNodeQue
         return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
     }
 
+    public async Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesAsync(
+        ProjectFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathNodeBuckets
+            .Aggregate()
+            .Match(BuildProjectFilter(filter))
+            .Group(
+                d => d.EventName,
+                g => new AggregatedNode(
+                    g.Key,
+                    g.Sum(x => x.VisitsCount),
+                    g.Sum(x => x.EntriesCount),
+                    g.Sum(x => x.ExitsCount),
+                    g.Sum(x => x.UniqueChains)))
+            .SortByDescending(n => n.TotalVisits)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
+    }
+
     public async Task<Result<NodeSummary>> GetNodeSummaryAsync(
         ProjectFilter filter, CancellationToken ct = default)
     {

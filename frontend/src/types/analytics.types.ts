@@ -11,16 +11,6 @@ export type AnalyticsMetric = {
   tone: "red" | "purple" | "teal" | "zinc";
 };
 
-export type PopularEvent = {
-  id: string;
-  title: string;
-  subtitle: string;
-  value: string;
-  deltaPercent: number;
-  icon: "eye" | "click" | "login" | "cart" | "card" | "search";
-  color: "blue" | "amber" | "emerald" | "violet" | "rose" | "cyan";
-};
-
 // --- Flow Graph ---
 
 export interface FlowNodeDto {

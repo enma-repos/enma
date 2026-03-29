@@ -8,3 +8,5 @@ public sealed record TopEventItemDto(
     long Entries,
     long Exits,
     long UniqueChains);
+
+public sealed record TopEventsRequest(IReadOnlyList<Guid>? ProcessDefinitionIds);
