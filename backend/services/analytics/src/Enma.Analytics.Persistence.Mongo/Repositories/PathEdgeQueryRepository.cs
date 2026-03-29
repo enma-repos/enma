@@ -125,6 +125,49 @@ internal sealed class PathEdgeQueryRepository(IMongoDbContext db) : IPathEdgeQue
         return Result.Ok<IReadOnlyList<AggregatedEdge>>(results);
     }
 
+    public async Task<Result<EdgeSummary>> GetEdgeSummaryAsync(
+        ProjectFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathEdgeBuckets
+            .Aggregate()
+            .Match(BuildProjectFilter(filter))
+            .Group(
+                _ => 1,
+                g => new EdgeSummary(
+                    g.Sum(x => x.TransitionsCount),
+                    g.Sum(x => x.UniqueUsers),
+                    g.Sum(x => x.UniqueAnonymous)))
+            .ToListAsync(ct);
+
+        return Result.Ok(results.FirstOrDefault() ?? new EdgeSummary(0, 0, 0));
+    }
+
+    public async Task<Result<EdgeSummary>> GetEdgeSummaryAsync(
+        MultiProcessFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathEdgeBuckets
+            .Aggregate()
+            .Match(BuildMultiProcessFilter(filter))
+            .Group(
+                _ => 1,
+                g => new EdgeSummary(
+                    g.Sum(x => x.TransitionsCount),
+                    g.Sum(x => x.UniqueUsers),
+                    g.Sum(x => x.UniqueAnonymous)))
+            .ToListAsync(ct);
+
+        return Result.Ok(results.FirstOrDefault() ?? new EdgeSummary(0, 0, 0));
+    }
+
+    private static FilterDefinition<PathEdgeBucketDocument> BuildProjectFilter(ProjectFilter filter)
+    {
+        var f = Builders<PathEdgeBucketDocument>.Filter;
+        return f.Eq(d => d.OrganizationId, filter.OrganizationId)
+             & f.Eq(d => d.ProjectId, filter.ProjectId)
+             & f.Gte(d => d.BucketStartUtc, filter.DateRange.FromUtc)
+             & f.Lt(d => d.BucketStartUtc, filter.DateRange.ToUtc);
+    }
+
     private static FilterDefinition<PathEdgeBucketDocument> BuildMultiProcessFilter(MultiProcessFilter filter)
     {
         var f = Builders<PathEdgeBucketDocument>.Filter;

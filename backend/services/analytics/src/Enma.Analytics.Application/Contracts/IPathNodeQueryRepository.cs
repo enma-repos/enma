@@ -24,4 +24,10 @@ public interface IPathNodeQueryRepository
 
     Task<Result<IReadOnlyList<AggregatedNode>>> GetAggregatedNodesAsync(
         MultiProcessFilter filter, CancellationToken ct = default);
+
+    Task<Result<NodeSummary>> GetNodeSummaryAsync(
+        ProjectFilter filter, CancellationToken ct = default);
+
+    Task<Result<NodeSummary>> GetNodeSummaryAsync(
+        MultiProcessFilter filter, CancellationToken ct = default);
 }

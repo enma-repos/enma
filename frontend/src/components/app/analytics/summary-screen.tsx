@@ -4,16 +4,11 @@ import { useState } from "react";
 import { FlowGraph } from "@/components/app/analytics/flow/flow-graph";
 import { MetricsRow } from "@/components/app/analytics/metrics-row";
 import { PopularEvents } from "@/components/app/analytics/popular-events";
+import { ProcessSelector } from "@/components/app/analytics/process-selector";
 import { DateRangePicker, DEFAULT_DATE_RANGE, type DateRange } from "@/components/app/analytics/date-range-picker";
 import { useProcessDefinitions } from "@/hooks/useProcessDefinitions";
+import { useSummary } from "@/hooks/useSummary";
 import type { AnalyticsMetric, PopularEvent } from "@/types/analytics.types";
-
-const metrics: AnalyticsMetric[] = [
-    {id: "path-a", label: "Путь A", value: "31,300", trend: {percent: 5, absolute: 156}, tone: "red"},
-    {id: "path-b", label: "Путь B", value: "31,300", trend: {percent: 5, absolute: 156}, tone: "purple"},
-    {id: "path-c", label: "Путь C", value: "31,300", trend: {percent: 5, absolute: 156}, tone: "teal"},
-    {id: "other", label: "Прочие пути", value: "14,210", trend: {percent: 10, absolute: 142}, tone: "zinc"},
-];
 
 const popularEvents: PopularEvent[] = [
     {id: "ev-1", title: "Просмотр каталога", subtitle: "catalog_view", value: "24,500", deltaPercent: 12, icon: "eye", color: "blue"},
@@ -24,6 +19,13 @@ const popularEvents: PopularEvent[] = [
     {id: "ev-6", title: "Поиск", subtitle: "search_query", value: "21,600", deltaPercent: 10, icon: "search", color: "cyan"},
 ];
 
+function formatNumber(n: number): string {
+    if (Number.isInteger(n)) {
+        return n.toLocaleString("ru-RU");
+    }
+    return n.toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
 interface Props {
     organizationId: string;
     projectId: string;
@@ -31,6 +33,7 @@ interface Props {
 
 export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
     const [dateRange, setDateRange] = useState<DateRange>(DEFAULT_DATE_RANGE);
+    const [selectedProcessIds, setSelectedProcessIds] = useState<string[]>([]);
 
     const {
         organization,
@@ -39,7 +42,54 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
         isLoading,
     } = useProcessDefinitions(organizationId, projectId);
 
-    const firstProcessId = processDefinitions[0]?.id ?? null;
+    const { data: summary, isLoading: summaryLoading } = useSummary(
+        organization?.id,
+        project?.id,
+        selectedProcessIds,
+        dateRange.from,
+        dateRange.to,
+    );
+
+    const zeroMetric = { value: 0, trendPercent: 0, trendAbsolute: 0 };
+    const s = summary ?? { totalVisits: zeroMetric, uniqueChains: zeroMetric, uniqueUsers: zeroMetric, avgStepsPerChain: zeroMetric };
+
+    const metrics: AnalyticsMetric[] = [
+        {
+            id: "total-visits",
+            label: "Всего событий",
+            value: formatNumber(s.totalVisits.value),
+            trend: { percent: s.totalVisits.trendPercent, absolute: s.totalVisits.trendAbsolute },
+            tone: "red",
+        },
+        {
+            id: "unique-chains",
+            label: "Уникальные цепочки",
+            value: formatNumber(s.uniqueChains.value),
+            trend: { percent: s.uniqueChains.trendPercent, absolute: s.uniqueChains.trendAbsolute },
+            tone: "purple",
+        },
+        {
+            id: "unique-users",
+            label: "Уникальные пользователи",
+            value: formatNumber(s.uniqueUsers.value),
+            trend: { percent: s.uniqueUsers.trendPercent, absolute: s.uniqueUsers.trendAbsolute },
+            tone: "teal",
+        },
+        {
+            id: "avg-steps",
+            label: "Ср. шагов в пути",
+            value: formatNumber(s.avgStepsPerChain.value),
+            trend: { percent: s.avgStepsPerChain.trendPercent, absolute: s.avgStepsPerChain.trendAbsolute },
+            tone: "zinc",
+        },
+    ];
+
+    const resolvedProcessIds =
+        selectedProcessIds.length > 0
+            ? selectedProcessIds
+            : processDefinitions[0]?.id
+                ? [processDefinitions[0].id]
+                : [];
 
     return (
         <div className="mx-auto w-full max-w-[90rem] mt-6">
@@ -49,15 +99,29 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
                     <div>
                         <h1 className="text-xl font-semibold">Ключевые метрики</h1>
                         <p className="mt-1 text-sm text-zinc-500">
-                            Отслеживайте динамику изменения популярности разных пользовательских путей в вашем
-                            приложении
+                            Отслеживайте общую динамику активности пользователей в вашем приложении
                         </p>
                     </div>
 
-                    <DateRangePicker value={dateRange} onChange={setDateRange} />
+                    <div className="flex items-center gap-3">
+                        <ProcessSelector
+                            processDefinitions={processDefinitions}
+                            selectedIds={selectedProcessIds}
+                            onChange={setSelectedProcessIds}
+                        />
+                        <DateRangePicker value={dateRange} onChange={setDateRange} />
+                    </div>
                 </div>
                 <div className="mt-5">
-                    <MetricsRow metrics={metrics}/>
+                    {summaryLoading || isLoading ? (
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="h-[120px] animate-pulse rounded-2xl border border-zinc-200 bg-zinc-50" />
+                            ))}
+                        </div>
+                    ) : (
+                        <MetricsRow metrics={metrics} />
+                    )}
                 </div>
             </section>
 
@@ -69,11 +133,11 @@ export function AnalyticsSummaryScreen({organizationId, projectId}: Props) {
 
                 <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        {!isLoading && organization && project && firstProcessId ? (
+                        {!isLoading && organization && project && resolvedProcessIds.length > 0 ? (
                             <FlowGraph
                                 organizationId={organization.id}
                                 projectId={project.id}
-                                processDefinitionIds={[firstProcessId]}
+                                processDefinitionIds={resolvedProcessIds}
                                 from={dateRange.from}
                                 to={dateRange.to}
                                 readonly

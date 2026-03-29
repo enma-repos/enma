@@ -21,4 +21,10 @@ public interface IPathEdgeQueryRepository
 
     Task<Result<IReadOnlyList<AggregatedEdge>>> GetAggregatedEdgesAsync(
         MultiProcessFilter filter, CancellationToken ct = default);
+
+    Task<Result<EdgeSummary>> GetEdgeSummaryAsync(
+        ProjectFilter filter, CancellationToken ct = default);
+
+    Task<Result<EdgeSummary>> GetEdgeSummaryAsync(
+        MultiProcessFilter filter, CancellationToken ct = default);
 }

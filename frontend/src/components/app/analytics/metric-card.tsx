@@ -1,12 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle, IconExternalLink, cn } from "@/components/shared";
-import { Route } from "lucide-react";
+import { Activity, GitBranch, Users, Footprints, type LucideIcon } from "lucide-react";
 import type { AnalyticsMetric } from "@/types/analytics.types";
 
 const toneClasses: Record<AnalyticsMetric["tone"], string> = {
   red: "bg-red-50 text-red-600",
   purple: "bg-purple-50 text-purple-600",
   teal: "bg-teal-50 text-teal-600",
-  zinc: "bg-zinc-100 text-zinc-700",
+  zinc: "bg-amber-50 text-amber-600",
+};
+
+const metricIcons: Record<string, LucideIcon> = {
+  "total-visits": Activity,
+  "unique-chains": GitBranch,
+  "unique-users": Users,
+  "avg-steps": Footprints,
 };
 
 export type MetricCardProps = {
@@ -14,6 +21,8 @@ export type MetricCardProps = {
 };
 
 export function MetricCard({ metric }: MetricCardProps) {
+  const Icon = metricIcons[metric.id] ?? Activity;
+
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between gap-3">
@@ -22,7 +31,7 @@ export function MetricCard({ metric }: MetricCardProps) {
             className={cn("grid h-12 w-12 place-items-center rounded-full", toneClasses[metric.tone])}
             aria-hidden="true"
           >
-            <Route size={26} />
+            <Icon size={26} />
           </div>
           <CardTitle className="text-[1.1rem] font-semibold">{metric.label}</CardTitle>
         </div>

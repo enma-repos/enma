@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITimeTrendsService, TimeTrendsService>();
         services.AddScoped<IEventDetailService, EventDetailService>();
         services.AddScoped<IActorBreakdownService, ActorBreakdownService>();
+        services.AddScoped<ISummaryService, SummaryService>();
 
         return services;
     }

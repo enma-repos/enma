@@ -131,3 +131,18 @@ export interface ActorBreakdownDto {
   edges: ActorBreakdownItemDto[];
 }
 
+// --- Summary ---
+
+export interface SummaryMetricDto {
+  value: number;
+  trendPercent: number;
+  trendAbsolute: number;
+}
+
+export interface SummaryDto {
+  totalVisits: SummaryMetricDto;
+  uniqueChains: SummaryMetricDto;
+  uniqueUsers: SummaryMetricDto;
+  avgStepsPerChain: SummaryMetricDto;
+}
+

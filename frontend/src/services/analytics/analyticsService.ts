@@ -7,6 +7,7 @@ import type {
   FlowGraphDto,
   FunnelAnalysisDto,
   FunnelAnalysisRequest,
+  SummaryDto,
   TimeTrendsDto,
   TopEventsDto,
 } from "@/types/analytics.types";
@@ -122,6 +123,21 @@ export default class AnalyticsService {
   ): Promise<EventDetailDto> {
     const { data } = await apiClient.get<EventDetailDto>(
       `${this.baseUrl(organizationId, projectId, processDefinitionId)}/events/${eventName}`,
+      { params: { from, to } },
+    );
+    return data;
+  }
+
+  public async getSummary(
+    organizationId: Guid,
+    projectId: Guid,
+    processDefinitionIds: Guid[] | null,
+    from: string,
+    to: string,
+  ): Promise<SummaryDto> {
+    const { data } = await apiClient.post<SummaryDto>(
+      `${this.projectBaseUrl(organizationId, projectId)}/summary`,
+      { processDefinitionIds },
       { params: { from, to } },
     );
     return data;

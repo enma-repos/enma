@@ -142,6 +142,51 @@ internal sealed class PathNodeQueryRepository(IMongoDbContext db) : IPathNodeQue
         return Result.Ok<IReadOnlyList<AggregatedNode>>(results);
     }
 
+    public async Task<Result<NodeSummary>> GetNodeSummaryAsync(
+        ProjectFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathNodeBuckets
+            .Aggregate()
+            .Match(BuildProjectFilter(filter))
+            .Group(
+                _ => 1,
+                g => new NodeSummary(
+                    g.Sum(x => x.VisitsCount),
+                    g.Sum(x => x.EntriesCount),
+                    g.Sum(x => x.ExitsCount),
+                    g.Sum(x => x.UniqueChains)))
+            .ToListAsync(ct);
+
+        return Result.Ok(results.FirstOrDefault() ?? new NodeSummary(0, 0, 0, 0));
+    }
+
+    public async Task<Result<NodeSummary>> GetNodeSummaryAsync(
+        MultiProcessFilter filter, CancellationToken ct = default)
+    {
+        var results = await db.PathNodeBuckets
+            .Aggregate()
+            .Match(BuildMultiProcessFilter(filter))
+            .Group(
+                _ => 1,
+                g => new NodeSummary(
+                    g.Sum(x => x.VisitsCount),
+                    g.Sum(x => x.EntriesCount),
+                    g.Sum(x => x.ExitsCount),
+                    g.Sum(x => x.UniqueChains)))
+            .ToListAsync(ct);
+
+        return Result.Ok(results.FirstOrDefault() ?? new NodeSummary(0, 0, 0, 0));
+    }
+
+    private static FilterDefinition<PathNodeBucketDocument> BuildProjectFilter(ProjectFilter filter)
+    {
+        var f = Builders<PathNodeBucketDocument>.Filter;
+        return f.Eq(d => d.OrganizationId, filter.OrganizationId)
+             & f.Eq(d => d.ProjectId, filter.ProjectId)
+             & f.Gte(d => d.BucketStartUtc, filter.DateRange.FromUtc)
+             & f.Lt(d => d.BucketStartUtc, filter.DateRange.ToUtc);
+    }
+
     private static FilterDefinition<PathNodeBucketDocument> BuildMultiProcessFilter(MultiProcessFilter filter)
     {
         var f = Builders<PathNodeBucketDocument>.Filter;
