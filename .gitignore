@@ -142,4 +142,5 @@ redis-data/
 # lockfiles
 ############################
 package-lock.json
+!frontend/package-lock.json
 
