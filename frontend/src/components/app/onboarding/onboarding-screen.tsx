@@ -57,14 +57,8 @@ export function OnboardingScreen() {
     <div className="min-h-screen bg-zinc-50 px-6 py-10">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center justify-center">
         <Card className="w-full max-w-lg p-7">
-          <div className="flex items-center justify-center gap-2">
-            <EnmaLogo
-              className="h-8 w-10 text-zinc-900"
-              aria-hidden="true"
-            />
-            <div className="text-lg font-semibold tracking-tight">
-              enma
-            </div>
+          <div className="flex items-center justify-center">
+            <EnmaLogo className="h-16 w-32 text-zinc-900" aria-hidden="true" />
           </div>
 
           <div className="mt-6">
