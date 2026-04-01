@@ -96,6 +96,16 @@ export function useSdkClients(organizationSlug: string, projectKey: string) {
     },
   });
 
+  const setDescriptionMutation = useMutation({
+    mutationFn: async ({ id, description }: { id: string; description: string | null }) => {
+      if (!organizationId || !projectId) throw new Error("Missing ids");
+      return sdkClientsService.setDescription(organizationId, projectId, id, { description });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: clientsQueryKey });
+    },
+  });
+
   const setTypeMutation = useMutation({
     mutationFn: async ({ id, type }: { id: string; type: number }) => {
       if (!organizationId || !projectId) throw new Error("Missing ids");
@@ -149,6 +159,9 @@ export function useSdkClients(organizationSlug: string, projectKey: string) {
 
     setClientName: setNameMutation.mutateAsync,
     isSavingName: setNameMutation.isPending,
+
+    setClientDescription: setDescriptionMutation.mutateAsync,
+    isSavingDescription: setDescriptionMutation.isPending,
 
     setClientType: setTypeMutation.mutateAsync,
     isSavingType: setTypeMutation.isPending,

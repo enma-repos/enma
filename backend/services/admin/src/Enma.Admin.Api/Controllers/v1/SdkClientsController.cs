@@ -61,6 +61,19 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
         return res.ToActionResult();
     }
 
+    [HttpPatch("{clientId:guid}/description")]
+    [AuditAction("update.description", "SdkClient", ResourceIdParam = "clientId")]
+    public async Task<IActionResult> SetDescriptionAsync(
+        [FromRoute] Guid organizationId,
+        [FromRoute] Guid projectId,
+        [FromRoute] Guid clientId,
+        [FromBody] SetSdkClientDescriptionDto dto,
+        CancellationToken ct)
+    {
+        var res = await sdkClientsService.SetDescriptionAsync(clientId, projectId, organizationId, dto, ct);
+        return res.ToActionResult();
+    }
+
     [HttpPatch("{clientId:guid}/settings")]
     [AuditAction("update.settings", "SdkClient", ResourceIdParam = "clientId")]
     public async Task<IActionResult> SetSettingsAsync(

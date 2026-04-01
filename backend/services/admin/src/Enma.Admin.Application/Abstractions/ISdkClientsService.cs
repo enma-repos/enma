@@ -18,6 +18,7 @@ public interface ISdkClientsService
         CancellationToken ct = default);
 
     Task<Result> SetNameAsync(Guid clientId, Guid projectId, Guid orgId, SetSdkClientNameDto dto, CancellationToken ct = default);
+    Task<Result> SetDescriptionAsync(Guid clientId, Guid projectId, Guid orgId, SetSdkClientDescriptionDto dto, CancellationToken ct = default);
     Task<Result> SetSettingsAsync(Guid clientId, Guid projectId, Guid orgId, SetSdkClientSettingsDto dto, CancellationToken ct = default);
     Task<Result> SetTypeAsync(Guid clientId, Guid projectId, Guid orgId, SetSdkClientTypeDto dto, CancellationToken ct = default);
     Task<Result> SetDisabledAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);

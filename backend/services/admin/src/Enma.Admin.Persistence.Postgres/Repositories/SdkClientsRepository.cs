@@ -151,6 +151,24 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
             : Result.Ok();
     }
 
+    public async Task<Result> SetDescriptionAsync(Guid clientId, Guid projectId, Guid orgId, string? description, CancellationToken ct = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var affected = await _context.ApiClients
+            .Where(x => x.Id == clientId && x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
+            .ExecuteUpdateAsync(
+                s => s
+                    .SetProperty(x => x.Description, description)
+                    .SetProperty(x => x.UpdatedAt, now),
+                ct);
+
+        return affected == 0
+            ? Result.Fail(ApplicationErrors.EntityNotFound("SdkClient", $"id={clientId}"))
+            : Result.Ok();
+    }
+
     public async Task<Result> SetSettingsAsync(Guid clientId, Guid projectId, Guid orgId, JsonObject? settings, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;

@@ -86,6 +86,19 @@ internal sealed class SdkClientsService : ISdkClientsService
             : Result.Fail(res.Errors);
     }
 
+    public async Task<Result> SetDescriptionAsync(
+        Guid clientId,
+        Guid projectId,
+        Guid orgId,
+        SetSdkClientDescriptionDto dto,
+        CancellationToken ct = default)
+    {
+        var res = await _sdkClientsRepository.SetDescriptionAsync(clientId, projectId, orgId, dto.Description, ct);
+        return res.IsSuccess
+            ? Result.Ok()
+            : Result.Fail(res.Errors);
+    }
+
     public async Task<Result> SetSettingsAsync(
         Guid clientId,
         Guid projectId,

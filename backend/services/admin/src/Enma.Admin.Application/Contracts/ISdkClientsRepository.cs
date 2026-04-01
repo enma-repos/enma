@@ -30,6 +30,9 @@ public interface ISdkClientsRepository
     /// <summary>Updates <see cref="SdkClient.Name"/> only.</summary>
     Task<Result> SetNameAsync(Guid clientId, Guid projectId, Guid orgId, string name, CancellationToken ct = default);
 
+    /// <summary>Updates <see cref="SdkClient.Description"/> only.</summary>
+    Task<Result> SetDescriptionAsync(Guid clientId, Guid projectId, Guid orgId, string? description, CancellationToken ct = default);
+
     /// <summary>
     /// Updates <see cref="SdkClient.Settings"/> only. Pass null to clear the value.
     /// Stored as jsonb on persistence side.

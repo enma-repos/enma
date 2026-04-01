@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SdkClientType } from "@/types/admin.types";
 import type { SdkClientDto } from "@/types/admin.types";
+import { SdkClientType } from "@/types/admin.types";
 import { useSdkClients } from "@/hooks/useSdkClients";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { Button, Card, IconArrowLeft, IconCopy, IconKey, IconPlus, Input } from "@/components/shared";
@@ -14,12 +14,6 @@ const clientTypeLabels: Record<SdkClientType, string> = {
   [SdkClientType.ServerToServer]: "Server-to-Server",
   [SdkClientType.MobileSdk]: "Mobile SDK",
 };
-
-const clientTypeOptions: { value: SdkClientType; label: string }[] = [
-  { value: SdkClientType.WebsiteSdk, label: "Website SDK" },
-  { value: SdkClientType.ServerToServer, label: "Server-to-Server" },
-  { value: SdkClientType.MobileSdk, label: "Mobile SDK" },
-];
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -48,8 +42,8 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
     error,
     setClientName,
     isSavingName,
-    setClientType,
-    isSavingType,
+    setClientDescription,
+    isSavingDescription,
   } = useSdkClients(organizationSlug, projectKey);
 
   const app = sdkClients.find((c: SdkClientDto) => c.id === appId) ?? null;
@@ -74,13 +68,13 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
   } = useApiKeys(organizationId, projectId, appId);
 
   const [name, setName] = useState("");
-  const [type, setType] = useState<SdkClientType>(SdkClientType.WebsiteSdk);
+  const [description, setDescription] = useState("");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!app) return;
     setName(app.name);
-    setType(app.type);
+    setDescription(app.description ?? "");
   }, [app]);
 
   const backHref = `/app/organizations/${organizationSlug}/projects/${projectKey}/apps`;
@@ -114,7 +108,7 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
   }
 
   const nameChanged = name.trim() !== app.name;
-  const typeChanged = type !== app.type;
+  const descriptionChanged = description.trim() !== (app.description ?? "");
 
   const handleSaveName = async () => {
     if (!nameChanged || !name.trim()) return;
@@ -125,10 +119,10 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
     }
   };
 
-  const handleSaveType = async () => {
-    if (!typeChanged) return;
+  const handleSaveDescription = async () => {
+    if (!descriptionChanged) return;
     try {
-      await setClientType({ id: app.id, type });
+      await setClientDescription({ id: app.id, description: description.trim() || null });
     } catch {
       // error visible via parent state
     }
@@ -164,6 +158,11 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
         <h1 className="text-xl font-semibold text-zinc-900 mb-6">Детали приложения</h1>
 
         <div className="space-y-4">
+          <div>
+            <div className="text-xs font-medium text-zinc-500">ID</div>
+            <div className="mt-1 text-sm text-zinc-900 font-mono">{app.id}</div>
+          </div>
+
           <label className="block">
             <div className="text-xs font-medium text-zinc-500">Название</div>
             <div className="mt-1 flex items-center gap-2">
@@ -185,37 +184,31 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
             </div>
           </label>
 
-          <label className="block">
+          <div>
             <div className="text-xs font-medium text-zinc-500">Тип</div>
+            <div className="mt-1 text-sm text-zinc-900">{clientTypeLabels[app.type] ?? app.type}</div>
+          </div>
+
+          <label className="block">
+            <div className="text-xs font-medium text-zinc-500">Описание</div>
             <div className="mt-1 flex items-center gap-2">
-              <select
-                value={type}
-                onChange={(e) => setType(Number(e.currentTarget.value) as SdkClientType)}
-                className="h-10 w-full flex-1 rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition-colors focus:border-zinc-400 focus:ring-2 focus:ring-zinc-900/10"
-              >
-                {clientTypeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              {typeChanged ? (
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.currentTarget.value)}
+                className="flex-1"
+              />
+              {descriptionChanged ? (
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={handleSaveType}
-                  disabled={isSavingType}
+                  onClick={handleSaveDescription}
+                  disabled={isSavingDescription}
                 >
-                  {isSavingType ? "..." : "Сохранить"}
+                  {isSavingDescription ? "..." : "Сохранить"}
                 </Button>
               ) : null}
             </div>
           </label>
-
-          <div>
-            <div className="text-xs font-medium text-zinc-500">Описание</div>
-            <div className="mt-1 text-sm text-zinc-900">{app.description ?? "—"}</div>
-          </div>
 
           <div>
             <div className="text-xs font-medium text-zinc-500">Дата создания</div>

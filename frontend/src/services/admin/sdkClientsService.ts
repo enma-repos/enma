@@ -4,6 +4,7 @@ import type {
   Guid,
   PaginatedResult,
   SdkClientDto,
+  SetSdkClientDescriptionDto,
   SetSdkClientNameDto,
   SetSdkClientSettingsDto,
   SetSdkClientTypeDto,
@@ -49,6 +50,10 @@ export default class SdkClientsService {
     dto: SetSdkClientSettingsDto,
   ): Promise<void> {
     await apiClient.patch(`${this.projectBaseUrl(organizationId, projectId)}/${clientId}/settings`, dto);
+  }
+
+  public async setDescription(organizationId: Guid, projectId: Guid, clientId: Guid, dto: SetSdkClientDescriptionDto): Promise<void> {
+    await apiClient.patch(`${this.projectBaseUrl(organizationId, projectId)}/${clientId}/description`, dto);
   }
 
   public async setType(organizationId: Guid, projectId: Guid, clientId: Guid, dto: SetSdkClientTypeDto): Promise<void> {

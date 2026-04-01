@@ -214,6 +214,10 @@ export interface SetSdkClientSettingsDto {
   settings: JsonObject | null;
 }
 
+export interface SetSdkClientDescriptionDto {
+  description: string | null;
+}
+
 export interface SetSdkClientTypeDto {
   type: SdkClientType;
 }
