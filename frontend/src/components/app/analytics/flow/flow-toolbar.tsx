@@ -14,7 +14,7 @@ export function FlowToolbar({
   onClearEntryEventFilter,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm">
+    <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-200 bg-white px-4 py-2.5">
       <div className="flex items-center gap-2">
         <label
           htmlFor="min-transitions"
