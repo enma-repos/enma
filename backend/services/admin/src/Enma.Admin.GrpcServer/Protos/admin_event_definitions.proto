@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package enma.admin.event_definitions.v1;
+
+option csharp_namespace = "Enma.Grpc.Admin.EventDefinitions.V1";
+
+service AdminEventDefinitionsService {
+  rpc ListNamesByProject(ListNamesByProjectRequest) returns (ListNamesByProjectResponse);
+}
+
+message ListNamesByProjectRequest {
+  string organization_id = 1;
+  string project_id = 2;
+}
+
+message ListNamesByProjectResponse {
+  repeated string names = 1;
+}

@@ -18,6 +18,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Enma.EventProcessor.Application\Enma.EventProcessor.Application.csproj" />
+      <ProjectReference Include="..\Enma.EventProcessor.Infrastructure.Caching\Enma.EventProcessor.Infrastructure.Caching.csproj" />
+      <ProjectReference Include="..\Enma.EventProcessor.Infrastructure.Grpc.Admin\Enma.EventProcessor.Infrastructure.Grpc.Admin.csproj" />
       <ProjectReference Include="..\Enma.EventProcessor.Infrastructure.RabbitMq\Enma.EventProcessor.Infrastructure.RabbitMq.csproj" />
       <ProjectReference Include="..\Enma.EventProcessor.Persistence.ClickHouse\Enma.EventProcessor.Persistence.ClickHouse.csproj" />
     </ItemGroup>

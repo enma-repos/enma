@@ -18,4 +18,6 @@ public interface IEventDefinitionsRepository
 
     Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default);
     Task<Result> SoftDeleteAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<string>>> ListNamesByProjectAsync(Guid projectId, Guid orgId, CancellationToken ct = default);
 }

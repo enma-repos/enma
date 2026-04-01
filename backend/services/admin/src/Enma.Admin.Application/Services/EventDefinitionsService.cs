@@ -9,10 +9,14 @@ namespace Enma.Admin.Application.Services;
 internal sealed class EventDefinitionsService : IEventDefinitionsService
 {
     private readonly IEventDefinitionsRepository _repository;
+    private readonly IEventDefinitionCacheInvalidator _cacheInvalidator;
 
-    public EventDefinitionsService(IEventDefinitionsRepository repository)
+    public EventDefinitionsService(
+        IEventDefinitionsRepository repository,
+        IEventDefinitionCacheInvalidator cacheInvalidator)
     {
         _repository = repository;
+        _cacheInvalidator = cacheInvalidator;
     }
 
     public async Task<Result<EventDefinitionDto>> CreateAsync(
@@ -36,6 +40,11 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
         }
 
         var res = await _repository.CreateAsync(modelRes.Value, orgId, ct);
+        if (res.IsSuccess)
+        {
+            await _cacheInvalidator.InvalidateAsync(orgId, dto.ProjectId, ct);
+        }
+
         return res.IsSuccess
             ? Result.Ok(res.Value.ToDto())
             : Result.Fail<EventDefinitionDto>(res.Errors);
@@ -98,6 +107,11 @@ internal sealed class EventDefinitionsService : IEventDefinitionsService
         CancellationToken ct = default)
     {
         var res = await _repository.SoftDeleteAsync(id, projectId, orgId, ct);
+        if (res.IsSuccess)
+        {
+            await _cacheInvalidator.InvalidateAsync(orgId, projectId, ct);
+        }
+
         return res.IsSuccess
             ? Result.Ok()
             : Result.Fail(res.Errors);

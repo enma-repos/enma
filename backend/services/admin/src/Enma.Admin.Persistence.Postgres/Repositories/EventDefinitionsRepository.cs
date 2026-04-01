@@ -128,6 +128,20 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             : Result.Ok();
     }
 
+    public async Task<Result<IReadOnlyList<string>>> ListNamesByProjectAsync(Guid projectId, Guid orgId,
+        CancellationToken ct = default)
+    {
+        var names = await _context.EventDefinitions
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
+            .OrderBy(x => x.Name)
+            .Select(x => x.Name)
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<string>>(names);
+    }
+
     public async Task<Result> SoftDeleteAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;

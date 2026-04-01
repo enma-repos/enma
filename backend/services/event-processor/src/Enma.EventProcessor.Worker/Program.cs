@@ -1,4 +1,6 @@
 using Enma.EventProcessor.Application.Extensions;
+using Enma.EventProcessor.Infrastructure.Caching.Extensions;
+using Enma.EventProcessor.Infrastructure.Grpc.Admin.Extensions;
 using Enma.EventProcessor.Infrastructure.RabbitMq.Extensions;
 using Enma.EventProcessor.Persistence.ClickHouse.Extensions;
 using Serilog;
@@ -15,7 +17,9 @@ builder.Services.AddSerilog(Log.Logger, dispose: true);
 builder.Services
     .AddApplication(builder.Configuration)
     .AddRabbitMqMessaging(builder.Configuration)
-    .AddClickHousePersistence(builder.Configuration);
+    .AddClickHousePersistence(builder.Configuration)
+    .AddAdminGrpcClient(builder.Configuration)
+    .AddCachingService(builder.Configuration);
 
 var host = builder.Build();
 await host.RunAsync();

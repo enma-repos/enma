@@ -2,6 +2,7 @@ using System.Text;
 using Enma.Admin.Application.Extensions;
 using Enma.Admin.GrpcServer.Extensions;
 using Enma.Admin.GrpcServer.Services;
+using Enma.Admin.Infrastructure.Caching.Extensions;
 using Enma.Admin.Persistence.Postgres.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -38,6 +39,7 @@ builder.Services.AddCors(o =>
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddAdminGrpcServer();
+builder.Services.AddCachingService(builder.Configuration);
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -88,6 +90,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<AdminUsersService>();
+app.MapGrpcService<Enma.Admin.GrpcServer.Services.AdminEventDefinitionsService>();
 app.MapControllers();
 
 app.Run();
