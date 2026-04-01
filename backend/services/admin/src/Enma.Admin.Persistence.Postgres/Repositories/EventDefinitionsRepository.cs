@@ -84,16 +84,24 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<EventDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset,
-        int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<EventDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int page,
+        int pageSize, string? search = null, CancellationToken ct = default)
     {
-        var entities = await _context.EventDefinitions
+        var query = _context.EventDefinitions
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId && x.DeletedAt == null
-                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var entities = await query
             .OrderBy(x => x.Name)
-            .Skip(offset)
-            .Take(limit)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new EventDefinitionEntity
             {
                 Id = x.Id,
@@ -108,6 +116,24 @@ internal sealed class EventDefinitionsRepository : IEventDefinitionsRepository
             .ToListAsync(ct);
 
         return Result.Ok<IReadOnlyList<EventDefinition>>(entities.Select(x => x.ToModel()).ToList());
+    }
+
+    public async Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default)
+    {
+        var query = _context.EventDefinitions
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var count = await query.CountAsync(ct);
+
+        return Result.Ok(count);
     }
 
     public async Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default)

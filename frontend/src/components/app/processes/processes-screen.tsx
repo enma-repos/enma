@@ -4,8 +4,6 @@ import { useState } from "react";
 import type { ProcessDefinitionDto } from "@/types/admin.types";
 import { useProcessDefinitions } from "@/hooks/useProcessDefinitions";
 import { ConfirmDialog } from "@/components/shared";
-import { ProcessesEmpty } from "@/components/app/processes/processes-empty";
-import { ProcessesSkeleton } from "@/components/app/processes/processes-skeleton";
 import { ProcessesTable } from "@/components/app/processes/processes-table";
 import { ProcessesToolbar } from "@/components/app/processes/processes-toolbar";
 import { CreateProcessDialog } from "@/components/app/processes/create-process-dialog";
@@ -28,6 +26,10 @@ export function ProcessesScreen({ organizationSlug, projectKey }: ProcessesScree
 
   const {
     processDefinitions,
+    page,
+    setPage,
+    totalPages,
+    totalCount,
     isLoading,
     error,
     createProcess,
@@ -39,6 +41,10 @@ export function ProcessesScreen({ organizationSlug, projectKey }: ProcessesScree
     isSavingName,
     setProcessDescription,
     isSavingDescription,
+    pageSize,
+    setPageSize,
+    search,
+    setSearch,
   } = useProcessDefinitions(organizationSlug, projectKey);
 
   const handleDelete = async () => {
@@ -56,25 +62,26 @@ export function ProcessesScreen({ organizationSlug, projectKey }: ProcessesScree
       <ProcessesToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">
-        {isLoading ? <ProcessesSkeleton /> : null}
-
-        {!isLoading && error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {error ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 mb-4">
             {getErrorMessage(error)}
           </div>
         ) : null}
 
-        {!isLoading && !error && processDefinitions.length === 0 ? (
-          <ProcessesEmpty />
-        ) : null}
-
-        {!isLoading && !error && processDefinitions.length > 0 ? (
-          <ProcessesTable
-            processes={processDefinitions}
-            onSelect={setSelectedProcess}
-            onDelete={setProcessToDelete}
-          />
-        ) : null}
+        <ProcessesTable
+          processes={processDefinitions}
+          onSelect={setSelectedProcess}
+          onDelete={setProcessToDelete}
+          isLoading={isLoading}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          totalCount={totalCount}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </div>
 
       <CreateProcessDialog

@@ -88,16 +88,41 @@ internal sealed class ProcessDefinitionsRepository : IProcessDefinitionsReposito
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<ProcessDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset,
-        int limit, CancellationToken ct = default)
+    public async Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default)
     {
-        var entities = await _context.ProcessDefinitions
+        var query = _context.ProcessDefinitions
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId && x.DeletedAt == null
-                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Key, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var count = await query.CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    public async Task<Result<IReadOnlyList<ProcessDefinition>>> ListByProjectAsync(Guid projectId, Guid orgId, int page,
+        int pageSize, string? search = null, CancellationToken ct = default)
+    {
+        var query = _context.ProcessDefinitions
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId && x.DeletedAt == null
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Key, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var entities = await query
             .OrderBy(x => x.Name)
-            .Skip(offset)
-            .Take(limit)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new ProcessDefinitionEntity
             {
                 Id = x.Id,

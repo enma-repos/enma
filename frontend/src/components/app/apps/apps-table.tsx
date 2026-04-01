@@ -24,6 +24,15 @@ function formatDate(value: string) {
 export type AppsTableProps = {
   apps: SdkClientDto[];
   onSelect: (app: SdkClientDto) => void;
+  isLoading?: boolean;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
+  totalCount: number;
+  search: string;
+  onSearchChange: (value: string) => void;
 };
 
 const columns: DataTableColumn<SdkClientDto>[] = [
@@ -49,13 +58,23 @@ const columns: DataTableColumn<SdkClientDto>[] = [
   },
 ];
 
-export function AppsTable({ apps, onSelect }: AppsTableProps) {
+export function AppsTable({ apps, onSelect, isLoading, page, totalPages, onPageChange, pageSize, onPageSizeChange, totalCount, search, onSearchChange }: AppsTableProps) {
   return (
     <DataTable
       columns={columns}
       rows={apps}
       getRowKey={(a) => a.id}
       onRowClick={onSelect}
+      isLoading={isLoading}
+      emptyMessage="Приложения не найдены"
+      page={page}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      totalCount={totalCount}
+      search={search}
+      onSearchChange={onSearchChange}
     />
   );
 }

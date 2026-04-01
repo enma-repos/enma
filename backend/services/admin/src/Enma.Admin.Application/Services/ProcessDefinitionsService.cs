@@ -2,6 +2,7 @@ using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Contracts;
 using Enma.Admin.Application.Dto.ProcessDefinitions;
 using Enma.Admin.Application.Models;
+using Enma.Common.Models;
 using FluentResults;
 
 namespace Enma.Admin.Application.Services;
@@ -67,17 +68,24 @@ internal sealed class ProcessDefinitionsService : IProcessDefinitionsService
             : Result.Fail<ProcessDefinitionDto>(res.Errors);
     }
 
-    public async Task<Result<IReadOnlyList<ProcessDefinitionDto>>> ListByProjectAsync(
+    public async Task<Result<PaginatedResult<ProcessDefinitionDto>>> ListByProjectAsync(
         Guid projectId,
         Guid orgId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default)
     {
-        var res = await _repository.ListByProjectAsync(projectId, orgId, offset, limit, ct);
-        return res.IsSuccess
-            ? Result.Ok<IReadOnlyList<ProcessDefinitionDto>>(res.Value.Select(x => x.ToDto()).ToList())
-            : Result.Fail<IReadOnlyList<ProcessDefinitionDto>>(res.Errors);
+        var countRes = await _repository.CountByProjectAsync(projectId, orgId, search, ct);
+        if (countRes.IsFailed)
+            return Result.Fail<PaginatedResult<ProcessDefinitionDto>>(countRes.Errors);
+
+        var res = await _repository.ListByProjectAsync(projectId, orgId, page, pageSize, search, ct);
+        if (res.IsFailed)
+            return Result.Fail<PaginatedResult<ProcessDefinitionDto>>(res.Errors);
+
+        var items = res.Value.Select(x => x.ToDto()).ToList();
+        return PaginatedResult<ProcessDefinitionDto>.Create(items, countRes.Value, page, pageSize);
     }
 
     public async Task<Result> SetNameAsync(

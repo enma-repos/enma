@@ -3,6 +3,7 @@ import type {
   CreateEventDefinitionDto,
   EventDefinitionDto,
   Guid,
+  PaginatedResult,
   SetEventDefinitionDescriptionDto,
 } from "@/types/admin.types";
 
@@ -38,11 +39,12 @@ export default class EventDefinitionsService {
   public async listByProject(
     organizationId: Guid,
     projectId: Guid,
-    offset = 0,
-    limit = 50,
-  ): Promise<EventDefinitionDto[]> {
-    const { data } = await apiClient.get<EventDefinitionDto[]>(this.baseUrl(organizationId, projectId), {
-      params: { offset, limit },
+    page = 1,
+    pageSize = 10,
+    search?: string,
+  ): Promise<PaginatedResult<EventDefinitionDto>> {
+    const { data } = await apiClient.get<PaginatedResult<EventDefinitionDto>>(this.baseUrl(organizationId, projectId), {
+      params: { page, pageSize, search: search || undefined },
     });
     return data;
   }

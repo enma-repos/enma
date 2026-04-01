@@ -1,4 +1,5 @@
 using Enma.Admin.Application.Dto.SdkClients;
+using Enma.Common.Models;
 using FluentResults;
 
 namespace Enma.Admin.Application.Abstractions;
@@ -8,11 +9,12 @@ public interface ISdkClientsService
     Task<Result<SdkClientDto>> CreateAsync(CreateSdkClientDto dto, Guid orgId, CancellationToken ct = default);
     Task<Result<SdkClientDto>> GetByIdAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
-    Task<Result<IReadOnlyList<SdkClientDto>>> ListByProjectAsync(
+    Task<Result<PaginatedResult<SdkClientDto>>> ListByProjectAsync(
         Guid projectId,
         Guid orgId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default);
 
     Task<Result> SetNameAsync(Guid clientId, Guid projectId, Guid orgId, SetSdkClientNameDto dto, CancellationToken ct = default);

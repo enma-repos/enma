@@ -16,8 +16,11 @@ public interface IApiKeysRepository
     /// <summary>Gets an API key by id.</summary>
     Task<Result<ApiKey>> GetByIdAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
-    /// <summary>Lists API keys for an SDK client (paged by offset/limit).</summary>
-    Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default);
+    /// <summary>Lists API keys for an SDK client (paged).</summary>
+    Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int page, int pageSize, string? search = null, CancellationToken ct = default);
+
+    /// <summary>Returns the total count of API keys for an SDK client.</summary>
+    Task<Result<int>> CountBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default);
 
     /// <summary>
     /// Lists active (non-revoked) API keys by prefix for authentication purposes.

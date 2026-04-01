@@ -12,9 +12,12 @@ public interface IEventDefinitionsRepository
     Task<Result<IReadOnlyList<EventDefinition>>> ListByProjectAsync(
         Guid projectId,
         Guid orgId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default);
+
+    Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default);
 
     Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default);
     Task<Result> SoftDeleteAsync(Guid id, Guid projectId, Guid orgId, CancellationToken ct = default);

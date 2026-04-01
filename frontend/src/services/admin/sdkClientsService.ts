@@ -2,6 +2,7 @@ import { apiClient } from "@/api/apiClient";
 import type {
   CreateSdkClientDto,
   Guid,
+  PaginatedResult,
   SdkClientDto,
   SetSdkClientNameDto,
   SetSdkClientSettingsDto,
@@ -30,9 +31,9 @@ export default class SdkClientsService {
     return data;
   }
 
-  public async listByProject(organizationId: Guid, projectId: Guid, offset = 0, limit = 50): Promise<SdkClientDto[]> {
-    const { data } = await apiClient.get<SdkClientDto[]>(this.projectBaseUrl(organizationId, projectId), {
-      params: { offset, limit },
+  public async listByProject(organizationId: Guid, projectId: Guid, page = 1, pageSize = 10, search?: string): Promise<PaginatedResult<SdkClientDto>> {
+    const { data } = await apiClient.get<PaginatedResult<SdkClientDto>>(this.projectBaseUrl(organizationId, projectId), {
+      params: { page, pageSize, search: search || undefined },
     });
     return data;
   }

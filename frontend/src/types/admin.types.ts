@@ -255,9 +255,14 @@ export interface CreateAuditLogDto {
   payload?: JsonObject | null;
 }
 
-export interface PagedResult<T> {
+export interface PaginatedResult<T> {
   items: T[];
-  total: number;
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 export enum ProcessType {

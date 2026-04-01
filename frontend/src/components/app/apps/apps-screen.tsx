@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SdkClientDto } from "@/types/admin.types";
 import { useSdkClients } from "@/hooks/useSdkClients";
-import { AppsEmpty } from "@/components/app/apps/apps-empty";
-import { AppsSkeleton } from "@/components/app/apps/apps-skeleton";
 import { AppsTable } from "@/components/app/apps/apps-table";
 import { AppsToolbar } from "@/components/app/apps/apps-toolbar";
 import { CreateAppDialog } from "@/components/app/apps/create-app-dialog";
@@ -28,9 +26,17 @@ export function AppsScreen({ organizationSlug, projectKey }: AppsScreenProps) {
     sdkClients,
     isLoading,
     error,
+    page,
+    setPage,
+    totalPages,
+    totalCount,
     createClient,
     isCreating,
     createError,
+    pageSize,
+    setPageSize,
+    search,
+    setSearch,
   } = useSdkClients(organizationSlug, projectKey);
 
   const handleSelect = (app: SdkClientDto) => {
@@ -42,24 +48,25 @@ export function AppsScreen({ organizationSlug, projectKey }: AppsScreenProps) {
       <AppsToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">
-        {isLoading ? <AppsSkeleton /> : null}
-
-        {!isLoading && error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {error ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 mb-4">
             {getErrorMessage(error)}
           </div>
         ) : null}
 
-        {!isLoading && !error && sdkClients.length === 0 ? (
-          <AppsEmpty />
-        ) : null}
-
-        {!isLoading && !error && sdkClients.length > 0 ? (
-          <AppsTable
-            apps={sdkClients}
-            onSelect={handleSelect}
-          />
-        ) : null}
+        <AppsTable
+          apps={sdkClients}
+          onSelect={handleSelect}
+          isLoading={isLoading}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          totalCount={totalCount}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </div>
 
       <CreateAppDialog

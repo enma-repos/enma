@@ -1,5 +1,5 @@
 import { apiClient } from "@/api/apiClient";
-import type { ApiKeyDto, ApiKeyFirstCreationDto, Guid } from "@/types/admin.types";
+import type { ApiKeyDto, ApiKeyFirstCreationDto, Guid, PaginatedResult } from "@/types/admin.types";
 
 export default class ApiKeysService {
   private clientBaseUrl(organizationId: Guid, projectId: Guid, clientId: Guid): string {
@@ -25,11 +25,12 @@ export default class ApiKeysService {
     organizationId: Guid,
     projectId: Guid,
     clientId: Guid,
-    offset = 0,
-    limit = 50,
-  ): Promise<ApiKeyDto[]> {
-    const { data } = await apiClient.get<ApiKeyDto[]>(this.clientBaseUrl(organizationId, projectId, clientId), {
-      params: { offset, limit },
+    page = 1,
+    pageSize = 10,
+    search?: string,
+  ): Promise<PaginatedResult<ApiKeyDto>> {
+    const { data } = await apiClient.get<PaginatedResult<ApiKeyDto>>(this.clientBaseUrl(organizationId, projectId, clientId), {
+      params: { page, pageSize, search: search || undefined },
     });
     return data;
   }

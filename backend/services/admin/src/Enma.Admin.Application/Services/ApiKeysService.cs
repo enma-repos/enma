@@ -2,6 +2,7 @@ using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Contracts;
 using Enma.Admin.Application.Dto.ApiKeys;
 using Enma.Admin.Application.Models;
+using Enma.Common.Models;
 using FluentResults;
 
 namespace Enma.Admin.Application.Services;
@@ -59,18 +60,25 @@ internal sealed class ApiKeysService : IApiKeysService
             : Result.Fail<ApiKeyDto>(res.Errors);
     }
 
-    public async Task<Result<IReadOnlyList<ApiKeyDto>>> ListBySdkClientAsync(
+    public async Task<Result<PaginatedResult<ApiKeyDto>>> ListBySdkClientAsync(
         Guid sdkClientId,
         Guid projectId,
         Guid orgId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default)
     {
-        var res = await _apiKeysRepository.ListBySdkClientAsync(sdkClientId, projectId, orgId, offset, limit, ct);
-        return res.IsSuccess
-            ? Result.Ok<IReadOnlyList<ApiKeyDto>>(res.Value.Select(x => x.ToDto()).ToList())
-            : Result.Fail<IReadOnlyList<ApiKeyDto>>(res.Errors);
+        var res = await _apiKeysRepository.ListBySdkClientAsync(sdkClientId, projectId, orgId, page, pageSize, search, ct);
+        if (res.IsFailed)
+            return Result.Fail<PaginatedResult<ApiKeyDto>>(res.Errors);
+
+        var countRes = await _apiKeysRepository.CountBySdkClientAsync(sdkClientId, projectId, orgId, search, ct);
+        if (countRes.IsFailed)
+            return Result.Fail<PaginatedResult<ApiKeyDto>>(countRes.Errors);
+
+        var items = res.Value.Select(x => x.ToDto()).ToList();
+        return PaginatedResult<ApiKeyDto>.Create(items, countRes.Value, page, pageSize);
     }
 
     public async Task<Result<IReadOnlyList<ApiKeyDto>>> ListActiveByPrefixAsync(

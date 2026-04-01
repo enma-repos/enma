@@ -27,6 +27,15 @@ export type ProcessesTableProps = {
   processes: ProcessDefinitionDto[];
   onSelect: (process: ProcessDefinitionDto) => void;
   onDelete: (process: ProcessDefinitionDto) => void;
+  isLoading?: boolean;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
+  totalCount: number;
+  search: string;
+  onSearchChange: (value: string) => void;
 };
 
 const columns: DataTableColumn<ProcessDefinitionDto>[] = [
@@ -52,13 +61,23 @@ const columns: DataTableColumn<ProcessDefinitionDto>[] = [
   },
 ];
 
-export function ProcessesTable({ processes, onSelect, onDelete }: ProcessesTableProps) {
+export function ProcessesTable({ processes, onSelect, onDelete, isLoading, page, totalPages, onPageChange, pageSize, onPageSizeChange, totalCount, search, onSearchChange }: ProcessesTableProps) {
   return (
     <DataTable
       columns={columns}
       rows={processes}
       getRowKey={(p) => p.id}
       onRowClick={onSelect}
+      isLoading={isLoading}
+      emptyMessage="Процессы не найдены"
+      page={page}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      totalCount={totalCount}
+      search={search}
+      onSearchChange={onSearchChange}
       renderActions={(process) => (
         <button
           type="button"

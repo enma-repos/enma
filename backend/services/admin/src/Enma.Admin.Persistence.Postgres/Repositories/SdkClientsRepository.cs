@@ -61,14 +61,22 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int page, int pageSize, string? search = null, CancellationToken ct = default)
     {
-        var entities = await _context.ApiClients
+        var query = _context.ApiClients
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId
-                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
-            .Skip(offset)
-            .Take(limit)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var entities = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new SdkClientEntity
             {
                 Id = x.Id,
@@ -84,6 +92,24 @@ internal sealed class SdkClientsRepository : ISdkClientsRepository
             .ToListAsync(ct);
 
         return Result.Ok<IReadOnlyList<SdkClient>>(entities.Select(x => x.ToModel()).ToList());
+    }
+
+    public async Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default)
+    {
+        var query = _context.ApiClients
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, term) || EF.Functions.ILike(x.Description ?? "", term));
+        }
+
+        var count = await query.CountAsync(ct);
+
+        return Result.Ok(count);
     }
 
     public async Task<Result> UpdateAsync(SdkClient client, CancellationToken ct = default)

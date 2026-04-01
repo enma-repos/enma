@@ -18,8 +18,11 @@ public interface ISdkClientsRepository
     /// <summary>Gets an SDK client by id.</summary>
     Task<Result<SdkClient>> GetByIdAsync(Guid clientId, Guid projectId, Guid orgId, CancellationToken ct = default);
 
-    /// <summary>Lists SDK clients for a project (paged by offset/limit).</summary>
-    Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default);
+    /// <summary>Lists SDK clients for a project (paged by page/pageSize).</summary>
+    Task<Result<IReadOnlyList<SdkClient>>> ListByProjectAsync(Guid projectId, Guid orgId, int page, int pageSize, string? search = null, CancellationToken ct = default);
+
+    /// <summary>Counts SDK clients for a project.</summary>
+    Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default);
 
     /// <summary>Persists a full SDK client update (when a fully loaded domain model is available).</summary>
     Task<Result> UpdateAsync(SdkClient client, CancellationToken ct = default);

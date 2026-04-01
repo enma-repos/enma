@@ -56,6 +56,10 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
 
   const {
     apiKeys,
+    page,
+    setPage,
+    totalPages,
+    totalCount,
     isLoading: isLoadingKeys,
     createKey,
     isCreatingKey,
@@ -63,6 +67,10 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
     resetCreatedKey,
     revokeKey,
     isRevoking,
+    pageSize,
+    setPageSize,
+    search,
+    setSearch,
   } = useApiKeys(organizationId, projectId, appId);
 
   const [name, setName] = useState("");
@@ -270,24 +278,7 @@ export function AppDetailScreen({ organizationSlug, projectKey, appId }: AppDeta
           </div>
         ) : null}
 
-        {isLoadingKeys ? (
-          <Card>
-            <div className="animate-pulse p-5 space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-4 w-full rounded bg-zinc-100" />
-              ))}
-            </div>
-          </Card>
-        ) : apiKeys.length === 0 ? (
-          <Card className="p-7">
-            <h3 className="text-sm font-semibold text-zinc-900">API-ключи не найдены</h3>
-            <p className="mt-2 text-sm text-zinc-500">
-              Создайте первый API-ключ для этого приложения.
-            </p>
-          </Card>
-        ) : (
-          <ApiKeysTable apiKeys={apiKeys} onRevoke={revokeKey} isRevoking={isRevoking} />
-        )}
+        <ApiKeysTable apiKeys={apiKeys} onRevoke={revokeKey} isRevoking={isRevoking} isLoading={isLoadingKeys} page={page} totalPages={totalPages} onPageChange={setPage} pageSize={pageSize} onPageSizeChange={setPageSize} totalCount={totalCount} search={search} onSearchChange={setSearch} />
       </div>
     </div>
   );

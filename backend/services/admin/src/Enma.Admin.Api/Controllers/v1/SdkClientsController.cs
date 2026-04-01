@@ -39,11 +39,12 @@ public sealed class SdkClientsController(ISdkClientsService sdkClientsService) :
     public async Task<IActionResult> ListByProjectAsync(
         [FromRoute] Guid organizationId,
         [FromRoute] Guid projectId,
-        [FromQuery] int offset = 0,
-        [FromQuery] int limit = 50,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
         CancellationToken ct = default)
     {
-        var res = await sdkClientsService.ListByProjectAsync(projectId, organizationId, offset, limit, ct);
+        var res = await sdkClientsService.ListByProjectAsync(projectId, organizationId, page, pageSize, search, ct);
         return res.ToActionResult();
     }
 

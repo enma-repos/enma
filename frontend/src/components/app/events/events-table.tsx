@@ -18,6 +18,15 @@ export type EventsTableProps = {
   events: EventDefinitionDto[];
   onSelect: (event: EventDefinitionDto) => void;
   onDelete: (event: EventDefinitionDto) => void;
+  isLoading?: boolean;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
+  totalCount: number;
+  search: string;
+  onSearchChange: (value: string) => void;
 };
 
 const columns: DataTableColumn<EventDefinitionDto>[] = [
@@ -38,13 +47,23 @@ const columns: DataTableColumn<EventDefinitionDto>[] = [
   },
 ];
 
-export function EventsTable({ events, onSelect, onDelete }: EventsTableProps) {
+export function EventsTable({ events, onSelect, onDelete, isLoading, page, totalPages, onPageChange, pageSize, onPageSizeChange, totalCount, search, onSearchChange }: EventsTableProps) {
   return (
     <DataTable
       columns={columns}
       rows={events}
       getRowKey={(e) => e.id}
       onRowClick={onSelect}
+      isLoading={isLoading}
+      emptyMessage="События не найдены"
+      page={page}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      totalCount={totalCount}
+      search={search}
+      onSearchChange={onSearchChange}
       renderActions={(event) => (
         <button
           type="button"

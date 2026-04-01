@@ -1,5 +1,5 @@
 import { apiClient } from "@/api/apiClient";
-import type { AuditLogDto, CreateAuditLogDto, Guid, IsoDateString, PagedResult } from "@/types/admin.types";
+import type { AuditLogDto, CreateAuditLogDto, Guid, IsoDateString, PaginatedResult } from "@/types/admin.types";
 
 type DateQuery = IsoDateString | Date;
 
@@ -14,8 +14,9 @@ export interface AuditLogFilters {
   action?: string | null;
   resourceType?: string | null;
   actorUserId?: Guid | null;
-  offset?: number;
-  limit?: number;
+  search?: string | null;
+  page?: number;
+  pageSize?: number;
 }
 
 export default class AuditLogsService {
@@ -33,8 +34,8 @@ export default class AuditLogsService {
   public async listByOrg(
     organizationId: Guid,
     filters: AuditLogFilters = {},
-  ): Promise<PagedResult<AuditLogDto>> {
-    const { data } = await apiClient.get<PagedResult<AuditLogDto>>(
+  ): Promise<PaginatedResult<AuditLogDto>> {
+    const { data } = await apiClient.get<PaginatedResult<AuditLogDto>>(
       `${this.orgBaseUrl(organizationId)}/audit-logs`,
       {
         params: {
@@ -43,8 +44,9 @@ export default class AuditLogsService {
           action: filters.action || undefined,
           resourceType: filters.resourceType || undefined,
           actorUserId: filters.actorUserId || undefined,
-          offset: filters.offset ?? 0,
-          limit: filters.limit ?? 50,
+          search: filters.search || undefined,
+          page: filters.page ?? 1,
+          pageSize: filters.pageSize ?? 10,
         },
       },
     );
@@ -55,8 +57,8 @@ export default class AuditLogsService {
     organizationId: Guid,
     projectId: Guid,
     filters: AuditLogFilters = {},
-  ): Promise<PagedResult<AuditLogDto>> {
-    const { data } = await apiClient.get<PagedResult<AuditLogDto>>(
+  ): Promise<PaginatedResult<AuditLogDto>> {
+    const { data } = await apiClient.get<PaginatedResult<AuditLogDto>>(
       `${this.orgBaseUrl(organizationId)}/projects/${projectId}/audit-logs`,
       {
         params: {
@@ -65,8 +67,9 @@ export default class AuditLogsService {
           action: filters.action || undefined,
           resourceType: filters.resourceType || undefined,
           actorUserId: filters.actorUserId || undefined,
-          offset: filters.offset ?? 0,
-          limit: filters.limit ?? 50,
+          search: filters.search || undefined,
+          page: filters.page ?? 1,
+          pageSize: filters.pageSize ?? 10,
         },
       },
     );

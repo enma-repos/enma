@@ -14,8 +14,9 @@ public interface IAuditLogsRepository
         string? action,
         string? resourceType,
         Guid? actorUserId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default);
 
     Task<Result<int>> CountByOrgAsync(
@@ -25,6 +26,7 @@ public interface IAuditLogsRepository
         string? action,
         string? resourceType,
         Guid? actorUserId,
+        string? search = null,
         CancellationToken ct = default);
 
     Task<Result<IReadOnlyList<AuditLog>>> ListByProjectAsync(
@@ -35,8 +37,9 @@ public interface IAuditLogsRepository
         string? action,
         string? resourceType,
         Guid? actorUserId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default);
 
     Task<Result<int>> CountByProjectAsync(
@@ -47,5 +50,6 @@ public interface IAuditLogsRepository
         string? action,
         string? resourceType,
         Guid? actorUserId,
+        string? search = null,
         CancellationToken ct = default);
 }

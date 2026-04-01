@@ -61,15 +61,23 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
             : Result.Ok(entity.ToModel());
     }
 
-    public async Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int offset, int limit, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<ApiKey>>> ListBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, int page, int pageSize, string? search = null, CancellationToken ct = default)
     {
-        var entities = await _context.ApiKeys
+        var query = _context.ApiKeys
             .AsNoTracking()
             .Where(x => x.SdkClientId == sdkClientId
                 && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
-                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId))
-            .Skip(offset)
-            .Take(limit)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.KeyPrefix, term));
+        }
+
+        var entities = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new ApiKeyEntity
             {
                 Id = x.Id,
@@ -84,6 +92,24 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
             .ToListAsync(ct);
 
         return Result.Ok<IReadOnlyList<ApiKey>>(entities.Select(x => x.ToModel()).ToList());
+    }
+
+    public async Task<Result<int>> CountBySdkClientAsync(Guid sdkClientId, Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default)
+    {
+        var query = _context.ApiKeys
+            .AsNoTracking()
+            .Where(x => x.SdkClientId == sdkClientId
+                && _context.ApiClients.Any(c => c.Id == sdkClientId && c.ProjectId == projectId)
+                && _context.Projects.Any(p => p.Id == projectId && p.OrganizationId == orgId));
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.KeyPrefix, term));
+        }
+
+        var count = await query.CountAsync(ct);
+        return Result.Ok(count);
     }
 
     public async Task<Result<IReadOnlyList<ApiKey>>> ListActiveByPrefixAsync(string keyPrefix, int limit, CancellationToken ct = default)

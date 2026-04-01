@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateProcessDefinitionDto, OrganizationDto, ProcessDefinitionDto, ProjectDto } from "@/types/admin.types";
 import OrganizationsService from "@/services/admin/organizationsService";
 import ProjectsService from "@/services/admin/projectsService";
 import ProcessDefinitionsService from "@/services/admin/processDefinitionsService";
 import { useMe } from "@/hooks/useMe";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 function isGuidLike(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
@@ -16,6 +17,22 @@ export function useProcessDefinitions(organizationSlug: string, projectKey: stri
   const queryClient = useQueryClient();
 
   const meQuery = useMe();
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const organizationsService = useMemo(() => new OrganizationsService(), []);
   const projectsService = useMemo(() => new ProjectsService(), []);
@@ -51,15 +68,15 @@ export function useProcessDefinitions(organizationSlug: string, projectKey: stri
   const projectId = project?.id;
 
   const processesQueryKey = useMemo(() => {
-    return ["processDefinitions", organizationId, projectId] as const;
-  }, [organizationId, projectId]);
+    return ["processDefinitions", organizationId, projectId, page, pageSize, debouncedSearch] as const;
+  }, [organizationId, projectId, page, pageSize, debouncedSearch]);
 
   const processesQuery = useQuery({
     queryKey: processesQueryKey,
     enabled: Boolean(organizationId) && Boolean(projectId),
     queryFn: () => {
       if (!organizationId || !projectId) throw new Error("Missing ids");
-      return processDefinitionsService.listByProject(organizationId, projectId);
+      return processDefinitionsService.listByProject(organizationId, projectId, page, pageSize, debouncedSearch || undefined);
     },
   });
 
@@ -106,7 +123,15 @@ export function useProcessDefinitions(organizationSlug: string, projectKey: stri
   return {
     organization,
     project,
-    processDefinitions: (processesQuery.data ?? []) as ProcessDefinitionDto[],
+    processDefinitions: (processesQuery.data?.items ?? []) as ProcessDefinitionDto[],
+    page,
+    pageSize,
+    setPage,
+    setPageSize: handlePageSizeChange,
+    search,
+    setSearch: handleSearchChange,
+    totalPages: processesQuery.data?.totalPages ?? 0,
+    totalCount: processesQuery.data?.totalCount ?? 0,
     isLoading: meQuery.isLoading || organizationQuery.isLoading || projectQuery.isLoading || processesQuery.isLoading,
     error: meQuery.error ?? organizationQuery.error ?? projectQuery.error ?? processesQuery.error,
 

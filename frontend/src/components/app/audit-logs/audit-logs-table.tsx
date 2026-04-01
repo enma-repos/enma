@@ -39,6 +39,15 @@ function truncateId(id: string) {
 export type AuditLogsTableProps = {
   logs: AuditLogDto[];
   onSelect: (log: AuditLogDto) => void;
+  isLoading?: boolean;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
+  totalCount: number;
+  search: string;
+  onSearchChange: (value: string) => void;
 };
 
 const columns: DataTableColumn<AuditLogDto>[] = [
@@ -88,13 +97,23 @@ const columns: DataTableColumn<AuditLogDto>[] = [
   },
 ];
 
-export function AuditLogsTable({ logs, onSelect }: AuditLogsTableProps) {
+export function AuditLogsTable({ logs, onSelect, isLoading, page, totalPages, onPageChange, pageSize, onPageSizeChange, totalCount, search, onSearchChange }: AuditLogsTableProps) {
   return (
     <DataTable
       columns={columns}
       rows={logs}
       getRowKey={(log) => log.id}
       onRowClick={onSelect}
+      isLoading={isLoading}
+      emptyMessage="Записи не найдены"
+      page={page}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      totalCount={totalCount}
+      search={search}
+      onSearchChange={onSearchChange}
     />
   );
 }

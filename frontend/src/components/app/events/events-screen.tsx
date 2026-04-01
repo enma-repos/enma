@@ -4,8 +4,6 @@ import { useState } from "react";
 import type { EventDefinitionDto } from "@/types/admin.types";
 import { useEventDefinitions } from "@/hooks/useEventDefinitions";
 import { ConfirmDialog } from "@/components/shared";
-import { EventsEmpty } from "@/components/app/events/events-empty";
-import { EventsSkeleton } from "@/components/app/events/events-skeleton";
 import { EventsTable } from "@/components/app/events/events-table";
 import { EventsToolbar } from "@/components/app/events/events-toolbar";
 import { CreateEventDialog } from "@/components/app/events/create-event-dialog";
@@ -30,6 +28,10 @@ export function EventsScreen({ organizationSlug, projectKey }: EventsScreenProps
     eventDefinitions,
     isLoading,
     error,
+    page,
+    setPage,
+    totalPages,
+    totalCount,
     createEvent,
     isCreating,
     createError,
@@ -37,6 +39,10 @@ export function EventsScreen({ organizationSlug, projectKey }: EventsScreenProps
     isDeleting,
     setEventDescription,
     isSavingDescription,
+    pageSize,
+    setPageSize,
+    search,
+    setSearch,
   } = useEventDefinitions(organizationSlug, projectKey);
 
   const handleDelete = async () => {
@@ -54,25 +60,26 @@ export function EventsScreen({ organizationSlug, projectKey }: EventsScreenProps
       <EventsToolbar onCreate={() => setIsCreateOpen(true)} />
 
       <div className="mt-6">
-        {isLoading ? <EventsSkeleton /> : null}
-
-        {!isLoading && error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {error ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 mb-4">
             {getErrorMessage(error)}
           </div>
         ) : null}
 
-        {!isLoading && !error && eventDefinitions.length === 0 ? (
-          <EventsEmpty />
-        ) : null}
-
-        {!isLoading && !error && eventDefinitions.length > 0 ? (
-          <EventsTable
-            events={eventDefinitions}
-            onSelect={setSelectedEvent}
-            onDelete={setEventToDelete}
-          />
-        ) : null}
+        <EventsTable
+          events={eventDefinitions}
+          onSelect={setSelectedEvent}
+          onDelete={setEventToDelete}
+          isLoading={isLoading}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          totalCount={totalCount}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </div>
 
       <CreateEventDialog

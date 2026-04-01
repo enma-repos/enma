@@ -12,9 +12,12 @@ public interface IProcessDefinitionsRepository
     Task<Result<IReadOnlyList<ProcessDefinition>>> ListByProjectAsync(
         Guid projectId,
         Guid orgId,
-        int offset,
-        int limit,
+        int page,
+        int pageSize,
+        string? search = null,
         CancellationToken ct = default);
+
+    Task<Result<int>> CountByProjectAsync(Guid projectId, Guid orgId, string? search = null, CancellationToken ct = default);
 
     Task<Result> SetNameAsync(Guid id, Guid projectId, Guid orgId, string name, CancellationToken ct = default);
     Task<Result> SetDescriptionAsync(Guid id, Guid projectId, Guid orgId, string? description, CancellationToken ct = default);

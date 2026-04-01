@@ -33,12 +33,13 @@ public sealed class AuditLogsController(IAuditLogsService auditLogsService) : Co
         [FromQuery] string? action = null,
         [FromQuery] string? resourceType = null,
         [FromQuery] Guid? actorUserId = null,
-        [FromQuery] int offset = 0,
-        [FromQuery] int limit = 50,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
         CancellationToken ct = default)
     {
         var res = await auditLogsService.ListByOrgAsync(
-            organizationId, from, to, action, resourceType, actorUserId, offset, limit, ct);
+            organizationId, from, to, action, resourceType, actorUserId, page, pageSize, search, ct);
         return res.ToActionResult();
     }
 
@@ -51,12 +52,13 @@ public sealed class AuditLogsController(IAuditLogsService auditLogsService) : Co
         [FromQuery] string? action = null,
         [FromQuery] string? resourceType = null,
         [FromQuery] Guid? actorUserId = null,
-        [FromQuery] int offset = 0,
-        [FromQuery] int limit = 50,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
         CancellationToken ct = default)
     {
         var res = await auditLogsService.ListByProjectAsync(
-            projectId, organizationId, from, to, action, resourceType, actorUserId, offset, limit, ct);
+            projectId, organizationId, from, to, action, resourceType, actorUserId, page, pageSize, search, ct);
         return res.ToActionResult();
     }
 }

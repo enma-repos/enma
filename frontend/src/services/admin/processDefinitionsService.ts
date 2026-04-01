@@ -2,6 +2,7 @@ import { apiClient } from "@/api/apiClient";
 import type {
   CreateProcessDefinitionDto,
   Guid,
+  PaginatedResult,
   ProcessDefinitionDto,
   SetProcessDefinitionDescriptionDto,
   SetProcessDefinitionNameDto,
@@ -39,11 +40,12 @@ export default class ProcessDefinitionsService {
   public async listByProject(
     organizationId: Guid,
     projectId: Guid,
-    offset = 0,
-    limit = 50,
-  ): Promise<ProcessDefinitionDto[]> {
-    const { data } = await apiClient.get<ProcessDefinitionDto[]>(this.baseUrl(organizationId, projectId), {
-      params: { offset, limit },
+    page = 1,
+    pageSize = 10,
+    search?: string,
+  ): Promise<PaginatedResult<ProcessDefinitionDto>> {
+    const { data } = await apiClient.get<PaginatedResult<ProcessDefinitionDto>>(this.baseUrl(organizationId, projectId), {
+      params: { page, pageSize, search: search || undefined },
     });
     return data;
   }

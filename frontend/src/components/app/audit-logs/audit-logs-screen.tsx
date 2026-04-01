@@ -7,10 +7,7 @@ import type { DateRange } from "@/components/app/analytics/date-range-picker";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 import { AuditLogsToolbar } from "@/components/app/audit-logs/audit-logs-toolbar";
 import { AuditLogsTable } from "@/components/app/audit-logs/audit-logs-table";
-import { AuditLogsEmpty } from "@/components/app/audit-logs/audit-logs-empty";
-import { AuditLogsSkeleton } from "@/components/app/audit-logs/audit-logs-skeleton";
 import { AuditLogDetailDialog } from "@/components/app/audit-logs/audit-log-detail-dialog";
-import { AuditLogsPagination } from "@/components/app/audit-logs/audit-logs-pagination";
 
 const RESOURCE_TYPES = [
   "Organization",
@@ -42,24 +39,27 @@ export function AuditLogsScreen({ organizationSlug, projectKey }: AuditLogsScree
   const {
     auditLogs,
     total,
+    totalCount,
+    page,
+    totalPages,
     isLoading,
     error,
     filters,
     setFilters,
+    pageSize,
+    setPageSize,
+    search,
+    setSearch,
   } = useAuditLogs(organizationSlug, projectKey);
 
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
-    setFilters((prev) => ({ ...prev, from: range.from, to: range.to, offset: 0 }));
+    setFilters((prev) => ({ ...prev, from: range.from, to: range.to, page: 1 }));
   };
 
   const handleResourceTypeChange = (value: string) => {
     setResourceType(value);
-    setFilters((prev) => ({ ...prev, resourceType: value || null, offset: 0 }));
-  };
-
-  const handleOffsetChange = (offset: number) => {
-    setFilters((prev) => ({ ...prev, offset }));
+    setFilters((prev) => ({ ...prev, resourceType: value || null, page: 1 }));
   };
 
   return (
@@ -73,29 +73,25 @@ export function AuditLogsScreen({ organizationSlug, projectKey }: AuditLogsScree
       />
 
       <div className="mt-6">
-        {isLoading ? <AuditLogsSkeleton /> : null}
-
-        {!isLoading && error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {error ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 mb-4">
             {getErrorMessage(error)}
           </div>
         ) : null}
 
-        {!isLoading && !error && auditLogs.length === 0 ? (
-          <AuditLogsEmpty />
-        ) : null}
-
-        {!isLoading && !error && auditLogs.length > 0 ? (
-          <>
-            <AuditLogsTable logs={auditLogs} onSelect={setSelectedLog} />
-            <AuditLogsPagination
-              offset={filters.offset ?? 0}
-              limit={filters.limit ?? 50}
-              total={total}
-              onOffsetChange={handleOffsetChange}
-            />
-          </>
-        ) : null}
+        <AuditLogsTable
+          logs={auditLogs}
+          onSelect={setSelectedLog}
+          isLoading={isLoading}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          totalCount={totalCount}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </div>
 
       <AuditLogDetailDialog

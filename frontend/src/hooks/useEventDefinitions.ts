@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateEventDefinitionDto, OrganizationDto, EventDefinitionDto, ProjectDto } from "@/types/admin.types";
 import OrganizationsService from "@/services/admin/organizationsService";
 import ProjectsService from "@/services/admin/projectsService";
 import EventDefinitionsService from "@/services/admin/eventDefinitionsService";
 import { useMe } from "@/hooks/useMe";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 function isGuidLike(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
@@ -14,6 +15,21 @@ function isGuidLike(value: string) {
 
 export function useEventDefinitions(organizationSlug: string, projectKey: string) {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   const meQuery = useMe();
 
@@ -51,15 +67,15 @@ export function useEventDefinitions(organizationSlug: string, projectKey: string
   const projectId = project?.id;
 
   const eventsQueryKey = useMemo(() => {
-    return ["eventDefinitions", organizationId, projectId] as const;
-  }, [organizationId, projectId]);
+    return ["eventDefinitions", organizationId, projectId, page, pageSize, debouncedSearch] as const;
+  }, [organizationId, projectId, page, pageSize, debouncedSearch]);
 
   const eventsQuery = useQuery({
     queryKey: eventsQueryKey,
     enabled: Boolean(organizationId) && Boolean(projectId),
     queryFn: () => {
       if (!organizationId || !projectId) throw new Error("Missing ids");
-      return eventDefinitionsService.listByProject(organizationId, projectId);
+      return eventDefinitionsService.listByProject(organizationId, projectId, page, pageSize, debouncedSearch || undefined);
     },
   });
 
@@ -96,7 +112,15 @@ export function useEventDefinitions(organizationSlug: string, projectKey: string
   return {
     organization,
     project,
-    eventDefinitions: (eventsQuery.data ?? []) as EventDefinitionDto[],
+    eventDefinitions: (eventsQuery.data?.items ?? []) as EventDefinitionDto[],
+    totalPages: eventsQuery.data?.totalPages ?? 0,
+    totalCount: eventsQuery.data?.totalCount ?? 0,
+    page,
+    pageSize,
+    setPage,
+    setPageSize: handlePageSizeChange,
+    search,
+    setSearch: handleSearchChange,
     isLoading: meQuery.isLoading || organizationQuery.isLoading || projectQuery.isLoading || eventsQuery.isLoading,
     error: meQuery.error ?? organizationQuery.error ?? projectQuery.error ?? eventsQuery.error,
 
