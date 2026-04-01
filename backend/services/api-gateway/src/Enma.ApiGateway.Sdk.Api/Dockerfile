@@ -9,6 +9,9 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 COPY ["backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj", "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/"]
+COPY ["backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin/Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin.csproj", "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin/"]
+COPY ["backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin/Protos/", "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin/Protos/"]
+COPY ["backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Caching/Enma.ApiGateway.Sdk.Infrastructure.Caching.csproj", "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Infrastructure.Caching/"]
 
 RUN dotnet restore "backend/services/api-gateway/src/Enma.ApiGateway.Sdk.Api/Enma.ApiGateway.Sdk.Api.csproj"
 

@@ -21,7 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions\" />
+      <ProjectReference Include="..\Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin\Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin.csproj" />
+      <ProjectReference Include="..\Enma.ApiGateway.Sdk.Infrastructure.Caching\Enma.ApiGateway.Sdk.Infrastructure.Caching.csproj" />
     </ItemGroup>
 
 </Project>

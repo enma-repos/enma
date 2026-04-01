@@ -1,4 +1,5 @@
 using Enma.Admin.Application.Contracts;
+using Enma.Admin.Application.Dto.ApiKeys;
 using Enma.Admin.Application.Models;
 using Enma.Admin.Persistence.Postgres.Connection;
 using Enma.Admin.Persistence.Postgres.Entities;
@@ -162,5 +163,23 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
         return affected == 0
             ? Result.Fail(ApplicationErrors.EntityNotFound("ApiKey", $"id={apiKeyId}"))
             : Result.Ok();
+    }
+
+    public async Task<Result<ApiKeyWithContextDto?>> FindActiveByHashAsync(string keyHash, string keyPrefix, CancellationToken ct = default)
+    {
+        var result = await _context.ApiKeys
+            .AsNoTracking()
+            .Where(k => k.KeyPrefix == keyPrefix && k.KeyHash == keyHash && k.RevokedAt == null)
+            .Join(_context.ApiClients, k => k.SdkClientId, c => c.Id, (k, c) => new { k, c })
+            .Join(_context.Projects, kc => kc.c.ProjectId, p => p.Id, (kc, p) => new { kc.k, kc.c, p })
+            .Where(x => x.p.DeletedAt == null)
+            .Select(x => new ApiKeyWithContextDto(
+                x.k.Id,
+                x.c.Id,
+                x.p.Id,
+                x.p.OrganizationId))
+            .FirstOrDefaultAsync(ct);
+
+        return Result.Ok(result);
     }
 }

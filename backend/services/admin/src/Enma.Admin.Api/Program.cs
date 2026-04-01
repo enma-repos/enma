@@ -91,6 +91,7 @@ app.UseAuthorization();
 
 app.MapGrpcService<AdminUsersService>();
 app.MapGrpcService<Enma.Admin.GrpcServer.Services.AdminEventDefinitionsService>();
+app.MapGrpcService<Enma.Admin.GrpcServer.Services.AdminApiKeysService>();
 app.MapControllers();
 
 app.Run();

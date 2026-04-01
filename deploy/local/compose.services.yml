@@ -29,6 +29,12 @@ services:
     container_name: enma-sdk-api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - AdminGrpc__Address=${ADMIN_GRPC_ADDRESS}
+      - AdminGrpc__DeadlineMs=${ADMIN_GRPC_DEADLINE_MS}
+      - Redis__ConnectionString=${REDIS_CONNECTION_STRING}
+      - Redis__KeyPrefix=${SDK_GW_REDIS_KEY_PREFIX}
+      - Redis__Database=${SDK_GW_REDIS_DATABASE}
+      - SdkAuth__CacheTtlMinutes=${SDK_AUTH_CACHE_TTL_MINUTES}
     ports:
       - "8090:8080"
     networks:
@@ -37,6 +43,10 @@ services:
     depends_on:
       ingest:
         condition: service_started
+      admin:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   analytics:
     build:

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package enma.admin.api_keys.v1;
+
+option csharp_namespace = "Enma.Grpc.Admin.ApiKeys.V1";
+
+service AdminApiKeysService {
+  rpc ValidateApiKey(ValidateApiKeyRequest) returns (ValidateApiKeyResponse);
+}
+
+message ValidateApiKeyRequest {
+  string plain_key = 1;
+}
+
+message ValidateApiKeyResponse {
+  bool valid = 1;
+  string organization_id = 2;
+  string project_id = 3;
+  string sdk_client_id = 4;
+  string api_key_id = 5;
+}

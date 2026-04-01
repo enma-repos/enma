@@ -1,3 +1,4 @@
+using Enma.Admin.Application.Dto.ApiKeys;
 using Enma.Admin.Application.Models;
 using FluentResults;
 
@@ -33,4 +34,10 @@ public interface IApiKeysRepository
 
     /// <summary>Updates <see cref="ApiKey.RevokedAt"/> only.</summary>
     Task<Result> UpdateRevokedAsync(Guid apiKeyId, Guid sdkClientId, Guid projectId, Guid orgId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Finds an active (non-revoked) API key by its hash and prefix, returning the key context (orgId, projectId, sdkClientId).
+    /// Used for SDK API key authentication.
+    /// </summary>
+    Task<Result<ApiKeyWithContextDto?>> FindActiveByHashAsync(string keyHash, string keyPrefix, CancellationToken ct = default);
 }

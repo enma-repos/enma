@@ -1,6 +1,9 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using Enma.ApiGateway.Sdk.Api.Constants;
+using Enma.ApiGateway.Sdk.Api.Middleware;
+using Enma.ApiGateway.Sdk.Infrastructure.Caching.Extensions;
+using Enma.ApiGateway.Sdk.Infrastructure.Grpc.Admin.Extensions;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -66,7 +69,8 @@ builder.Services.AddRateLimiter(o =>
 
 #region Auth
 
-// TODO: add sdk auth
+builder.Services.AddAdminGrpcClient(builder.Configuration);
+builder.Services.AddSdkAuthCaching(builder.Configuration);
 
 #endregion
 
@@ -128,8 +132,7 @@ app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseCors("DefaultCors");
 
-// app.UseAuthentication();
-app.UseAuthorization();
+app.UseMiddleware<SdkApiKeyAuthMiddleware>();
 
 if (isEnvDevelopment)
 {
