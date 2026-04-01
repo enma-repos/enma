@@ -142,6 +142,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - MongoDb__ConnectionString=${MONGO_CONNECTION_STRING}
       - MongoDb__DatabaseName=${MONGO_DB}
+      - Jwt__SecretKey=${AUTH_JWT_SECRET}
     networks:
       - enma
     restart: unless-stopped
@@ -212,11 +213,16 @@ services:
       - Jwt__ExpiresMinutes=${JWT_EXPIRES_MINUTES}
       - Security__ApiKeyPepper=${API_KEY_PEPPER}
       - Postgres__ConnectionString=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=enma_admin;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Redis__ConnectionString=${REDIS_CONNECTION_STRING}
+      - Redis__KeyPrefix=${ADMIN_REDIS_KEY_PREFIX}
+      - Redis__Database=${ADMIN_REDIS_DATABASE}
     networks:
       - enma
     restart: unless-stopped
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   bucket-builder:
@@ -265,6 +271,11 @@ services:
       - EventProcessor__RabbitMq__BatchConcurrencyLimit=${EP_RABBITMQ_BATCH_CONCURRENCY_LIMIT}
       - EventProcessor__RabbitMq__RetryCount=${EP_RABBITMQ_RETRY_COUNT}
       - EventProcessor__RabbitMq__RetryIntervalSeconds=${EP_RABBITMQ_RETRY_INTERVAL_SECONDS}
+      - Redis__ConnectionString=${REDIS_CONNECTION_STRING}
+      - Redis__KeyPrefix=${EP_REDIS_KEY_PREFIX}
+      - Redis__Database=${EP_REDIS_DATABASE}
+      - AdminGrpc__Address=${ADMIN_GRPC_ADDRESS}
+      - AdminGrpc__DeadlineMs=${ADMIN_GRPC_DEADLINE_MS}
     networks:
       - enma
     restart: unless-stopped
@@ -273,6 +284,10 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      admin:
+        condition: service_started
 
   # ==================== FRONTEND ====================
 
