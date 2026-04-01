@@ -63,8 +63,8 @@ internal sealed class UniqueUsersQueryRepository(
 
         if (await reader.ReadAsync(ct))
         {
-            var uniqueUsers = reader.GetInt64(0);
-            var uniqueAnonymous = reader.GetInt64(1);
+            var uniqueUsers = (long)(ulong)reader.GetValue(0);
+            var uniqueAnonymous = (long)(ulong)reader.GetValue(1);
             return Result.Ok(new UniqueUsersCount(uniqueUsers, uniqueAnonymous));
         }
 
