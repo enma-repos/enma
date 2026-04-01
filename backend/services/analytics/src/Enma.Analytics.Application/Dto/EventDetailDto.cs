@@ -6,5 +6,6 @@ public sealed record EventDetailDto(
     long TotalEntries,
     long TotalExits,
     long TotalUniqueChains,
+    long SelfLoopTransitions,
     IReadOnlyList<FlowEdgeDto> IncomingEdges,
     IReadOnlyList<FlowEdgeDto> OutgoingEdges);

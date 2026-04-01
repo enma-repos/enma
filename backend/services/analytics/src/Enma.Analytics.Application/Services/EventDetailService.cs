@@ -44,12 +44,17 @@ internal sealed class EventDetailService(
             .Select(e => new FlowEdgeDto(e.FromEvent, e.ToEvent, e.TotalTransitions, e.TotalUniqueChains))
             .ToList();
 
+        var selfLoopTransitions = edgesResult.Value
+            .Where(e => e.FromEvent == eventName && e.ToEvent == eventName)
+            .Sum(e => e.TotalTransitions);
+
         return Result.Ok(new EventDetailDto(
             node.EventName,
             node.TotalVisits,
             node.TotalEntries,
             node.TotalExits,
             node.TotalUniqueChains,
+            selfLoopTransitions,
             incoming,
             outgoing));
     }

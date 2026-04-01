@@ -42,8 +42,14 @@ export function mapFlowToReactFlow(
     g.setNode(n.eventName, { width: NODE_WIDTH, height: NODE_HEIGHT });
   }
 
+  const nodeNames = new Set(dto.nodes.map((n) => n.eventName));
+
   const filteredEdges = dto.edges.filter(
-    (e) => e.transitions >= minTransitions,
+    (e) =>
+      e.transitions >= minTransitions &&
+      e.fromEvent !== e.toEvent &&
+      nodeNames.has(e.fromEvent) &&
+      nodeNames.has(e.toEvent),
   );
 
   for (const e of filteredEdges) {

@@ -101,6 +101,7 @@ export interface EventDetailDto {
   totalEntries: number;
   totalExits: number;
   totalUniqueChains: number;
+  selfLoopTransitions: number;
   incomingEdges: FlowEdgeDto[];
   outgoingEdges: FlowEdgeDto[];
 }
