@@ -57,6 +57,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - MongoDb__ConnectionString=${MONGO_CONNECTION_STRING}
       - MongoDb__DatabaseName=${MONGO_DB}
+      - ClickHouse__ConnectionString=Host=${CLICKHOUSE_HOST};Protocol=http;Port=${CLICKHOUSE_HTTP_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD}
+      - ClickHouse__CommandTimeoutSeconds=${CLICKHOUSE_COMMAND_TIMEOUT}
       - Jwt__SecretKey=${AUTH_JWT_SECRET}
     ports:
       - "8081:8080"
@@ -65,6 +67,8 @@ services:
     restart: unless-stopped
     depends_on:
       mongo:
+        condition: service_healthy
+      clickhouse:
         condition: service_healthy
 
   auth:

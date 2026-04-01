@@ -1,5 +1,6 @@
 using System.Text;
 using Enma.Analytics.Application.Extensions;
+using Enma.Analytics.Persistence.ClickHouse.Extensions;
 using Enma.Analytics.Persistence.Mongo.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -26,6 +27,7 @@ builder.Services.AddCors(o =>
 
 builder.Services.AddApplication();
 builder.Services.AddMongoPersistence(builder.Configuration);
+builder.Services.AddClickHousePersistence(builder.Configuration);
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

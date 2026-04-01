@@ -121,6 +121,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.ApiGateway.Sdk.Infrast
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.ApiGateway.Sdk.Infrastructure.Caching", "services\api-gateway\src\Enma.ApiGateway.Sdk.Infrastructure.Caching\Enma.ApiGateway.Sdk.Infrastructure.Caching.csproj", "{AA1C0F18-DE71-48C6-9BB6-7D29407F4E4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enma.Analytics.Persistence.ClickHouse", "services\analytics\src\Enma.Analytics.Persistence.ClickHouse\Enma.Analytics.Persistence.ClickHouse.csproj", "{7FBCDA56-17A6-4081-9F9D-84677A9762A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -267,6 +269,10 @@ Global
 		{AA1C0F18-DE71-48C6-9BB6-7D29407F4E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA1C0F18-DE71-48C6-9BB6-7D29407F4E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA1C0F18-DE71-48C6-9BB6-7D29407F4E4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FBCDA56-17A6-4081-9F9D-84677A9762A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FBCDA56-17A6-4081-9F9D-84677A9762A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FBCDA56-17A6-4081-9F9D-84677A9762A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FBCDA56-17A6-4081-9F9D-84677A9762A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CC39ADDE-6F94-4BA6-AE15-1757ACADB5B0} = {8DC217B0-CBCE-4CA9-8A9A-DB7DE1F7DD00}
@@ -326,5 +332,6 @@ Global
 		{A6C06E67-37AD-4CAE-8BBF-A826800A8942} = {6502BCB5-65FD-4C6C-9DBE-C616D5162D2F}
 		{FC30FDEA-A326-4F00-BD5E-A9D9779CA18A} = {3EE4E20C-746B-4578-873E-978669F34AD9}
 		{AA1C0F18-DE71-48C6-9BB6-7D29407F4E4B} = {3EE4E20C-746B-4578-873E-978669F34AD9}
+		{7FBCDA56-17A6-4081-9F9D-84677A9762A0} = {222FE3D1-FBA7-444F-91DB-103A9BA7DFF0}
 	EndGlobalSection
 EndGlobal

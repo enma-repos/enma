@@ -9,7 +9,8 @@ namespace Enma.Analytics.Application.Services;
 
 internal sealed class SummaryService(
     IPathNodeQueryRepository nodeRepo,
-    IPathEdgeQueryRepository edgeRepo) : ISummaryService
+    IPathEdgeQueryRepository edgeRepo,
+    IUniqueUsersQueryRepository uniqueUsersRepo) : ISummaryService
 {
     public async Task<Result<SummaryDto>> GetSummaryAsync(
         Guid organizationId,
@@ -26,24 +27,30 @@ internal sealed class SummaryService(
         var currentEdges = QueryEdgeSummary(organizationId, projectId, processDefinitionIds, dateRange, ct);
         var prevNodes = QueryNodeSummary(organizationId, projectId, processDefinitionIds, previousRange.Value, ct);
         var prevEdges = QueryEdgeSummary(organizationId, projectId, processDefinitionIds, previousRange.Value, ct);
+        var currentUsers = uniqueUsersRepo.GetUniqueUsersAsync(organizationId, projectId, processDefinitionIds, dateRange, ct);
+        var prevUsers = uniqueUsersRepo.GetUniqueUsersAsync(organizationId, projectId, processDefinitionIds, previousRange.Value, ct);
 
-        await Task.WhenAll(currentNodes, currentEdges, prevNodes, prevEdges);
+        await Task.WhenAll(currentNodes, currentEdges, prevNodes, prevEdges, currentUsers, prevUsers);
 
         if (currentNodes.Result.IsFailed) return Result.Fail<SummaryDto>(currentNodes.Result.Errors);
         if (currentEdges.Result.IsFailed) return Result.Fail<SummaryDto>(currentEdges.Result.Errors);
         if (prevNodes.Result.IsFailed) return Result.Fail<SummaryDto>(prevNodes.Result.Errors);
         if (prevEdges.Result.IsFailed) return Result.Fail<SummaryDto>(prevEdges.Result.Errors);
+        if (currentUsers.Result.IsFailed) return Result.Fail<SummaryDto>(currentUsers.Result.Errors);
+        if (prevUsers.Result.IsFailed) return Result.Fail<SummaryDto>(prevUsers.Result.Errors);
 
         var cn = currentNodes.Result.Value;
         var ce = currentEdges.Result.Value;
         var pn = prevNodes.Result.Value;
         var pe = prevEdges.Result.Value;
+        var cu = currentUsers.Result.Value;
+        var pu = prevUsers.Result.Value;
 
         var totalVisits = BuildMetric(cn.TotalVisits, pn.TotalVisits);
         var uniqueChains = BuildMetric(cn.TotalEntries, pn.TotalEntries);
         var uniqueUsers = BuildMetric(
-            ce.TotalUniqueUsers + ce.TotalUniqueAnonymous,
-            pe.TotalUniqueUsers + pe.TotalUniqueAnonymous);
+            cu.Users + cu.Anonymous,
+            pu.Users + pu.Anonymous);
 
         var currentAvg = cn.TotalEntries > 0
             ? Math.Round((double)ce.TotalTransitions / cn.TotalEntries, 1)

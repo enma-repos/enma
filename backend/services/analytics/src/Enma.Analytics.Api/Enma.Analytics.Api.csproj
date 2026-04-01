@@ -22,6 +22,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Enma.Analytics.Application\Enma.Analytics.Application.csproj" />
       <ProjectReference Include="..\Enma.Analytics.Persistence.Mongo\Enma.Analytics.Persistence.Mongo.csproj" />
+      <ProjectReference Include="..\Enma.Analytics.Persistence.ClickHouse\Enma.Analytics.Persistence.ClickHouse.csproj" />
       <ProjectReference Include="..\..\..\..\shared\src\Enma.Api.Shared\Enma.Api.Shared.csproj" />
     </ItemGroup>
 

@@ -12,6 +12,7 @@ COPY ["backend/shared/src/Enma.Common/Enma.Common.csproj", "backend/shared/src/E
 COPY ["backend/shared/src/Enma.Api.Shared/Enma.Api.Shared.csproj", "backend/shared/src/Enma.Api.Shared/"]
 COPY ["backend/services/analytics/src/Enma.Analytics.Application/Enma.Analytics.Application.csproj", "backend/services/analytics/src/Enma.Analytics.Application/"]
 COPY ["backend/services/analytics/src/Enma.Analytics.Persistence.Mongo/Enma.Analytics.Persistence.Mongo.csproj", "backend/services/analytics/src/Enma.Analytics.Persistence.Mongo/"]
+COPY ["backend/services/analytics/src/Enma.Analytics.Persistence.ClickHouse/Enma.Analytics.Persistence.ClickHouse.csproj", "backend/services/analytics/src/Enma.Analytics.Persistence.ClickHouse/"]
 COPY ["backend/services/analytics/src/Enma.Analytics.Api/Enma.Analytics.Api.csproj", "backend/services/analytics/src/Enma.Analytics.Api/"]
 
 RUN dotnet restore "backend/services/analytics/src/Enma.Analytics.Api/Enma.Analytics.Api.csproj"
