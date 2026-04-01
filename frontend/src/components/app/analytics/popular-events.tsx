@@ -31,7 +31,7 @@ export type PopularEventsProps = {
 
 export function PopularEvents({ events, isLoading }: PopularEventsProps) {
   return (
-    <Card className="h-full">
+    <Card className="flex h-[680px] flex-col">
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div>
           <CardTitle>Популярные события</CardTitle>
@@ -40,7 +40,7 @@ export function PopularEvents({ events, isLoading }: PopularEventsProps) {
       </CardHeader>
 
       <hr className="border-zinc-200" />
-      <CardContent className="space-y-3 pt-4">
+      <CardContent className="flex-1 space-y-3 overflow-y-auto scrollbar-none pt-4">
         {isLoading ? (
           [...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-3">

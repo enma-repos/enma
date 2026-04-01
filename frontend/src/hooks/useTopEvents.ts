@@ -10,7 +10,7 @@ export function useTopEvents(
   processDefinitionIds: string[],
   from: string,
   to: string,
-  limit = 6,
+  limit = 20,
 ) {
   return useQuery<TopEventsDto>({
     queryKey: ["top-events-project", organizationId, projectId, processDefinitionIds, from, to, limit],
