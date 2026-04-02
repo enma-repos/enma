@@ -182,10 +182,10 @@ export function ProductPreviewSection() {
             {/* Sidebar stats */}
             <div className="flex flex-col gap-3">
               {[
-                { label: "Cycle time", value: "2.4h", change: "-18%", positive: true },
-                { label: "Cases today", value: "1,247", change: "+12%", positive: true },
-                { label: "Deviations", value: "8.3%", change: "+2.1%", positive: false },
-                { label: "Conformance", value: "91.7%", change: "+0.5%", positive: true },
+                { label: "Total Events", value: "12,847", change: "+12%", positive: true },
+                { label: "Unique Chains", value: "1,247", change: "+8%", positive: true },
+                { label: "Unique Users", value: "3,412", change: "+5%", positive: true },
+                { label: "Avg Steps per Path", value: "6.3", change: "-0.4", positive: true },
               ].map((stat) => (
                 <div
                   key={stat.label}
