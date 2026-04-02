@@ -59,6 +59,7 @@ TestResults/
 
 # ASP.NET logs
 logs/
+!frontend/src/app/docs/platform/logs/
 *.log
 
 ############################
