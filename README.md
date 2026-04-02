@@ -24,6 +24,14 @@ Enma turns raw event streams into actionable process intelligence. Connect any s
 
 **Multi-tenant by design.** Organizations, projects, teams, role-based access, and API key management — everything you need to run process mining across departments or serve it as a platform.
 
+<p align="center">
+  <img src="docs/summary.png" alt="Dashboard — key metrics" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/paths.png" alt="Dashboard — user paths" width="100%" />
+</p>
+
 ## Architecture
 
 ```mermaid
