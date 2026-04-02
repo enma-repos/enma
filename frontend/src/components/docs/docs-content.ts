@@ -11,44 +11,33 @@ export type DocsSidebarSection = {
 
 export const docsSidebarSections: DocsSidebarSection[] = [
   {
-    title: "Getting Started",
+    title: "Начало работы",
     items: [
-      { title: "Introduction", href: "/docs" },
-      { title: "Quick Start", href: "/docs/quick-start" },
-      { title: "Installation", href: "/docs/installation" },
+      { title: "Введение", href: "/docs" },
+      { title: "Быстрый старт", href: "/docs/quick-start" },
+    ],
+  },
+  {
+    title: "Платформа",
+    items: [
+      { title: "Организации и проекты", href: "/docs/platform/organizations" },
+      { title: "Аналитика — Сводка", href: "/docs/platform/analytics-summary" },
+      { title: "Аналитика — Пути", href: "/docs/platform/analytics-paths" },
+      { title: "События", href: "/docs/platform/events" },
+      { title: "Приложения и API-ключи", href: "/docs/platform/apps" },
+      { title: "Процессы", href: "/docs/platform/processes" },
+      { title: "Команда", href: "/docs/platform/team" },
+      { title: "Журнал действий", href: "/docs/platform/logs" },
     ],
   },
   {
     title: "SDK",
     items: [
-      { title: "Overview", href: "/docs/sdk/overview" },
-      { title: "JavaScript SDK", href: "/docs/sdk/javascript" },
-      { title: "Python SDK", href: "/docs/sdk/python" },
+      { title: "Обзор", href: "/docs/sdk/overview" },
+      { title: ".NET SDK", href: "/docs/sdk/dotnet" },
+      { title: "Конфигурация", href: "/docs/sdk/configuration" },
+      { title: "ASP.NET Core", href: "/docs/sdk/aspnet" },
       { title: "REST API", href: "/docs/sdk/rest-api" },
-    ],
-  },
-  {
-    title: "Events",
-    items: [
-      { title: "Tracking Events", href: "/docs/events/tracking" },
-      { title: "Event Definitions", href: "/docs/events/definitions" },
-      { title: "Custom Properties", href: "/docs/events/properties" },
-    ],
-  },
-  {
-    title: "Processes",
-    items: [
-      { title: "Process Mining", href: "/docs/processes/mining" },
-      { title: "Process Maps", href: "/docs/processes/maps" },
-      { title: "Anomaly Detection", href: "/docs/processes/anomalies" },
-    ],
-  },
-  {
-    title: "Guides",
-    items: [
-      { title: "Authentication", href: "/docs/guides/authentication" },
-      { title: "Organizations", href: "/docs/guides/organizations" },
-      { title: "API Keys", href: "/docs/guides/api-keys" },
     ],
   },
 ];

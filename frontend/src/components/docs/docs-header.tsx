@@ -10,9 +10,9 @@ import { useLogout } from "@/hooks/useLogout";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const navLinks = [
-  { href: "/docs", label: "Docs" },
+  { href: "/docs", label: "Документация" },
   { href: "/docs/sdk/overview", label: "SDK" },
-  { href: "/docs/sdk/rest-api", label: "API Reference" },
+  { href: "/docs/sdk/rest-api", label: "REST API" },
 ];
 
 function getInitials(displayName: string | null) {
@@ -64,7 +64,7 @@ function UserMenu({ displayName }: { displayName: string | null }) {
               className="block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100"
               onClick={() => setMenuOpen(false)}
             >
-              Dashboard
+              Платформа
             </Link>
             <button
               type="button"
@@ -100,22 +100,12 @@ export function DocsHeader() {
 
         <span className="text-zinc-300">/</span>
 
-        <nav className="flex items-center gap-1 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "rounded-lg px-3 py-1.5 transition-colors",
-                pathname === link.href
-                  ? "bg-zinc-100 text-zinc-900"
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <Link
+          href="/docs"
+          className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
+        >
+          Документация
+        </Link>
 
         <div className="ml-auto flex items-center gap-3">
           {isAuthenticated ? (

@@ -20,7 +20,7 @@ export function DocsToc({ items, activeId }: DocsTocProps) {
     <aside className="hidden w-56 shrink-0 xl:block">
       <div className="sticky top-14 py-6 pr-4">
         <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          On this page
+          На этой странице
         </h4>
         <ul className="space-y-1.5 text-sm">
           {items.map((item) => (
