@@ -27,10 +27,10 @@ export function SdkHeroSection() {
 
       <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-52 pt-40 text-center">
         <h1 className="text-6xl font-semibold tracking-tight text-zinc-950 sm:text-7xl">
-          enma SDK
+          Enma SDK
         </h1>
         <p className="mt-4 max-w-3xl text-2xl leading-tight text-zinc-800 sm:text-[2rem]">
-          .NET SDK for sending process events to enma
+          .NET SDK for sending process events to Enma
         </p>
 
         {/* Feature badges */}

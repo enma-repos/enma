@@ -20,7 +20,7 @@ export function ContactHeroSection() {
 
       <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-52 pt-40 text-center">
         <h1 className="text-6xl font-semibold tracking-tight text-zinc-950 sm:text-7xl">
-          Meet the team behind enma
+          Meet the team behind Enma
         </h1>
         <p className="mt-4 max-w-3xl text-2xl leading-tight text-zinc-800 sm:text-[2rem]">
           Enma is a process-mining platform developed as part of the XV Congress of Young Scientists at ITMO University

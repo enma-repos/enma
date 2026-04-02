@@ -41,7 +41,7 @@ export function LandingFooter() {
         </div>
 
         <p className="text-sm text-zinc-500">
-          &copy; {new Date().getFullYear()} enma. All rights reserved.
+          &copy; {new Date().getFullYear()} Enma. All rights reserved.
         </p>
       </div>
     </footer>
