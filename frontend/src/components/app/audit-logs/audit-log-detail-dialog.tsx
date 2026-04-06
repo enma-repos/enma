@@ -1,7 +1,7 @@
 "use client";
 
 import type { AuditLogDto } from "@/types/admin.types";
-import { Modal } from "@/components/shared";
+import { IconX, Modal } from "@/components/shared";
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -45,10 +45,7 @@ export function AuditLogDetailDialog({ log, open, onClose }: AuditLogDetailDialo
           className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 cursor-pointer"
           aria-label="Закрыть"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <IconX size={20} />
         </button>
       </div>
       <dl className="space-y-4 mt-4">

@@ -1,5 +1,7 @@
 "use client";
 
+import { IconX } from "@/components/shared";
+
 interface Props {
   minTransitions: number;
   onMinTransitionsChange: (value: number) => void;
@@ -47,14 +49,7 @@ export function FlowToolbar({
             onClick={onClearEntryEventFilter}
             className="ml-0.5 rounded-full p-0.5 text-indigo-400 hover:bg-indigo-100 hover:text-indigo-600"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path
-                d="M3 3l6 6M9 3l-6 6"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <IconX size={12} />
           </button>
         </div>
       )}

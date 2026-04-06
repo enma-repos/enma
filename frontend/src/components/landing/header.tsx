@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { navigationLinks } from "@/components/landing/content";
 import { EnmaLogoIcon } from "@/components/shared/enma-logo-icon";
+import { IconMenu, IconX } from "@/components/shared";
 import { usePathname } from "next/navigation";
 
 export function LandingHeader() {
@@ -49,13 +50,9 @@ export function LandingHeader() {
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <IconX className="h-5 w-5" />
               ) : (
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                </svg>
+                <IconMenu className="h-5 w-5" />
               )}
             </button>
           </div>
