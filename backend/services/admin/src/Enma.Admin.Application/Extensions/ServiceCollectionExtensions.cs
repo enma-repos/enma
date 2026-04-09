@@ -1,5 +1,6 @@
 using Enma.Admin.Application.Abstractions;
 using Enma.Admin.Application.Services;
+using Enma.Admin.Application.Services.Super;
 using Enma.Common.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISdkClientsService, SdkClientsService>();
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<INotificationsService, NotificationsService>();
+
+        services.AddScoped<ISuperStatsService, SuperStatsService>();
+        services.AddScoped<ISuperUsersService, SuperUsersService>();
+        services.AddScoped<ISuperOrganizationsService, SuperOrganizationsService>();
+        services.AddScoped<ISuperProjectsService, SuperProjectsService>();
+        services.AddScoped<ISuperAuditLogsService, SuperAuditLogsService>();
         
         services.AddSingleton<ISecretService>(sp =>
         {

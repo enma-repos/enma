@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using Enma.Admin.Application.Dto.Super;
 using Enma.Admin.Application.Models;
 using FluentResults;
 
@@ -54,4 +55,28 @@ public interface IProjectsRepository
 
     /// <summary>Counts non-deleted projects in an organization.</summary>
     Task<Result<int>> CountByOrgAsync(Guid orgId, CancellationToken ct = default);
+
+    // ---------- Super-admin (platform-wide) ----------
+
+    /// <summary>Platform-wide paged list of projects as list-item projections.</summary>
+    Task<Result<IReadOnlyList<SuperProjectListItemDto>>> ListSuperAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool includeDeleted,
+        Guid? organizationId,
+        CancellationToken ct = default);
+
+    /// <summary>Platform-wide count of projects matching filters.</summary>
+    Task<Result<int>> CountSuperAsync(
+        string? search,
+        bool includeDeleted,
+        Guid? organizationId,
+        CancellationToken ct = default);
+
+    /// <summary>Super-admin details view for a single project (includes org context, members, definitions counts).</summary>
+    Task<Result<SuperProjectDetailsDto>> GetSuperDetailsAsync(Guid projectId, CancellationToken ct = default);
+
+    /// <summary>Counts all projects (optionally including soft-deleted).</summary>
+    Task<Result<int>> CountAllAsync(bool includeDeleted, CancellationToken ct = default);
 }

@@ -1,4 +1,5 @@
 using Enma.Admin.Application.Contracts;
+using Enma.Admin.Application.Dto.Super;
 using Enma.Admin.Application.Models;
 using Enma.Admin.Persistence.Postgres.Connection;
 using Enma.Admin.Persistence.Postgres.Entities;
@@ -196,5 +197,139 @@ internal sealed class UsersRepository : IUsersRepository
         return affected == 0
             ? Result.Fail(ApplicationErrors.EntityNotFound("User", $"id={userId}"))
             : Result.Ok();
+    }
+
+    // ---------- Super-admin (platform-wide) ----------
+
+    public async Task<Result<IReadOnlyList<SuperUserListItemDto>>> ListSuperAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default)
+    {
+        var query = BuildSuperQuery(search, includeDeleted);
+
+        var items = await query
+            .OrderBy(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new SuperUserListItemDto(
+                x.Id,
+                x.Email,
+                x.DisplayName,
+                x.AvatarUrl,
+                _context.OrganizationMembers.Count(m => m.UserId == x.Id),
+                _context.ProjectMembers.Count(m => m.UserId == x.Id),
+                x.CreatedAt,
+                x.DeletedAt))
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<SuperUserListItemDto>>(items);
+    }
+
+    public async Task<Result<int>> CountSuperAsync(
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default)
+    {
+        var count = await BuildSuperQuery(search, includeDeleted).CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    public async Task<Result<SuperUserDetailsDto>> GetSuperDetailsAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .Where(x => x.Id == userId)
+            .Select(x => new { x.Id, x.Email, x.DisplayName, x.AvatarUrl, x.Locale, x.Timezone, x.CreatedAt, x.UpdatedAt, x.DeletedAt })
+            .FirstOrDefaultAsync(ct);
+
+        if (user is null)
+        {
+            return Result.Fail<SuperUserDetailsDto>(ApplicationErrors.EntityNotFound("User", $"id={userId}"));
+        }
+
+        var organizations = await _context.OrganizationMembers
+            .AsNoTracking()
+            .Where(m => m.UserId == userId)
+            .Join(_context.Organizations,
+                m => m.OrganizationId,
+                o => o.Id,
+                (m, o) => new SuperUserOrganizationMembershipDto(
+                    o.Id,
+                    o.Name,
+                    o.Slug,
+                    m.Role,
+                    m.JoinedAt))
+            .OrderBy(x => x.OrganizationName)
+            .ToListAsync(ct);
+
+        var projects = await _context.ProjectMembers
+            .AsNoTracking()
+            .Where(m => m.UserId == userId)
+            .Join(_context.Projects,
+                m => m.ProjectId,
+                p => p.Id,
+                (m, p) => new { Member = m, Project = p })
+            .Join(_context.Organizations,
+                mp => mp.Project.OrganizationId,
+                o => o.Id,
+                (mp, o) => new SuperUserProjectMembershipDto(
+                    mp.Project.Id,
+                    mp.Project.Name,
+                    mp.Project.Key,
+                    o.Id,
+                    o.Name,
+                    mp.Member.Role,
+                    mp.Member.JoinedAt))
+            .OrderBy(x => x.OrganizationName)
+            .ThenBy(x => x.ProjectName)
+            .ToListAsync(ct);
+
+        return Result.Ok(new SuperUserDetailsDto(
+            user.Id,
+            user.Email,
+            user.DisplayName,
+            user.AvatarUrl,
+            user.Locale,
+            user.Timezone,
+            user.CreatedAt,
+            user.UpdatedAt,
+            user.DeletedAt,
+            organizations,
+            projects));
+    }
+
+    public async Task<Result<int>> CountAllAsync(bool includeDeleted, CancellationToken ct = default)
+    {
+        var query = _context.Users.AsNoTracking();
+        if (!includeDeleted)
+        {
+            query = query.Where(x => x.DeletedAt == null);
+        }
+
+        var count = await query.CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    private IQueryable<UserEntity> BuildSuperQuery(string? search, bool includeDeleted)
+    {
+        var query = _context.Users.AsNoTracking();
+
+        if (!includeDeleted)
+        {
+            query = query.Where(x => x.DeletedAt == null);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Email, term) ||
+                EF.Functions.ILike(x.DisplayName, term));
+        }
+
+        return query;
     }
 }

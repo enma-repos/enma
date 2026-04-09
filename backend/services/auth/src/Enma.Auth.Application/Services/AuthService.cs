@@ -27,6 +27,7 @@ internal sealed class AuthService : IAuthService
     private readonly ICryptographyService _cryptographyService;
     private readonly IAdminUsersClient _adminUsersClient;
     private readonly ICacheService _cacheService;
+    private readonly ISuperAdminPolicy _superAdminPolicy;
 
     private readonly int _refreshTokenLifetimeDays;
     private readonly int _stateCacheTtlMinutes;
@@ -40,6 +41,7 @@ internal sealed class AuthService : IAuthService
         IAdminUsersClient adminUsersClient,
         ICryptographyService cryptographyService,
         ICacheService cacheService,
+        ISuperAdminPolicy superAdminPolicy,
         IOptions<AuthOptions> authOptions)
     {
         _externalAuthProviderFabric = externalAuthProviderFabric;
@@ -50,10 +52,14 @@ internal sealed class AuthService : IAuthService
         _adminUsersClient = adminUsersClient;
         _cryptographyService = cryptographyService;
         _cacheService = cacheService;
+        _superAdminPolicy = superAdminPolicy;
 
         _stateCacheTtlMinutes = authOptions.Value.StateCacheTtlMinutes;
         _refreshTokenLifetimeDays = authOptions.Value.RefreshTokenLifetimeDays;
     }
+
+    private UserRole ResolveRole(Account account)
+        => _superAdminPolicy.IsSuperAdmin(account.Email.Value) ? UserRole.SuperAdmin : UserRole.Member;
 
     public async Task<Result<string>> GetProviderUrlAsync(StartExternalAuthRequestDto dto)
     {
@@ -220,7 +226,7 @@ internal sealed class AuthService : IAuthService
             return Result.Fail<AuthTokensDto>(rotateResult.Errors);
         }
 
-        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenBuildResult.Value.Model.Id);
+        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenBuildResult.Value.Model.Id, ResolveRole(account));
         return Result.Ok(new AuthTokensDto(
             AccessToken: accessToken,
             RefreshToken: newTokenBuildResult.Value.Plain,
@@ -252,18 +258,22 @@ internal sealed class AuthService : IAuthService
         {
             return Result.Fail<MeDto>(accountResult.Errors);
         }
-        
+
+        var role = ResolveRole(accountResult.Value);
+
         var userResult = await _adminUsersClient.GetUserAsync(accountId, ct);
         if (userResult.IsFailed)
         {
             return Result.Ok(new MeDto(
                 Account: accountResult.Value.ToDto(),
-                User: null));
+                User: null,
+                Role: role));
         }
 
         return Result.Ok(new MeDto(
             Account: accountResult.Value.ToDto(),
-            User: userResult.Value));
+            User: userResult.Value,
+            Role: role));
     }
 
     public async Task<Result<CompleteOnboardingResultDto>> CompleteOnboardingAsync(
@@ -325,7 +335,7 @@ internal sealed class AuthService : IAuthService
             return Result.Fail<AuthTokensDto>(newTokenResult.Errors);
         }
 
-        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenResult.Value.TokenId);
+        var accessToken = _accessTokenProvider.GenerateToken(account, newTokenResult.Value.TokenId, ResolveRole(account));
         return Result.Ok(new AuthTokensDto(
             AccessToken: accessToken,
             RefreshToken: newTokenResult.Value.PlainToken,

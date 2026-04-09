@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using Enma.Admin.Application.Dto.Super;
 using Enma.Admin.Application.Models;
 using FluentResults;
 
@@ -37,4 +38,26 @@ public interface IOrganizationsRepository
 
     /// <summary>Soft-deletes an organization (sets DeletedAt).</summary>
     Task<Result> SoftDeleteAsync(Guid orgId, CancellationToken ct = default);
+
+    // ---------- Super-admin (platform-wide) ----------
+
+    /// <summary>Platform-wide paged list of organizations as list-item projections.</summary>
+    Task<Result<IReadOnlyList<SuperOrganizationListItemDto>>> ListSuperAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default);
+
+    /// <summary>Platform-wide count of organizations matching search/includeDeleted.</summary>
+    Task<Result<int>> CountSuperAsync(
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default);
+
+    /// <summary>Super-admin details view for a single organization.</summary>
+    Task<Result<SuperOrganizationDetailsDto>> GetSuperDetailsAsync(Guid organizationId, CancellationToken ct = default);
+
+    /// <summary>Counts all organizations (optionally including soft-deleted).</summary>
+    Task<Result<int>> CountAllAsync(bool includeDeleted, CancellationToken ct = default);
 }

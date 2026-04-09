@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Enma.Admin.Api.Filters;
+using Enma.Common.Constants;
+using Enma.Common.Enums;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,7 +67,12 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy(AuthorizationPolicies.SuperAdmin, p =>
+        p.RequireAuthenticatedUser()
+         .RequireClaim(AuthorizationPolicies.RoleClaimType, nameof(UserRole.SuperAdmin)));
+});
 
 builder.Services.AddControllers(o =>
 {

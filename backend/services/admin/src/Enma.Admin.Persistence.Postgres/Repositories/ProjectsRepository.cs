@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Enma.Admin.Application.Contracts;
+using Enma.Admin.Application.Dto.Super;
 using Enma.Admin.Application.Models;
 using Enma.Admin.Persistence.Postgres.Connection;
 using Enma.Admin.Persistence.Postgres.Entities;
@@ -267,5 +268,150 @@ internal sealed class ProjectsRepository : IProjectsRepository
             .CountAsync(ct);
 
         return Result.Ok(count);
+    }
+
+    // ---------- Super-admin (platform-wide) ----------
+
+    public async Task<Result<IReadOnlyList<SuperProjectListItemDto>>> ListSuperAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool includeDeleted,
+        Guid? organizationId,
+        CancellationToken ct = default)
+    {
+        var query = BuildSuperQuery(search, includeDeleted, organizationId);
+
+        var items = await query
+            .OrderBy(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Join(_context.Organizations,
+                p => p.OrganizationId,
+                o => o.Id,
+                (p, o) => new SuperProjectListItemDto(
+                    p.Id,
+                    p.Name,
+                    p.Key,
+                    p.Description,
+                    p.OrganizationId,
+                    o.Name,
+                    o.Slug,
+                    _context.ProjectMembers.Count(m => m.ProjectId == p.Id),
+                    p.CreatedAt,
+                    p.DeletedAt,
+                    p.ArchivedAt))
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<SuperProjectListItemDto>>(items);
+    }
+
+    public async Task<Result<int>> CountSuperAsync(
+        string? search,
+        bool includeDeleted,
+        Guid? organizationId,
+        CancellationToken ct = default)
+    {
+        var count = await BuildSuperQuery(search, includeDeleted, organizationId).CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    public async Task<Result<SuperProjectDetailsDto>> GetSuperDetailsAsync(Guid projectId, CancellationToken ct = default)
+    {
+        var project = await _context.Projects
+            .AsNoTracking()
+            .Where(p => p.Id == projectId)
+            .Join(_context.Organizations,
+                p => p.OrganizationId,
+                o => o.Id,
+                (p, o) => new
+                {
+                    p.Id, p.Name, p.Key, p.Description,
+                    OrganizationId = o.Id,
+                    OrganizationName = o.Name,
+                    OrganizationSlug = o.Slug,
+                    p.CreatedByUserId,
+                    p.CreatedAt, p.UpdatedAt, p.DeletedAt, p.ArchivedAt,
+                    SdkClientCount = _context.ApiClients.Count(s => s.ProjectId == p.Id),
+                    ProcessDefinitionCount = _context.ProcessDefinitions.Count(d => d.ProjectId == p.Id),
+                    EventDefinitionCount = _context.EventDefinitions.Count(d => d.ProjectId == p.Id)
+                })
+            .FirstOrDefaultAsync(ct);
+
+        if (project is null)
+        {
+            return Result.Fail<SuperProjectDetailsDto>(ApplicationErrors.EntityNotFound("Project", $"id={projectId}"));
+        }
+
+        var members = await _context.ProjectMembers
+            .AsNoTracking()
+            .Where(m => m.ProjectId == projectId)
+            .Join(_context.Users,
+                m => m.UserId,
+                u => u.Id,
+                (m, u) => new SuperProjectMemberDto(
+                    u.Id,
+                    u.Email,
+                    u.DisplayName,
+                    u.AvatarUrl,
+                    m.Role,
+                    m.JoinedAt))
+            .OrderBy(x => x.Email)
+            .ToListAsync(ct);
+
+        return Result.Ok(new SuperProjectDetailsDto(
+            project.Id,
+            project.Name,
+            project.Key,
+            project.Description,
+            project.OrganizationId,
+            project.OrganizationName,
+            project.OrganizationSlug,
+            project.CreatedByUserId,
+            project.CreatedAt,
+            project.UpdatedAt,
+            project.DeletedAt,
+            project.ArchivedAt,
+            project.SdkClientCount,
+            project.ProcessDefinitionCount,
+            project.EventDefinitionCount,
+            members));
+    }
+
+    public async Task<Result<int>> CountAllAsync(bool includeDeleted, CancellationToken ct = default)
+    {
+        var query = _context.Projects.AsNoTracking();
+        if (!includeDeleted)
+        {
+            query = query.Where(x => x.DeletedAt == null);
+        }
+
+        var count = await query.CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    private IQueryable<ProjectEntity> BuildSuperQuery(string? search, bool includeDeleted, Guid? organizationId)
+    {
+        var query = _context.Projects.AsNoTracking();
+
+        if (!includeDeleted)
+        {
+            query = query.Where(x => x.DeletedAt == null);
+        }
+
+        if (organizationId is not null)
+        {
+            query = query.Where(x => x.OrganizationId == organizationId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Name, term) ||
+                EF.Functions.ILike(x.Key, term));
+        }
+
+        return query;
     }
 }

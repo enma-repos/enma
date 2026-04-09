@@ -77,6 +77,71 @@ internal sealed class AuditLogsRepository : IAuditLogsRepository
         return Result.Ok(count);
     }
 
+    public async Task<Result<IReadOnlyList<AuditLog>>> ListAllAsync(
+        DateTime? from,
+        DateTime? to,
+        string? action,
+        string? resourceType,
+        Guid? actorUserId,
+        Guid? organizationId,
+        Guid? projectId,
+        int page,
+        int pageSize,
+        string? search = null,
+        CancellationToken ct = default)
+    {
+        var query = BuildAllQuery(from, to, action, resourceType, actorUserId, organizationId, projectId, search);
+
+        var entities = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(ProjectEntity())
+            .ToListAsync(ct);
+
+        return Result.Ok<IReadOnlyList<AuditLog>>(entities.Select(x => x.ToModel()).ToList());
+    }
+
+    public async Task<Result<int>> CountAllAsync(
+        DateTime? from,
+        DateTime? to,
+        string? action,
+        string? resourceType,
+        Guid? actorUserId,
+        Guid? organizationId,
+        Guid? projectId,
+        string? search = null,
+        CancellationToken ct = default)
+    {
+        var count = await BuildAllQuery(from, to, action, resourceType, actorUserId, organizationId, projectId, search).CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    public async Task<Result<int>> CountRecentAllAsync(DateTime since, CancellationToken ct = default)
+    {
+        var count = await _context.AuditLogs
+            .AsNoTracking()
+            .Where(x => x.CreatedAt >= since)
+            .CountAsync(ct);
+        return Result.Ok(count);
+    }
+
+    private IQueryable<AuditLogEntity> BuildAllQuery(
+        DateTime? from, DateTime? to,
+        string? action, string? resourceType, Guid? actorUserId,
+        Guid? organizationId, Guid? projectId, string? search)
+    {
+        var query = _context.AuditLogs.AsNoTracking();
+
+        if (organizationId is not null)
+            query = query.Where(x => x.OrganizationId == organizationId.Value);
+
+        if (projectId is not null)
+            query = query.Where(x => x.ProjectId == projectId.Value);
+
+        return ApplyFilters(query, from, to, action, resourceType, actorUserId, search);
+    }
+
     private IQueryable<AuditLogEntity> BuildOrgQuery(
         Guid orgId, DateTime? from, DateTime? to,
         string? action, string? resourceType, Guid? actorUserId, string? search)

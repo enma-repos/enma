@@ -182,4 +182,10 @@ internal sealed class ApiKeysRepository : IApiKeysRepository
 
         return Result.Ok(result);
     }
+
+    public async Task<Result<int>> CountAllAsync(CancellationToken ct = default)
+    {
+        var count = await _context.ApiKeys.AsNoTracking().CountAsync(ct);
+        return Result.Ok(count);
+    }
 }

@@ -40,4 +40,7 @@ public interface IApiKeysRepository
     /// Used for SDK API key authentication.
     /// </summary>
     Task<Result<ApiKeyWithContextDto?>> FindActiveByHashAsync(string keyHash, string keyPrefix, CancellationToken ct = default);
+
+    /// <summary>Counts all API keys across the platform (used for super-admin overview).</summary>
+    Task<Result<int>> CountAllAsync(CancellationToken ct = default);
 }

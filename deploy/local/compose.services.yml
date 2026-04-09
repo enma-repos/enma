@@ -102,6 +102,8 @@ services:
 
       - AdminGrpc__Address=${ADMIN_GRPC_ADDRESS}
       - AdminGrpc__DeadlineMs=${ADMIN_GRPC_DEADLINE_MS}
+
+      - SuperAdmin__EmailsRaw=${SUPER_ADMIN_EMAILS}
     ports:
       - "8082:8080"
     networks:

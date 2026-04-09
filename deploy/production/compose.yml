@@ -190,6 +190,7 @@ services:
       - GoogleProvider__ClockSkewSeconds=${GOOGLE_CLOCK_SKEW_SECONDS}
       - AdminGrpc__Address=${ADMIN_GRPC_ADDRESS}
       - AdminGrpc__DeadlineMs=${ADMIN_GRPC_DEADLINE_MS}
+      - SuperAdmin__EmailsRaw=${SUPER_ADMIN_EMAILS}
     networks:
       - enma
     restart: unless-stopped

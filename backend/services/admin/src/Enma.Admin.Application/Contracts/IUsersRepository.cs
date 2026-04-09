@@ -1,3 +1,4 @@
+using Enma.Admin.Application.Dto.Super;
 using Enma.Admin.Application.Models;
 using FluentResults;
 
@@ -42,4 +43,26 @@ public interface IUsersRepository
 
     /// <summary>Soft-deletes a user (sets DeletedAt).</summary>
     Task<Result> SoftDeleteAsync(Guid userId, CancellationToken ct = default);
+
+    // ---------- Super-admin (platform-wide) ----------
+
+    /// <summary>Platform-wide paged list of users as list-item projections.</summary>
+    Task<Result<IReadOnlyList<SuperUserListItemDto>>> ListSuperAsync(
+        int page,
+        int pageSize,
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default);
+
+    /// <summary>Platform-wide count of users matching search/includeDeleted.</summary>
+    Task<Result<int>> CountSuperAsync(
+        string? search,
+        bool includeDeleted,
+        CancellationToken ct = default);
+
+    /// <summary>Super-admin details view for a single user (includes org and project memberships).</summary>
+    Task<Result<SuperUserDetailsDto>> GetSuperDetailsAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>Counts all users (optionally including soft-deleted).</summary>
+    Task<Result<int>> CountAllAsync(bool includeDeleted, CancellationToken ct = default);
 }

@@ -20,11 +20,14 @@ public static class ServiceCollectionExtensions
             .Validate(o => o.StateCacheTtlMinutes > 0,
                 "Auth:StateCacheTtlMinutes must be greater than 0.")
             .ValidateOnStart();
-        
+
+        services.Configure<SuperAdminOptions>(configuration.GetSection("SuperAdmin"));
+
         services.AddScoped<IAccountsService, AccountsService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddSingleton<IExternalAuthProviderFabric, ExternalAuthProviderFabric>();
-        
+        services.AddSingleton<ISuperAdminPolicy, SuperAdminPolicy>();
+
         return services;
     }
 }

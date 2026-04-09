@@ -45,9 +45,12 @@ export interface AdminUserDto {
   deletedAt: IsoDateString | null;
 }
 
+export type UserRole = "Member" | "SuperAdmin";
+
 export interface MeDto {
   account: GetAccountResponseDto;
   user: AdminUserDto | null;
+  role: UserRole;
 }
 
 export interface CompleteOnboardingDto {
